@@ -90,34 +90,59 @@ body {
   text-align-last: left;
 }
 
-/* Left-to-Right Swipe Animations */
-@keyframes cardExitRight {
+/* Synchronized Dual-Card Sliding Transitions */
+@keyframes slideOutToRight {
   0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(120%, 0, 0) rotate(6deg);
-    opacity: 0;
+    transform: translate3d(100%, 0, 0);
   }
 }
 
-@keyframes cardEnterLeft {
+@keyframes slideInFromLeft {
   0% {
-    transform: translate3d(-70px, 0, 0);
-    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
   }
   100% {
     transform: translate3d(0, 0, 0);
-    opacity: 1;
   }
 }
 
-.animate-card-exit-right {
-  animation: cardExitRight 180ms cubic-bezier(0.32, 0, 0.67, 0) forwards;
+@keyframes slideOutToLeft {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translate3d(100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-slide-out-right {
+  animation: slideOutToRight 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
 
-.animate-card-enter-left {
-  animation: cardEnterLeft 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-slide-in-left {
+  animation: slideInFromLeft 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+.animate-slide-out-left {
+  animation: slideOutToLeft 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  pointer-events: none;
 }

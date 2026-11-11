@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import React from 'react'
 import { Star, ExternalLink, Sparkles } from '@/components/ui/MaterialIcons'
 import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
 
@@ -6,11 +6,11 @@ interface FlashcardViewProps {
   card: FlashcardItem;
   progress: LocalCardProgress | null;
   isFlipped: boolean;
-  onFlip: () => void;
-  onToggleBookmark: () => void;
-  onSwipeNext?: () => void;
+  onFlip?: () => void;
+  onToggleBookmark?: () => void;
   cardIndexLabel?: string;
-  isExiting?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export function FlashcardView({
@@ -19,9 +19,9 @@ export function FlashcardView({
   isFlipped,
   onFlip,
   onToggleBookmark,
-  onSwipeNext,
   cardIndexLabel,
-  isExiting,
+  className = '',
+  style,
 }: FlashcardViewProps) {
   const isBookmarked = Boolean(progress?.bookmarked)
   const reps = progress?.fsrs?.reps ?? 0
@@ -29,160 +29,15 @@ export function FlashcardView({
   const stateCode = progress?.fsrs?.state ?? 0
   const stateLabel = stateCode === 0 ? 'New' : stateCode === 1 ? 'Learning' : 'Review'
 
-  const [dragX, setDragX] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const [isLocalExiting, setIsLocalExiting] = useState(false)
-
-  const pointerStartXRef = useRef(0)
-  const pointerStartYRef = useRef(0)
-  const pointerStartTimeRef = useRef(0)
-  const isDraggingRef = useRef(false)
-  const hasMovedRef = useRef(false)
-  const isLockedVerticalRef = useRef(false)
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest('button, a')) return
-    if (isExiting || isLocalExiting) return
-
-    pointerStartXRef.current = e.clientX
-    pointerStartYRef.current = e.clientY
-    pointerStartTimeRef.current = Date.now()
-    isDraggingRef.current = false
-    hasMovedRef.current = false
-    isLockedVerticalRef.current = false
-    setDragX(0)
-  }
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isExiting || isLocalExiting) return
-
-    const deltaX = e.clientX - pointerStartXRef.current
-    const deltaY = e.clientY - pointerStartYRef.current
-
-    if (!hasMovedRef.current) {
-      if (Math.abs(deltaX) > 6 || Math.abs(deltaY) > 6) {
-        hasMovedRef.current = true
-        if (Math.abs(deltaY) > Math.abs(deltaX)) {
-          isLockedVerticalRef.current = true
-          return
-        }
-        isDraggingRef.current = true
-        setIsDragging(true)
-        try {
-          e.currentTarget.setPointerCapture(e.pointerId)
-        } catch {
-          // Ignore capture error
-        }
-      } else {
-        return
-      }
-    }
-
-    if (isLockedVerticalRef.current || !isDraggingRef.current) return
-
-    // Swipe left-to-right: allow rightward drag, rubber-band leftward drag
-    const effectiveX = deltaX > 0 ? deltaX : deltaX * 0.18
-    setDragX(effectiveX)
-  }
-
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isExiting || isLocalExiting) return
-
-    const deltaX = e.clientX - pointerStartXRef.current
-    const deltaY = e.clientY - pointerStartYRef.current
-    const elapsed = Date.now() - pointerStartTimeRef.current
-
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      // Ignore release error
-    }
-
-    const wasDragging = isDraggingRef.current
-    isDraggingRef.current = false
-    setIsDragging(false)
-
-    // Tap detected
-    if (!wasDragging && !hasMovedRef.current && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10 && elapsed < 400) {
-      setDragX(0)
-      onFlip()
-      return
-    }
-
-    if (!wasDragging) return
-
-    // Swipe left-to-right: threshold > 70px or fast flick
-    const isFlick = elapsed < 280 && deltaX > 45
-    if (deltaX > 70 || isFlick) {
-      if (onSwipeNext) {
-        setIsLocalExiting(true)
-        setTimeout(() => {
-          onSwipeNext()
-          setIsLocalExiting(false)
-          setDragX(0)
-        }, 180)
-      } else {
-        setDragX(0)
-      }
-    } else {
-      setDragX(0)
-    }
-  }
-
-  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      // Ignore release error
-    }
-    isDraggingRef.current = false
-    setIsDragging(false)
-    setDragX(0)
-  }
-
-  // Determine active animation / transform
-  let animationClass = ''
-  let dynamicStyle: React.CSSProperties = {
-    boxShadow: 'var(--card-shadow)',
-    touchAction: 'pan-y',
-  }
-
-  if (isExiting) {
-    animationClass = 'animate-card-exit-right'
-  } else if (isLocalExiting) {
-    dynamicStyle = {
-      ...dynamicStyle,
-      transform: 'translate3d(120%, 0, 0) rotate(6deg)',
-      opacity: 0,
-      transition: 'transform 180ms cubic-bezier(0.32, 0, 0.67, 0), opacity 180ms ease-out',
-      pointerEvents: 'none',
-    }
-  } else if (isDragging) {
-    dynamicStyle = {
-      ...dynamicStyle,
-      transform: `translate3d(${dragX}px, 0, 0) rotate(${dragX * 0.04}deg)`,
-      opacity: 1 - Math.min(Math.max(dragX, 0) / 450, 0.35),
-      transition: 'none',
-    }
-  } else if (dragX !== 0) {
-    dynamicStyle = {
-      ...dynamicStyle,
-      transform: 'translate3d(0, 0, 0) rotate(0deg)',
-      opacity: 1,
-      transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease',
-    }
-  } else {
-    animationClass = 'animate-card-enter-left'
-  }
-
   return (
     <div
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerCancel}
-      style={dynamicStyle}
-      className={`cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 min-h-[400px] flex flex-col justify-between active:scale-[0.99] will-change-transform ${animationClass}`}
+      onClick={onFlip}
+      style={{
+        boxShadow: 'var(--card-shadow)',
+        touchAction: 'pan-y',
+        ...style,
+      }}
+      className={`cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 min-h-[420px] flex flex-col justify-between active:scale-[0.99] transition-transform duration-100 ${className}`}
     >
       {/* Top Metadata Header */}
       <div>
@@ -198,21 +53,23 @@ export function FlashcardView({
           </div>
 
           {/* Bookmark Star Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onToggleBookmark()
-            }}
-            onPointerDown={(e) => e.stopPropagation()}
-            className="p-1.5 rounded-lg text-[var(--fg-card)] hover:opacity-80 transition-opacity"
-            title={isBookmarked ? 'Remove Star (B)' : 'Star Card (B)'}
-          >
-            <Star
-              className={`w-4 h-4 transition-all ${
-                isBookmarked ? 'fill-current' : ''
-              }`}
-            />
-          </button>
+          {onToggleBookmark && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleBookmark()
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="p-1.5 rounded-lg text-[var(--fg-card)] hover:opacity-80 transition-opacity"
+              title={isBookmarked ? 'Remove Star (B)' : 'Star Card (B)'}
+            >
+              <Star
+                className={`w-4 h-4 transition-all ${
+                  isBookmarked ? 'fill-current' : ''
+                }`}
+              />
+            </button>
+          )}
         </div>
 
         {/* Term / Concept (Space Grotesk) */}

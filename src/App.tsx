@@ -5,7 +5,7 @@ import { useCardProgress } from '@/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { AppHeader, type StudyMode, type ColorPaletteMode } from '@/components/layout/AppHeader'
 import type { CramFilter } from '@/components/study/FilterBar'
-import { FlashcardView } from '@/components/study/FlashcardView'
+import { CardSlider } from '@/components/study/CardSlider'
 import { RatingBar } from '@/components/study/RatingBar'
 import { LibraryDrawer } from '@/components/libraries/LibraryDrawer'
 import { getIntervalPreviews, Rating, type ValidRating } from '@/lib/fsrs'
@@ -148,27 +148,39 @@ export default function App() {
   const currentProgress = currentKey ? getCardProgressData(currentKey, currentLibraryId, currentCard?.id || '') : null
   const currentFsrs = currentKey ? getFsrsCard(currentKey, currentLibraryId, currentCard?.id || '') : null
 
+  // Next card for dual-card synchronized sliding transition
+  const nextIndex = currentDeck.length > 1 ? (safeIndex + 1) % currentDeck.length : safeIndex
+  const nextCard = currentDeck.length > 1 ? currentDeck[nextIndex] : currentCard
+  const nextLibraryId = nextCard ? getCardLibraryId(nextCard.id) : STARTER_LIBRARY_ID
+  const nextKey = nextCard ? makeCardCompositeKey(nextLibraryId, nextCard.id) : ''
+  const nextProgress = nextKey ? getCardProgressData(nextKey, nextLibraryId, nextCard?.id || '') : null
+
   // Calculate live next interval previews for Due mode
   const intervalPreviews = useMemo(() => {
     if (!currentFsrs) return undefined
     return getIntervalPreviews(currentFsrs)
   }, [currentFsrs])
 
-  const [isExiting, setIsExiting] = useState(false)
+  const [isSliding, setIsSliding] = useState(false)
+  const [slideDirection, setSlideDirection] = useState<'left-to-right' | 'right-to-left'>('left-to-right')
   const isTransitioningRef = useRef(false)
 
-  // Advance with Left-to-Right swipe transition
-  const advanceWithSlide = useCallback((action: () => void) => {
-    if (isTransitioningRef.current) return
-    isTransitioningRef.current = true
-    setIsExiting(true)
+  // Synchronized Slide Transition (240ms dual-card slide)
+  const advanceWithSlide = useCallback(
+    (action: () => void, direction: 'left-to-right' | 'right-to-left' = 'left-to-right') => {
+      if (isTransitioningRef.current) return
+      isTransitioningRef.current = true
+      setSlideDirection(direction)
+      setIsSliding(true)
 
-    setTimeout(() => {
-      action()
-      setIsExiting(false)
-      isTransitioningRef.current = false
-    }, 180)
-  }, [])
+      setTimeout(() => {
+        action()
+        setIsSliding(false)
+        isTransitioningRef.current = false
+      }, 240)
+    },
+    [],
+  )
 
   // Handle Due Mode Rating
   const handleGradeDue = useCallback(
@@ -182,7 +194,7 @@ export default function App() {
         if (currentDeck.length > 1) {
           setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
         }
-      })
+      }, 'left-to-right')
     },
     [currentCard, currentKey, currentLibraryId, currentDeck.length, gradeCardDue, advanceWithSlide],
   )
@@ -203,7 +215,7 @@ export default function App() {
         if (currentDeck.length > 1) {
           setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
         }
-      })
+      }, 'left-to-right')
     },
     [
       currentCard,
@@ -217,39 +229,39 @@ export default function App() {
     ],
   )
 
-  // Handle Physical Left-to-Right Swipe Gesture
-  const handleSwipeNext = useCallback(() => {
-    if (isTransitioningRef.current) return
-    if (!currentCard || !currentKey) return
-
-    if (mode === 'due') {
-      gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
-      setSessionNow(Date.now())
-      setIsFlipped(false)
-      if (currentDeck.length > 1) {
-        setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
-      }
-    } else {
-      recordCramPractice(currentKey, currentLibraryId, currentCard.id)
-      if (countTowardSrsInCram) {
-        gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
-        setSessionNow(Date.now())
-      }
-      setIsFlipped(false)
-      if (currentDeck.length > 1) {
-        setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
-      }
-    }
-  }, [
-    mode,
-    currentCard,
-    currentKey,
-    currentLibraryId,
-    currentDeck.length,
-    countTowardSrsInCram,
-    gradeCardDue,
-    recordCramPractice,
-  ])
+  // Handle Swipe Advance (Both left-to-right and right-to-left gestures)
+  const handleSwipeAdvance = useCallback(
+    (direction: 'left-to-right' | 'right-to-left') => {
+      if (!currentCard || !currentKey) return
+      advanceWithSlide(() => {
+        if (mode === 'due') {
+          gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
+          setSessionNow(Date.now())
+        } else {
+          recordCramPractice(currentKey, currentLibraryId, currentCard.id)
+          if (countTowardSrsInCram) {
+            gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
+            setSessionNow(Date.now())
+          }
+        }
+        setIsFlipped(false)
+        if (currentDeck.length > 1) {
+          setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
+        }
+      }, direction)
+    },
+    [
+      mode,
+      currentCard,
+      currentKey,
+      currentLibraryId,
+      currentDeck.length,
+      countTowardSrsInCram,
+      gradeCardDue,
+      recordCramPractice,
+      advanceWithSlide,
+    ],
+  )
 
   // Handle Bookmark Toggle
   const handleToggleBookmark = useCallback(() => {
@@ -293,19 +305,24 @@ export default function App() {
         isSyncing={isSyncing}
       />
 
-      {/* Main Flashcard View */}
+      {/* Main Flashcard Stage with Synchronized Dual-Card Sliding Transitions */}
       <main className="my-auto py-4 overflow-x-hidden">
         {currentCard ? (
-          <FlashcardView
-            key={currentCard.id}
-            card={currentCard}
-            progress={currentProgress}
+          <CardSlider
+            currentCard={currentCard}
+            nextCard={nextCard}
+            currentProgress={currentProgress}
+            nextProgress={nextProgress}
             isFlipped={isFlipped}
             onFlip={() => setIsFlipped((prev) => !prev)}
             onToggleBookmark={handleToggleBookmark}
-            onSwipeNext={handleSwipeNext}
-            isExiting={isExiting}
-            cardIndexLabel={`Card ${safeIndex + 1} of ${currentDeck.length}${
+            onSwipeAdvance={handleSwipeAdvance}
+            isSliding={isSliding}
+            slideDirection={slideDirection}
+            currentCardIndexLabel={`Card ${safeIndex + 1} of ${currentDeck.length}${
+              mode === 'due' ? ' (Due)' : ' (Practice)'
+            }`}
+            nextCardIndexLabel={`Card ${nextIndex + 1} of ${currentDeck.length}${
               mode === 'due' ? ' (Due)' : ' (Practice)'
             }`}
           />
