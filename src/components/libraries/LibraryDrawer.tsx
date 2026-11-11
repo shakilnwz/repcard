@@ -199,13 +199,11 @@ export function LibraryDrawer({
               {/* If Cram Mode: Show Filter Bar & Schedule Count Toggle inside sidebar */}
               {mode === 'cram' && (
                 <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-xs space-y-3 mt-2">
-                  <div className="overflow-x-auto">
-                    <FilterBar
-                      currentFilter={cramFilter}
-                      onFilterChange={onCramFilterChange}
-                      counts={cramFilterCounts}
-                    />
-                  </div>
+                  <FilterBar
+                    currentFilter={cramFilter}
+                    onFilterChange={onCramFilterChange}
+                    counts={cramFilterCounts}
+                  />
 
                   <label className="flex items-center gap-2 pt-1 text-[11px] font-medium opacity-85 cursor-pointer">
                     <input
