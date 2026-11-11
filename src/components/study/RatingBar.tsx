@@ -17,8 +17,8 @@ const DUE_RATINGS: { rating: ValidRating; label: string; primary?: boolean }[] =
 ]
 
 const buttonClass = (primary?: boolean) =>
-  `h-full flex flex-col items-center justify-center px-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] hover:opacity-90 active:scale-95 transition-all text-center ${
-    primary ? 'shadow-md ring-2 ring-[var(--fg-card)]' : 'shadow-sm'
+  `key-depth h-full flex flex-col items-center justify-center px-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] hover:opacity-90 text-center ${
+    primary ? 'key-depth-primary' : ''
   }`
 
 export function RatingBar({
@@ -29,14 +29,15 @@ export function RatingBar({
   onGradeDue,
   onGradeCram,
 }: RatingBarProps) {
-  // Fixed height in every state, so swapping reveal <-> rating buttons never shifts the card above
+  // Fixed height in every state, so swapping reveal <-> rating buttons never shifts the card above.
+  // pb-1 keeps the keys' 4px depth lip inside that height.
   return (
-    <footer className="shrink-0 h-[72px] pt-2 select-none">
+    <footer className="shrink-0 h-[72px] pt-2 pb-1 select-none">
       {!isFlipped ? (
         // Thumb-reachable reveal (the card itself carries the tap / swipe hint)
         <button
           onClick={onReveal}
-          className="w-full h-full flex items-center justify-center gap-2 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-md ring-2 ring-[var(--fg-card)] hover:opacity-90 active:scale-[0.98] transition-all"
+          className="key-depth key-depth-primary w-full h-full flex items-center justify-center gap-2 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] hover:opacity-90"
         >
           <span className="text-sm font-bold">Show answer</span>
           <kbd className="px-1.5 py-0.5 rounded-md bg-[var(--fg-card)] text-[var(--bg-card)] text-[10px] font-bold">

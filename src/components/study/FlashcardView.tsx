@@ -41,12 +41,11 @@ export function FlashcardView({
     <div
       onClick={onFlip}
       style={{
-        boxShadow: 'var(--card-shadow)',
         // Vertical scroll and pinch-zoom stay native; horizontal drags drive the swipe
         touchAction: 'pan-y pinch-zoom',
         ...style,
       }}
-      className={`h-full cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 flex flex-col active:scale-[0.99] transition-transform duration-100 ${className}`}
+      className={`card-depth h-full cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 flex flex-col active:scale-[0.99] transition-transform duration-100 ${className}`}
     >
       {/* Top Metadata Header */}
       <div className="shrink-0">
