@@ -11,15 +11,35 @@ import {
   ShieldCheck,
   CheckCircle2,
   Database,
+  RotateCcw,
+  Palette,
+  Sparkles,
 } from 'lucide-react'
 import type { LibrarySource } from '@/types/schema'
 import { generateLibraryShareLink, type ImportableLibraryPayload } from '@/lib/hashImport'
 import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'
 import { BackupModal } from './BackupModal'
+import { FilterBar, type CramFilter } from '@/components/study/FilterBar'
+import type { StudyMode, ColorPaletteMode } from '@/components/layout/AppHeader'
 
 interface LibraryDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  // Study Mode & Filters
+  mode: StudyMode;
+  onModeChange: (mode: StudyMode) => void;
+  dueCount: number;
+  cramFilter: CramFilter;
+  onCramFilterChange: (filter: CramFilter) => void;
+  cramFilterCounts: Record<CramFilter, number>;
+  countTowardSrs: boolean;
+  onToggleCountTowardSrs: () => void;
+  // Quick Actions
+  canUndo: boolean;
+  onUndo: () => void;
+  colorMode: ColorPaletteMode;
+  onCycleColorMode: () => void;
+  // Libraries & Data
   libraries: LibrarySource[];
   syncingMap: Record<string, boolean>;
   pendingImport: ImportableLibraryPayload | null;
@@ -37,6 +57,18 @@ interface LibraryDrawerProps {
 export function LibraryDrawer({
   open,
   onOpenChange,
+  mode,
+  onModeChange,
+  dueCount,
+  cramFilter,
+  onCramFilterChange,
+  cramFilterCounts,
+  countTowardSrs,
+  onToggleCountTowardSrs,
+  canUndo,
+  onUndo,
+  colorMode,
+  onCycleColorMode,
   libraries,
   syncingMap,
   pendingImport,
@@ -85,6 +117,15 @@ export function LibraryDrawer({
     })
   }
 
+  const colorModeLabel =
+    colorMode === 'default'
+      ? 'Navy Canvas'
+      : colorMode === 'mint-canvas'
+      ? 'Mint Canvas'
+      : 'Pure Mint'
+
+  const isStarterOnly = libraries.length === 1 && libraries[0].id === STARTER_LIBRARY_ID
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -94,7 +135,7 @@ export function LibraryDrawer({
           <div className="flex items-center justify-between px-6 py-5 bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm">
             <div>
               <Dialog.Title className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
-                Libraries & Sync
+                Controls & Libraries
               </Dialog.Title>
               <p className="text-xs opacity-80 flex items-center gap-1 mt-0.5">
                 <ShieldCheck className="w-3.5 h-3.5" />
@@ -113,6 +154,102 @@ export function LibraryDrawer({
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+            {/* Section 1: Study Mode Switcher */}
+            <div className="space-y-3">
+              <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
+                Study Mode
+              </h3>
+
+              <div className="grid grid-cols-2 p-1 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm text-xs">
+                {/* Due Queue Mode */}
+                <button
+                  onClick={() => onModeChange('due')}
+                  className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-[family-name:var(--font-display)] font-bold transition-all ${
+                    mode === 'due'
+                      ? 'bg-[var(--bg-app)] text-[var(--fg-app)] shadow-xs'
+                      : 'text-[var(--bg-app)] opacity-80 hover:opacity-100'
+                  }`}
+                >
+                  <span>Due Queue</span>
+                  <span
+                    className={`px-1.5 py-0.2 text-[10px] rounded-full font-extrabold ${
+                      mode === 'due'
+                        ? 'bg-[var(--fg-app)] text-[var(--bg-app)]'
+                        : 'bg-[var(--bg-app)] text-[var(--fg-app)]'
+                    }`}
+                  >
+                    {dueCount}
+                  </span>
+                </button>
+
+                {/* Practice Anytime Cram Mode */}
+                <button
+                  onClick={() => onModeChange('cram')}
+                  className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-[family-name:var(--font-display)] font-bold transition-all ${
+                    mode === 'cram'
+                      ? 'bg-[var(--bg-app)] text-[var(--fg-app)] shadow-xs'
+                      : 'text-[var(--bg-app)] opacity-80 hover:opacity-100'
+                  }`}
+                >
+                  <span>Practice Anytime</span>
+                  <span className="text-[10px] opacity-75">(Cram)</span>
+                </button>
+              </div>
+
+              {/* If Cram Mode: Show Filter Bar & Schedule Count Toggle inside sidebar */}
+              {mode === 'cram' && (
+                <div className="p-3.5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-xs space-y-3 mt-2">
+                  <div className="overflow-x-auto">
+                    <FilterBar
+                      currentFilter={cramFilter}
+                      onFilterChange={onCramFilterChange}
+                      counts={cramFilterCounts}
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-2 pt-1 text-[11px] font-medium opacity-85 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={countTowardSrs}
+                      onChange={onToggleCountTowardSrs}
+                      className="rounded accent-[var(--bg-app)]"
+                    />
+                    <span>Count practice flips toward FSRS schedule</span>
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {/* Section 2: Quick Actions (Undo & Theme) */}
+            <div className="space-y-3">
+              <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
+                Actions & Appearance
+              </h3>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* Theme Cycle Button */}
+                <button
+                  onClick={onCycleColorMode}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+                  title="Switch 2-color layout"
+                >
+                  <Palette className="w-4 h-4" />
+                  <span>{colorModeLabel}</span>
+                </button>
+
+                {/* Undo Button */}
+                <button
+                  onClick={onUndo}
+                  disabled={!canUndo}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity disabled:opacity-40"
+                  title={canUndo ? 'Undo last rating (U)' : 'No recent rating to undo'}
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Undo Last (U)</span>
+                </button>
+              </div>
+            </div>
+
             {/* Pending URL Hash Import Banner */}
             {pendingImport && (
               <div className="p-4 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm space-y-3">
@@ -145,7 +282,19 @@ export function LibraryDrawer({
               </div>
             )}
 
-            {/* Configured Libraries List */}
+            {/* Starter Deck Alert */}
+            {isStarterOnly && (
+              <div className="p-3.5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-xs text-xs space-y-1">
+                <p className="font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> Using built-in starter deck
+                </p>
+                <p className="opacity-85 leading-relaxed">
+                  Add your personal Google Apps Script or JSON URL below to sync your cards.
+                </p>
+              </div>
+            )}
+
+            {/* Section 3: Configured Libraries List */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
@@ -285,7 +434,7 @@ export function LibraryDrawer({
               </div>
             </div>
 
-            {/* Add New Library Form */}
+            {/* Section 4: Add New Library Form */}
             <div className="p-5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm space-y-3.5">
               <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold flex items-center gap-1.5 opacity-90">
                 <Plus className="w-4 h-4" />
@@ -347,15 +496,7 @@ export function LibraryDrawer({
               </form>
             </div>
 
-            {/* Quick Tip on Privacy */}
-            <div className="p-4 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm text-xs space-y-1">
-              <p className="font-bold">Tip: 1-Tap Mobile Sync</p>
-              <p className="opacity-85 leading-relaxed">
-                Click <strong>Share Link</strong> on any library to copy an encrypted URL hash link. Open that link on your phone browser to instantly prefill your endpoint without typing.
-              </p>
-            </div>
-
-            {/* Backup & Restore Trigger */}
+            {/* Section 5: Backup & Restore */}
             <div className="pt-1">
               <button
                 type="button"

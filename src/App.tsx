@@ -4,7 +4,7 @@ import { useLibraries } from '@/hooks/useLibraries'
 import { useCardProgress } from '@/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { AppHeader, type StudyMode, type ColorPaletteMode } from '@/components/layout/AppHeader'
-import { FilterBar, type CramFilter } from '@/components/study/FilterBar'
+import type { CramFilter } from '@/components/study/FilterBar'
 import { FlashcardView } from '@/components/study/FlashcardView'
 import { RatingBar } from '@/components/study/RatingBar'
 import { LibraryDrawer } from '@/components/libraries/LibraryDrawer'
@@ -229,59 +229,15 @@ export default function App() {
     enabled: Boolean(currentCard),
   })
 
-  const isStarterOnly = libraries.length === 1 && libraries[0].id === STARTER_LIBRARY_ID
   const isSyncing = Object.values(syncingMap).some(Boolean)
-  const activeLibsCount = libraries.filter((l) => l.enabled).length
 
   return (
     <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-body)] flex flex-col justify-between max-w-lg mx-auto px-4 py-4 transition-colors duration-150">
-      {/* Top Header */}
+      {/* Top Header: Big Title & Sidebar Trigger */}
       <AppHeader
-        mode={mode}
-        onModeChange={(newMode) => {
-          setMode(newMode)
-          setCurrentIndex(0)
-          setIsFlipped(false)
-        }}
-        dueCount={dueCards.length}
-        canUndo={canUndo}
-        onUndo={handleUndo}
-        activeLibrariesCount={activeLibsCount}
+        onOpenSidebar={() => setDrawerOpen(true)}
         isSyncing={isSyncing}
-        onOpenLibraries={() => setDrawerOpen(true)}
-        colorMode={colorMode}
-        onCycleColorMode={cycleColorMode}
       />
-
-      {/* Cram Mode Filter Pills */}
-      {mode === 'cram' && (
-        <div className="mt-2.5">
-          <FilterBar
-            currentFilter={cramFilter}
-            onFilterChange={(f) => {
-              setCramFilter(f)
-              setCurrentIndex(0)
-              setIsFlipped(false)
-            }}
-            counts={cramFilterCounts}
-          />
-        </div>
-      )}
-
-      {/* Starter Deck Reminder Banner */}
-      {isStarterOnly && (
-        <div className="mt-3 p-3 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm flex items-center justify-between gap-2 text-xs">
-          <span className="truncate opacity-85">
-            Using built-in starter deck.
-          </span>
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="shrink-0 font-[family-name:var(--font-display)] font-bold text-[var(--bg-app)] underline hover:opacity-90 transition-opacity"
-          >
-            + Add Your Endpoint
-          </button>
-        </div>
-      )}
 
       {/* Main Flashcard View */}
       <main className="my-auto py-4">
@@ -334,21 +290,39 @@ export default function App() {
         )}
       </main>
 
-      {/* Bottom Rating Bar */}
+      {/* Bottom Rating Bar (Small tactile cards) */}
       <RatingBar
         isFlipped={isFlipped}
         mode={mode}
         intervalPreviews={intervalPreviews}
         onGradeDue={handleGradeDue}
         onGradeCram={handleGradeCram}
-        countTowardSrs={countTowardSrsInCram}
-        onToggleCountTowardSrs={() => setCountTowardSrsInCram((prev) => !prev)}
       />
 
-      {/* Library Drawer */}
+      {/* Sidebar / Controls & Libraries Drawer */}
       <LibraryDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
+        mode={mode}
+        onModeChange={(newMode) => {
+          setMode(newMode)
+          setCurrentIndex(0)
+          setIsFlipped(false)
+        }}
+        dueCount={dueCards.length}
+        cramFilter={cramFilter}
+        onCramFilterChange={(f) => {
+          setCramFilter(f)
+          setCurrentIndex(0)
+          setIsFlipped(false)
+        }}
+        cramFilterCounts={cramFilterCounts}
+        countTowardSrs={countTowardSrsInCram}
+        onToggleCountTowardSrs={() => setCountTowardSrsInCram((prev) => !prev)}
+        canUndo={canUndo}
+        onUndo={handleUndo}
+        colorMode={colorMode}
+        onCycleColorMode={cycleColorMode}
         libraries={libraries}
         syncingMap={syncingMap}
         pendingImport={pendingImport}
