@@ -1,59 +1,140 @@
 import { useState, useMemo } from 'react'
-import { Layers, Sparkles, BookOpen, RotateCcw, ExternalLink, CheckCircle2 } from 'lucide-react'
-import { STARTER_CARDS } from '@/lib/starterDeck'
+import {
+  Layers,
+  Sparkles,
+  RotateCcw,
+  ExternalLink,
+  CheckCircle2,
+  FolderGit2,
+} from 'lucide-react'
+import { useLibraries } from '@/hooks/useLibraries'
+import { LibraryDrawer } from '@/components/libraries/LibraryDrawer'
 import {
   createDefaultFsrsCard,
   getIntervalPreviews,
   gradeFsrsCard,
+  deserializeFsrsCard,
+  serializeFsrsCard,
   Rating,
   type ValidRating,
   type FsrsCard,
 } from '@/lib/fsrs'
+import {
+  getAllProgress,
+  saveCardProgress,
+} from '@/lib/storage'
+import { makeCardCompositeKey } from '@/types/schema'
+import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'
 
 export default function App() {
+  const {
+    libraries,
+    activeCards,
+    syncingMap,
+    pendingImport,
+    addLibrary,
+    toggleLibraryEnabled,
+    syncLibrary,
+    syncAll,
+    removeLibrary,
+    confirmPendingImport,
+    dismissPendingImport,
+  } = useLibraries()
+
+  const [drawerOpen, setDrawerOpen] = useState(() => Boolean(pendingImport))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
-  const [cardStates, setCardStates] = useState<Record<string, FsrsCard>>(() => {
-    const initial: Record<string, FsrsCard> = {}
-    STARTER_CARDS.forEach((card) => {
-      initial[card.id] = createDefaultFsrsCard()
-    })
-    return initial
-  })
-  const [historyStack, setHistoryStack] = useState<{ index: number; cardId: string; prevState: FsrsCard }[]>([])
 
-  const currentCard = STARTER_CARDS[currentIndex]
-  const currentFsrsCard = cardStates[currentCard.id] || createDefaultFsrsCard()
+  // Local card progress from storage keyed by "${libraryId}::${cardId}"
+  const [progressMap, setProgressMap] = useState<Record<string, FsrsCard>>(() => {
+    const stored = getAllProgress()
+    const map: Record<string, FsrsCard> = {}
+    for (const [key, val] of Object.entries(stored)) {
+      map[key] = deserializeFsrsCard(val.fsrs)
+    }
+    return map
+  })
+
+  // 1-step undo stack
+  const [historyStack, setHistoryStack] = useState<
+    { index: number; compositeKey: string; prevCard: FsrsCard }[]
+  >([])
+
+  // Clamped safe index derived during render
+  const safeCurrentIndex = currentIndex >= activeCards.length && activeCards.length > 0 ? 0 : currentIndex
+  const currentCard = activeCards[safeCurrentIndex] || activeCards[0]
+  const currentLibraryId = currentCard?.id ? (libraries.find((l) => l.enabled)?.id || STARTER_LIBRARY_ID) : STARTER_LIBRARY_ID
+  const currentCompositeKey = currentCard ? makeCardCompositeKey(currentLibraryId, currentCard.id) : ''
+
+  const currentFsrsCard = useMemo(() => {
+    if (!currentCompositeKey) return createDefaultFsrsCard()
+    return progressMap[currentCompositeKey] || createDefaultFsrsCard()
+  }, [currentCompositeKey, progressMap])
 
   const intervalPreviews = useMemo(() => {
     return getIntervalPreviews(currentFsrsCard)
   }, [currentFsrsCard])
 
   const handleGrade = (rating: ValidRating) => {
+    if (!currentCard || !currentCompositeKey) return
+
     const logItem = gradeFsrsCard(currentFsrsCard, rating)
+    const nextFsrs = logItem.card
+
+    // Push to undo stack
     setHistoryStack((prev) => [
       ...prev,
-      { index: currentIndex, cardId: currentCard.id, prevState: currentFsrsCard },
+      { index: currentIndex, compositeKey: currentCompositeKey, prevCard: currentFsrsCard },
     ])
-    setCardStates((prev) => ({
+
+    // Update in-memory state
+    setProgressMap((prev) => ({
       ...prev,
-      [currentCard.id]: logItem.card,
+      [currentCompositeKey]: nextFsrs,
     }))
+
+    // Persist to localStorage
+    saveCardProgress({
+      key: currentCompositeKey,
+      libraryId: currentLibraryId,
+      cardId: currentCard.id,
+      fsrs: serializeFsrsCard(nextFsrs),
+      cramCount: 0,
+      bookmarked: false,
+      lastRatedAt: new Date().toISOString(),
+    })
+
     setIsFlipped(false)
-    setCurrentIndex((prev) => (prev + 1) % STARTER_CARDS.length)
+    if (activeCards.length > 1) {
+      setCurrentIndex((prev) => (prev + 1) % activeCards.length)
+    }
   }
 
   const handleUndo = () => {
     if (historyStack.length === 0) return
     const last = historyStack[historyStack.length - 1]
-    setCardStates((prev) => ({
+
+    setProgressMap((prev) => ({
       ...prev,
-      [last.cardId]: last.prevState,
+      [last.compositeKey]: last.prevCard,
     }))
+
+    saveCardProgress({
+      key: last.compositeKey,
+      libraryId: currentLibraryId,
+      cardId: currentCard?.id || '',
+      fsrs: serializeFsrsCard(last.prevCard),
+      cramCount: 0,
+      bookmarked: false,
+      lastRatedAt: new Date().toISOString(),
+    })
+
     setCurrentIndex(last.index)
     setIsFlipped(false)
     setHistoryStack((prev) => prev.slice(0, -1))
   }
+
+  const isStarterActiveOnly = libraries.length === 1 && libraries[0].id === STARTER_LIBRARY_ID
 
   return (
     <div className="min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)] font-[family-name:var(--font-body)] flex flex-col justify-between max-w-lg mx-auto px-4 py-4">
@@ -83,92 +164,126 @@ export default function App() {
               <RotateCcw className="w-3.5 h-3.5" /> Undo
             </button>
           )}
-          <span className="px-2.5 py-1 text-xs font-[family-name:var(--font-display)] font-semibold rounded bg-[var(--bg-elevated)] text-[var(--accent-mint)] border border-[var(--border-subtle)]">
-            Card {currentIndex + 1}/{STARTER_CARDS.length}
-          </span>
+
+          {/* Library Drawer Trigger */}
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-[family-name:var(--font-display)] font-semibold rounded bg-[var(--bg-elevated)] text-[var(--accent-mint)] border border-[var(--border-subtle)] hover:border-[var(--accent-mint)]/60 transition-colors"
+            title="Manage libraries and endpoints"
+          >
+            <FolderGit2 className="w-3.5 h-3.5" />
+            <span>Libraries ({libraries.filter((l) => l.enabled).length})</span>
+          </button>
         </div>
       </header>
 
+      {/* Starter Deck Reminder Banner */}
+      {isStarterActiveOnly && (
+        <div className="mt-3 p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between gap-2 text-xs">
+          <span className="text-[var(--text-secondary)] truncate">
+            Using built-in starter deck.
+          </span>
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="shrink-0 font-[family-name:var(--font-display)] font-semibold text-[var(--accent-mint)] hover:underline"
+          >
+            + Add Your Library
+          </button>
+        </div>
+      )}
+
       {/* Main Flashcard Interactive Area */}
       <main className="my-auto py-4">
-        <div
-          onClick={() => setIsFlipped((prev) => !prev)}
-          className="cursor-pointer select-none rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-6 shadow-sm min-h-[380px] flex flex-col justify-between transition-all duration-150 active:scale-[0.99]"
-        >
-          {/* Card Top Metadata */}
-          <div>
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <span className="px-2.5 py-0.5 text-xs font-[family-name:var(--font-display)] font-semibold rounded bg-[var(--bg-elevated)] text-[var(--accent-mint)] border border-[var(--border-subtle)]">
-                {currentCard.domain}
-              </span>
-              <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1 font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--accent-mint)]" />
-                {currentCard.level}
-              </span>
+        {currentCard ? (
+          <div
+            onClick={() => setIsFlipped((prev) => !prev)}
+            className="cursor-pointer select-none rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-6 shadow-sm min-h-[380px] flex flex-col justify-between transition-all duration-150 active:scale-[0.99]"
+          >
+            {/* Card Top Metadata */}
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <span className="px-2.5 py-0.5 text-xs font-[family-name:var(--font-display)] font-semibold rounded bg-[var(--bg-elevated)] text-[var(--accent-mint)] border border-[var(--border-subtle)]">
+                  {currentCard.domain}
+                </span>
+                <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1 font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--accent-mint)]" />
+                  {currentCard.level}
+                </span>
+              </div>
+
+              {/* Term / Concept (Space Grotesk) */}
+              <h2 className="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)] mb-4">
+                {currentCard.term}
+              </h2>
             </div>
 
-            {/* Term / Concept (Space Grotesk) */}
-            <h2 className="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)] mb-4">
-              {currentCard.term}
-            </h2>
+            {/* Front / Back State */}
+            {!isFlipped ? (
+              <div className="my-auto py-10 text-center">
+                <p className="text-sm text-[var(--text-secondary)] font-medium">
+                  Tap card or click to reveal breakdown
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-4 border-t border-[var(--border-subtle)] animate-in fade-in duration-150">
+                <div>
+                  <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider text-[var(--accent-mint)] font-semibold mb-1">
+                    WHAT IT IS
+                  </p>
+                  <p className="text-sm text-[var(--text-primary)] leading-relaxed card-content-justified">
+                    {currentCard.fields.whatItIs}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-[var(--border-subtle)]">
+                  <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider text-[var(--accent-mint)] font-semibold mb-1">
+                    PROBLEM SOLVED
+                  </p>
+                  <p className="text-sm text-[var(--text-primary)] leading-relaxed card-content-justified">
+                    {currentCard.fields.problemSolved}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-[var(--border-subtle)]">
+                  <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider text-[var(--accent-mint)] font-semibold mb-1">
+                    PRODUCTION CONTEXT
+                  </p>
+                  <p className="text-sm text-[var(--text-primary)] leading-relaxed card-content-justified">
+                    {currentCard.fields.productionContext}
+                  </p>
+                  {currentCard.referenceUrl && (
+                    <a
+                      href={currentCard.referenceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 mt-2 text-xs text-[var(--accent-mint)] hover:underline"
+                    >
+                      <span>Reference Doc</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Card Footer */}
+            <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-secondary)]">
+              <span>Card {safeCurrentIndex + 1} of {activeCards.length}</span>
+              <span>Reps: {currentFsrsCard.reps}</span>
+            </div>
           </div>
-
-          {/* Front / Back State */}
-          {!isFlipped ? (
-            <div className="my-auto py-10 text-center">
-              <p className="text-sm text-[var(--text-secondary)] font-medium">
-                Tap card or click to reveal breakdown
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4 pt-4 border-t border-[var(--border-subtle)] animate-in fade-in duration-150">
-              <div>
-                <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider text-[var(--accent-mint)] font-semibold mb-1">
-                  WHAT IT IS
-                </p>
-                <p className="text-sm text-[var(--text-primary)] leading-relaxed card-content-justified">
-                  {currentCard.fields.whatItIs}
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[var(--border-subtle)]">
-                <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider text-[var(--accent-mint)] font-semibold mb-1">
-                  PROBLEM SOLVED
-                </p>
-                <p className="text-sm text-[var(--text-primary)] leading-relaxed card-content-justified">
-                  {currentCard.fields.problemSolved}
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-[var(--border-subtle)]">
-                <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider text-[var(--accent-mint)] font-semibold mb-1">
-                  PRODUCTION CONTEXT
-                </p>
-                <p className="text-sm text-[var(--text-primary)] leading-relaxed card-content-justified">
-                  {currentCard.fields.productionContext}
-                </p>
-                {currentCard.referenceUrl && (
-                  <a
-                    href={currentCard.referenceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 mt-2 text-xs text-[var(--accent-mint)] hover:underline"
-                  >
-                    <span>Reference Doc</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Bottom Card Footer */}
-          <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-secondary)]">
-            <span>Reps: {currentFsrsCard.reps}</span>
-            <span>State: {currentFsrsCard.state === 0 ? 'New' : currentFsrsCard.state === 1 ? 'Learning' : 'Review'}</span>
+        ) : (
+          <div className="p-8 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-center space-y-3">
+            <p className="text-sm text-[var(--text-secondary)]">No cards in active queue.</p>
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="py-2 px-4 rounded-lg bg-[var(--accent-mint)] text-[var(--accent-mint-fg)] font-[family-name:var(--font-display)] text-xs font-bold"
+            >
+              Open Libraries & Enable a Deck
+            </button>
           </div>
-        </div>
+        )}
       </main>
 
       {/* Bottom Rating Bar (Visible when flipped) */}
@@ -214,11 +329,26 @@ export default function App() {
         ) : (
           <div className="flex items-center justify-center gap-2 py-2 text-xs text-[var(--text-secondary)]">
             <CheckCircle2 className="w-4 h-4 text-[var(--accent-mint)]" />
-            <BookOpen className="w-4 h-4 text-[var(--accent-mint)]" />
-            <span>ts-fsrs v6 Engine Active • Tap card to reveal ratings</span>
+            <span>Tap card to reveal breakdown & rating buttons</span>
           </div>
         )}
       </footer>
+
+      {/* Library Sync Drawer */}
+      <LibraryDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        libraries={libraries}
+        syncingMap={syncingMap}
+        pendingImport={pendingImport}
+        onAddLibrary={addLibrary}
+        onToggleEnabled={toggleLibraryEnabled}
+        onSyncLibrary={syncLibrary}
+        onSyncAll={syncAll}
+        onRemoveLibrary={removeLibrary}
+        onConfirmPendingImport={confirmPendingImport}
+        onDismissPendingImport={dismissPendingImport}
+      />
     </div>
   )
 }
