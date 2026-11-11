@@ -14,7 +14,7 @@ import {
   RotateCcw,
   Palette,
   Sparkles,
-} from 'lucide-react'
+} from '@/components/ui/MaterialIcons'
 import type { LibrarySource } from '@/types/schema'
 import { generateLibraryShareLink, type ImportableLibraryPayload } from '@/lib/hashImport'
 import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'

@@ -8,7 +8,7 @@ import {
   CheckCircle2,
   AlertCircle,
   FileText,
-} from 'lucide-react'
+} from '@/components/ui/MaterialIcons'
 import { exportAppData, importAppData } from '@/lib/storage'
 
 interface BackupModalProps {

@@ -1,4 +1,4 @@
-import { Star, Flame, Sparkles } from 'lucide-react'
+import { Star, Flame, Sparkles } from '@/components/ui/MaterialIcons'
 
 export type CramFilter = 'all' | 'high' | 'low' | 'bookmarked' | 'hardest'
 

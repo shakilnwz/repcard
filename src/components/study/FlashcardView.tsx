@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Star, ExternalLink, Sparkles } from 'lucide-react'
+import { Star, ExternalLink, Sparkles } from '@/components/ui/MaterialIcons'
 import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
 
 interface FlashcardViewProps {

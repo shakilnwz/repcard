@@ -1,4 +1,4 @@
-import { Menu } from 'lucide-react'
+import { Menu } from '@/components/ui/MaterialIcons'
 
 export type StudyMode = 'due' | 'cram'
 export type ColorPaletteMode = 'default' | 'navy-canvas' | 'black-navy-card'

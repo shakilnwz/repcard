@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2 } from '@/components/ui/MaterialIcons'
 import { useLibraries } from '@/hooks/useLibraries'
 import { useCardProgress } from '@/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
