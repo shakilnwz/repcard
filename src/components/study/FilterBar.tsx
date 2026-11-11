@@ -22,7 +22,7 @@ export function FilterBar({ currentFilter, onFilterChange, counts }: FilterBarPr
     <div className="space-y-2">
       {/* Filter Header Label */}
       <div className="flex items-center justify-between text-xs font-semibold">
-        <span className="flex items-center gap-1 font-[family-name:var(--font-display)]">
+        <span className="flex items-center gap-1">
           <Sparkles className="w-3.5 h-3.5" /> Filter Practice Queue:
         </span>
         <span className="text-[11px] font-bold">

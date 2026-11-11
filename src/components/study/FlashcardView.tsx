@@ -37,13 +37,13 @@ export function FlashcardView({
         touchAction: 'pan-y',
         ...style,
       }}
-      className={`cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 min-h-[420px] flex flex-col justify-between active:scale-[0.99] transition-transform duration-100 ${className}`}
+      className={`h-full cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 flex flex-col active:scale-[0.99] transition-transform duration-100 ${className}`}
     >
       {/* Top Metadata Header */}
-      <div>
+      <div className="shrink-0">
         <div className="flex items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2.5 py-0.5 text-xs font-[family-name:var(--font-display)] font-semibold rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs">
+            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs">
               {card.domain}
             </span>
             <span className="text-xs flex items-center gap-1 font-medium px-2 py-0.5 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs">
@@ -52,91 +52,93 @@ export function FlashcardView({
             </span>
           </div>
 
-          {/* Bookmark Star Button */}
-          {onToggleBookmark && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onToggleBookmark()
-              }}
-              onPointerDown={(e) => e.stopPropagation()}
-              className="p-1.5 rounded-lg text-[var(--fg-card)] hover:opacity-80 transition-opacity"
-              title={isBookmarked ? 'Remove Star (B)' : 'Star Card (B)'}
-            >
-              <Star
-                className={`w-4 h-4 transition-all ${
-                  isBookmarked ? 'fill-current' : ''
-                }`}
-              />
-            </button>
-          )}
+          {/* Bookmark Star Button: always rendered so every card has the same header height */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggleBookmark?.()
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="p-1.5 rounded-lg text-[var(--fg-card)] hover:opacity-80 transition-opacity"
+            title={isBookmarked ? 'Remove Star (B)' : 'Star Card (B)'}
+            aria-label={isBookmarked ? 'Remove star' : 'Star card'}
+            aria-pressed={isBookmarked}
+          >
+            <Star
+              className={`w-4 h-4 transition-all ${
+                isBookmarked ? 'fill-current' : ''
+              }`}
+            />
+          </button>
         </div>
 
-        {/* Term / Concept (Space Grotesk) */}
-        <h2 className="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-bold tracking-tight text-[var(--fg-card)] mb-2">
+        {/* Term / Concept */}
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--fg-card)] mb-2">
           {card.term}
         </h2>
       </div>
 
-      {/* Front Face Prompt vs Back Face Structured Content */}
-      {!isFlipped ? (
-        <div className="my-auto py-12 text-center space-y-2">
-          <p className="text-sm font-medium text-[var(--fg-card)] opacity-85">
-            Tap card to flip • Swipe right for next
-          </p>
-          <p className="text-xs opacity-70">
-            or press <kbd className="px-2 py-0.5 text-xs rounded-md bg-[var(--fg-card)] text-[var(--bg-card)] font-bold shadow-xs">Space</kbd> to reveal breakdown
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-5 pt-4 animate-in fade-in duration-150">
-          {/* Block 1: WHAT IT IS */}
-          <div className="space-y-1">
-            <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
-              WHAT IT IS
+      {/* Body: fills the card and scrolls internally, so flipping never resizes the card */}
+      <div className="card-scroll flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain">
+        {!isFlipped ? (
+          <div className="my-auto py-8 text-center space-y-2">
+            <p className="text-sm font-medium text-[var(--fg-card)] opacity-85">
+              Tap card to flip • Swipe for next
             </p>
-            <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
-              {card.fields.whatItIs}
+            <p className="text-xs opacity-70">
+              or press <kbd className="px-2 py-0.5 text-xs rounded-md bg-[var(--fg-card)] text-[var(--bg-card)] font-bold shadow-xs">Space</kbd> to reveal breakdown
             </p>
           </div>
+        ) : (
+          <div className="space-y-5 pt-2 animate-fade-in">
+            {/* Block 1: WHAT IT IS */}
+            <div className="space-y-1">
+              <p className="text-xs uppercase tracking-wider font-bold opacity-80">
+                WHAT IT IS
+              </p>
+              <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
+                {card.fields.whatItIs}
+              </p>
+            </div>
 
-          {/* Block 2: PROBLEM SOLVED */}
-          <div className="space-y-1 pt-1">
-            <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
-              PROBLEM SOLVED
-            </p>
-            <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
-              {card.fields.problemSolved}
-            </p>
-          </div>
+            {/* Block 2: PROBLEM SOLVED */}
+            <div className="space-y-1 pt-1">
+              <p className="text-xs uppercase tracking-wider font-bold opacity-80">
+                PROBLEM SOLVED
+              </p>
+              <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
+                {card.fields.problemSolved}
+              </p>
+            </div>
 
-          {/* Block 3: PRODUCTION CONTEXT */}
-          <div className="space-y-1 pt-1">
-            <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
-              PRODUCTION CONTEXT
-            </p>
-            <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
-              {card.fields.productionContext}
-            </p>
-            {card.referenceUrl && (
-              <a
-                href={card.referenceUrl}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-semibold shadow-xs hover:opacity-90 transition-opacity"
-              >
-                <span>Reference Spec</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
+            {/* Block 3: PRODUCTION CONTEXT */}
+            <div className="space-y-1 pt-1">
+              <p className="text-xs uppercase tracking-wider font-bold opacity-80">
+                PRODUCTION CONTEXT
+              </p>
+              <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
+                {card.fields.productionContext}
+              </p>
+              {card.referenceUrl && (
+                <a
+                  href={card.referenceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-semibold shadow-xs hover:opacity-90 transition-opacity"
+                >
+                  <span>Reference Spec</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Card Footer Status */}
-      <div className="pt-5 flex items-center justify-between text-xs text-[var(--fg-card)] opacity-85">
+      <div className="shrink-0 pt-4 flex items-center justify-between text-xs text-[var(--fg-card)] opacity-85">
         <span>{cardIndexLabel || 'Card'}</span>
         <div className="flex items-center gap-2.5">
           {cramCount > 0 && <span>Practiced: {cramCount}×</span>}

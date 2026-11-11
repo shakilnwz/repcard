@@ -5,7 +5,7 @@ import { useCardProgress } from '@/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { AppHeader, type StudyMode, type ColorPaletteMode } from '@/components/layout/AppHeader'
 import type { CramFilter } from '@/components/study/FilterBar'
-import { CardSlider } from '@/components/study/CardSlider'
+import { CardSlider, type SlideDirection } from '@/components/study/CardSlider'
 import { RatingBar } from '@/components/study/RatingBar'
 import { LibraryDrawer } from '@/components/libraries/LibraryDrawer'
 import { getIntervalPreviews, Rating, type ValidRating } from '@/lib/fsrs'
@@ -42,7 +42,9 @@ export default function App() {
   const [mode, setMode] = useState<StudyMode>('due')
   const [cramFilter, setCramFilter] = useState<CramFilter>('all')
   const [drawerOpen, setDrawerOpen] = useState(() => Boolean(pendingImport))
-  const [currentIndex, setCurrentIndex] = useState(0)
+  // Which card is on screen: tracked by id (so it survives the deck re-sorting/shrinking after a
+  // grade or undo), with a positional fallback for when that card is no longer in the deck.
+  const [cursor, setCursor] = useState<{ id: string | null; index: number }>({ id: null, index: 0 })
   const [isFlipped, setIsFlipped] = useState(false)
   const [countTowardSrsInCram, setCountTowardSrsInCram] = useState(false)
   const [sessionNow, setSessionNow] = useState(() => Date.now())
@@ -139,8 +141,9 @@ export default function App() {
   // Active study deck according to selected mode
   const currentDeck = mode === 'due' ? dueCards : filteredCramCards
 
-  // Safe clamped index
-  const safeIndex = currentIndex >= currentDeck.length && currentDeck.length > 0 ? 0 : currentIndex
+  const deckSize = currentDeck.length
+  const cursorIndex = cursor.id ? currentDeck.findIndex((c) => c.id === cursor.id) : -1
+  const safeIndex = cursorIndex !== -1 ? cursorIndex : cursor.index < deckSize ? cursor.index : 0
   const currentCard = currentDeck[safeIndex] || null
 
   const currentLibraryId = currentCard ? getCardLibraryId(currentCard.id) : STARTER_LIBRARY_ID
@@ -148,9 +151,13 @@ export default function App() {
   const currentProgress = currentKey ? getCardProgressData(currentKey, currentLibraryId, currentCard?.id || '') : null
   const currentFsrs = currentKey ? getFsrsCard(currentKey, currentLibraryId, currentCard?.id || '') : null
 
-  // Next card for dual-card synchronized sliding transition
-  const nextIndex = currentDeck.length > 1 ? (safeIndex + 1) % currentDeck.length : safeIndex
-  const nextCard = currentDeck.length > 1 ? currentDeck[nextIndex] : currentCard
+  // Next card for the dual-card slide. In Due mode every advance grades the current card, which
+  // pushes its due date into the future and drops it from the queue — so the last due card has
+  // nothing behind it, and the cards after it each move up one position.
+  const nextIndex = deckSize > 0 ? (safeIndex + 1) % deckSize : 0
+  const nextCard = deckSize > 1 || mode === 'cram' ? currentDeck[nextIndex] ?? null : null
+  const nextPosition = mode === 'due' && nextIndex > safeIndex ? nextIndex - 1 : nextIndex
+  const nextDeckSize = mode === 'due' ? deckSize - 1 : deckSize
   const nextLibraryId = nextCard ? getCardLibraryId(nextCard.id) : STARTER_LIBRARY_ID
   const nextKey = nextCard ? makeCardCompositeKey(nextLibraryId, nextCard.id) : ''
   const nextProgress = nextKey ? getCardProgressData(nextKey, nextLibraryId, nextCard?.id || '') : null
@@ -161,26 +168,35 @@ export default function App() {
     return getIntervalPreviews(currentFsrs)
   }, [currentFsrs])
 
-  const [isSliding, setIsSliding] = useState(false)
-  const [slideDirection, setSlideDirection] = useState<'left-to-right' | 'right-to-left'>('left-to-right')
-  const isTransitioningRef = useRef(false)
+  const formatCardLabel = (index: number, total: number) =>
+    `Card ${index + 1} of ${total}${mode === 'due' ? ' (Due)' : ' (Practice)'}`
 
-  // Synchronized Slide Transition (240ms dual-card slide)
+  const [slide, setSlide] = useState<SlideDirection | null>(null)
+  const pendingAdvanceRef = useRef<(() => void) | null>(null)
+
+  // Start a slide. The action is held until CardSlider reports the outgoing card has landed, then
+  // applied together with moving the cursor onto exactly the card that slid in.
   const advanceWithSlide = useCallback(
-    (action: () => void, direction: 'left-to-right' | 'right-to-left' = 'left-to-right') => {
-      if (isTransitioningRef.current) return
-      isTransitioningRef.current = true
-      setSlideDirection(direction)
-      setIsSliding(true)
-
-      setTimeout(() => {
+    (action: () => void, direction: SlideDirection = 'left-to-right'): boolean => {
+      if (pendingAdvanceRef.current) return false
+      const targetId = nextCard?.id ?? null
+      pendingAdvanceRef.current = () => {
         action()
-        setIsSliding(false)
-        isTransitioningRef.current = false
-      }, 240)
+        setIsFlipped(false)
+        setCursor({ id: targetId, index: nextPosition })
+      }
+      setSlide(direction)
+      return true
     },
-    [],
+    [nextCard, nextPosition],
   )
+
+  const handleSlideComplete = useCallback(() => {
+    const commit = pendingAdvanceRef.current
+    pendingAdvanceRef.current = null
+    commit?.()
+    setSlide(null)
+  }, [])
 
   // Handle Due Mode Rating
   const handleGradeDue = useCallback(
@@ -189,14 +205,9 @@ export default function App() {
       advanceWithSlide(() => {
         gradeCardDue(currentKey, currentLibraryId, currentCard.id, rating)
         setSessionNow(Date.now())
-        setIsFlipped(false)
-
-        if (currentDeck.length > 1) {
-          setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
-        }
-      }, 'left-to-right')
+      })
     },
-    [currentCard, currentKey, currentLibraryId, currentDeck.length, gradeCardDue, advanceWithSlide],
+    [currentCard, currentKey, currentLibraryId, gradeCardDue, advanceWithSlide],
   )
 
   // Handle Cram Mode Practice
@@ -210,18 +221,12 @@ export default function App() {
           gradeCardDue(currentKey, currentLibraryId, currentCard.id, gotIt ? Rating.Good : Rating.Again)
           setSessionNow(Date.now())
         }
-
-        setIsFlipped(false)
-        if (currentDeck.length > 1) {
-          setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
-        }
-      }, 'left-to-right')
+      })
     },
     [
       currentCard,
       currentKey,
       currentLibraryId,
-      currentDeck.length,
       countTowardSrsInCram,
       recordCramPractice,
       gradeCardDue,
@@ -231,9 +236,9 @@ export default function App() {
 
   // Handle Swipe Advance (Both left-to-right and right-to-left gestures)
   const handleSwipeAdvance = useCallback(
-    (direction: 'left-to-right' | 'right-to-left') => {
-      if (!currentCard || !currentKey) return
-      advanceWithSlide(() => {
+    (direction: SlideDirection): boolean => {
+      if (!currentCard || !currentKey) return false
+      return advanceWithSlide(() => {
         if (mode === 'due') {
           gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
           setSessionNow(Date.now())
@@ -244,10 +249,6 @@ export default function App() {
             setSessionNow(Date.now())
           }
         }
-        setIsFlipped(false)
-        if (currentDeck.length > 1) {
-          setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
-        }
       }, direction)
     },
     [
@@ -255,7 +256,6 @@ export default function App() {
       currentCard,
       currentKey,
       currentLibraryId,
-      currentDeck.length,
       countTowardSrsInCram,
       gradeCardDue,
       recordCramPractice,
@@ -271,17 +271,20 @@ export default function App() {
 
   // Handle Undo
   const handleUndo = useCallback(() => {
+    if (pendingAdvanceRef.current) return
     const undoneKey = undoLastAction()
     if (!undoneKey) return
 
     setIsFlipped(false)
-    const prevIdx = currentDeck.findIndex(
+    // Look in all active cards: in Due mode the graded card has left the queue and only
+    // re-enters once its progress is restored, so the cursor follows it by id.
+    const undoneCard = activeCards.find(
       (c) => makeCardCompositeKey(getCardLibraryId(c.id), c.id) === undoneKey,
     )
-    if (prevIdx !== -1) {
-      setCurrentIndex(prevIdx)
+    if (undoneCard) {
+      setCursor({ id: undoneCard.id, index: safeIndex })
     }
-  }, [undoLastAction, currentDeck, getCardLibraryId])
+  }, [undoLastAction, activeCards, getCardLibraryId, safeIndex])
 
   // Keyboard Shortcuts Hook
   useKeyboardShortcuts({
@@ -298,80 +301,83 @@ export default function App() {
   const isSyncing = Object.values(syncingMap).some(Boolean)
 
   return (
-    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-body)] flex flex-col justify-between max-w-lg mx-auto px-4 py-4 transition-colors duration-150 overflow-x-hidden">
+    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] flex flex-col max-w-lg mx-auto px-4 py-4 transition-colors duration-150 overflow-x-clip">
       {/* Top Header: Big Title & Sidebar Trigger */}
       <AppHeader
         onOpenSidebar={() => setDrawerOpen(true)}
         isSyncing={isSyncing}
       />
 
-      {/* Main Flashcard Stage with Synchronized Dual-Card Sliding Transitions */}
-      <main className="my-auto py-4 overflow-x-hidden">
-        {currentCard ? (
-          <CardSlider
-            currentCard={currentCard}
-            nextCard={nextCard}
-            currentProgress={currentProgress}
-            nextProgress={nextProgress}
-            isFlipped={isFlipped}
-            onFlip={() => setIsFlipped((prev) => !prev)}
-            onToggleBookmark={handleToggleBookmark}
-            onSwipeAdvance={handleSwipeAdvance}
-            isSliding={isSliding}
-            slideDirection={slideDirection}
-            currentCardIndexLabel={`Card ${safeIndex + 1} of ${currentDeck.length}${
-              mode === 'due' ? ' (Due)' : ' (Practice)'
-            }`}
-            nextCardIndexLabel={`Card ${nextIndex + 1} of ${currentDeck.length}${
-              mode === 'due' ? ' (Due)' : ' (Practice)'
-            }`}
-          />
-        ) : (
-          <div className="p-8 rounded-3xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-md text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-[var(--bg-app)] text-[var(--fg-app)] flex items-center justify-center mx-auto shadow-xs">
-              <CheckCircle2 className="w-6 h-6" />
+      {/* Card stage + rating bar. The stage's height comes from the viewport, not the card's
+          content, so flipping or swapping cards never shifts the layout. */}
+      <div className="flex-1 flex flex-col justify-center">
+        <main className="relative flex-1 min-h-[360px] max-h-[640px]">
+          {currentCard ? (
+            <CardSlider
+              currentCard={currentCard}
+              nextCard={nextCard}
+              currentProgress={currentProgress}
+              nextProgress={nextProgress}
+              isFlipped={isFlipped}
+              onFlip={() => setIsFlipped((prev) => !prev)}
+              onToggleBookmark={handleToggleBookmark}
+              onSwipeAdvance={handleSwipeAdvance}
+              slide={slide}
+              onSlideComplete={handleSlideComplete}
+              currentCardIndexLabel={formatCardLabel(safeIndex, deckSize)}
+              nextCardIndexLabel={formatCardLabel(nextPosition, nextDeckSize)}
+            />
+          ) : (
+            <div className="h-full flex items-center">
+              <div className="w-full p-8 rounded-3xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-md text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--bg-app)] text-[var(--fg-app)] flex items-center justify-center mx-auto shadow-xs">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">
+                    {mode === 'due' ? 'Queue Completed!' : 'No Cards Found'}
+                  </h3>
+                  <p className="text-xs opacity-85 mt-1 max-w-xs mx-auto leading-relaxed">
+                    {mode === 'due'
+                      ? 'All due cards have been reviewed for now. Switch to Practice Anytime to cram without affecting your schedule.'
+                      : 'No cards matched your current filter criteria.'}
+                  </p>
+                </div>
+                {mode === 'due' ? (
+                  <button
+                    onClick={() => {
+                      setMode('cram')
+                      setCursor({ id: null, index: 0 })
+                      setIsFlipped(false)
+                    }}
+                    className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
+                  >
+                    Switch to Practice Mode
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setCramFilter('all')}
+                    className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+                  >
+                    Reset Filters
+                  </button>
+                )}
+              </div>
             </div>
-            <div>
-              <h3 className="font-[family-name:var(--font-display)] text-lg font-bold">
-                {mode === 'due' ? 'Queue Completed!' : 'No Cards Found'}
-              </h3>
-              <p className="text-xs opacity-85 mt-1 max-w-xs mx-auto leading-relaxed">
-                {mode === 'due'
-                  ? 'All due cards have been reviewed for now. Switch to Practice Anytime to cram without affecting your schedule.'
-                  : 'No cards matched your current filter criteria.'}
-              </p>
-            </div>
-            {mode === 'due' ? (
-              <button
-                onClick={() => {
-                  setMode('cram')
-                  setCurrentIndex(0)
-                  setIsFlipped(false)
-                }}
-                className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-display)] text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
-              >
-                Switch to Practice Mode
-              </button>
-            ) : (
-              <button
-                onClick={() => setCramFilter('all')}
-                className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
-              >
-                Reset Filters
-              </button>
-            )}
-          </div>
-        )}
-      </main>
+          )}
+        </main>
 
-      {/* Bottom Rating Bar (Small tactile cards) */}
-      <RatingBar
-        isFlipped={isFlipped}
-        mode={mode}
-        intervalPreviews={intervalPreviews}
-        onGradeDue={handleGradeDue}
-        onGradeCram={handleGradeCram}
-      />
+        {/* Bottom Rating Bar (Small tactile cards) */}
+        {currentCard && (
+          <RatingBar
+            isFlipped={isFlipped}
+            mode={mode}
+            intervalPreviews={intervalPreviews}
+            onGradeDue={handleGradeDue}
+            onGradeCram={handleGradeCram}
+          />
+        )}
+      </div>
 
       {/* Sidebar / Controls & Libraries Drawer */}
       <LibraryDrawer
@@ -380,14 +386,14 @@ export default function App() {
         mode={mode}
         onModeChange={(newMode) => {
           setMode(newMode)
-          setCurrentIndex(0)
+          setCursor({ id: null, index: 0 })
           setIsFlipped(false)
         }}
         dueCount={dueCards.length}
         cramFilter={cramFilter}
         onCramFilterChange={(f) => {
           setCramFilter(f)
-          setCurrentIndex(0)
+          setCursor({ id: null, index: 0 })
           setIsFlipped(false)
         }}
         cramFilterCounts={cramFilterCounts}

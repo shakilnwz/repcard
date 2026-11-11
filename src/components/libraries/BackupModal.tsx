@@ -89,7 +89,7 @@ export function BackupModal({
               <div className="w-8 h-8 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] flex items-center justify-center shadow-xs">
                 <Database className="w-4 h-4" />
               </div>
-              <Dialog.Title className="font-[family-name:var(--font-display)] text-base font-bold">
+              <Dialog.Title className="text-base font-bold">
                 Backup & Restore
               </Dialog.Title>
             </div>
@@ -113,7 +113,7 @@ export function BackupModal({
 
           {/* Export Button */}
           <div className="space-y-2">
-            <h4 className="font-[family-name:var(--font-display)] text-xs font-bold uppercase tracking-wider opacity-85">
+            <h4 className="text-xs font-bold uppercase tracking-wider opacity-85">
               Export Backup
             </h4>
             <p className="text-xs opacity-80 leading-relaxed">
@@ -121,7 +121,7 @@ export function BackupModal({
             </p>
             <button
               onClick={handleExport}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
             >
               <Download className="w-4 h-4" />
               <span>Download Backup (.json)</span>
@@ -130,7 +130,7 @@ export function BackupModal({
 
           {/* Import Button */}
           <div className="space-y-2 pt-2">
-            <h4 className="font-[family-name:var(--font-display)] text-xs font-bold uppercase tracking-wider opacity-85">
+            <h4 className="text-xs font-bold uppercase tracking-wider opacity-85">
               Restore from Backup
             </h4>
             <p className="text-xs opacity-80 leading-relaxed">
@@ -147,7 +147,7 @@ export function BackupModal({
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
             >
               <Upload className="w-4 h-4" />
               <span>Select Backup File</span>

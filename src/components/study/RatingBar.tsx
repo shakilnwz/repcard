@@ -8,6 +8,18 @@ interface RatingBarProps {
   onGradeCram?: (gotIt: boolean) => void;
 }
 
+const DUE_RATINGS: { rating: ValidRating; label: string; primary?: boolean }[] = [
+  { rating: Rating.Again, label: 'Again' },
+  { rating: Rating.Hard, label: 'Hard' },
+  { rating: Rating.Good, label: 'Good', primary: true },
+  { rating: Rating.Easy, label: 'Easy' },
+]
+
+const buttonClass = (primary?: boolean) =>
+  `h-full flex flex-col items-center justify-center px-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] hover:opacity-90 active:scale-95 transition-all text-center ${
+    primary ? 'shadow-md ring-2 ring-[var(--fg-card)]' : 'shadow-sm'
+  }`
+
 export function RatingBar({
   isFlipped,
   mode,
@@ -15,83 +27,40 @@ export function RatingBar({
   onGradeDue,
   onGradeCram,
 }: RatingBarProps) {
-  if (!isFlipped) {
-    return (
-      <footer className="pt-2 pb-1 text-center select-none">
-        <p className="text-xs font-semibold text-[var(--fg-app)] opacity-70">
-          Tap card or press <kbd className="px-1.5 py-0.5 rounded-md bg-[var(--bg-card)] text-[var(--fg-card)] font-bold shadow-xs">Space</kbd> to reveal breakdown
-        </p>
-      </footer>
-    )
-  }
-
-  // Due Queue Mode: 4 Small Rating Cards
-  if (mode === 'due' && intervalPreviews && onGradeDue) {
-    return (
-      <footer className="pt-2">
-        <div className="grid grid-cols-4 gap-2">
-          {/* Again (1) */}
-          <button
-            onClick={() => onGradeDue(Rating.Again)}
-            className="flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm hover:opacity-90 active:scale-95 transition-all text-center"
-          >
-            <span className="font-[family-name:var(--font-display)] text-xs font-extrabold tracking-tight">Again</span>
-            <span className="text-[10px] font-semibold opacity-75 mt-0.5">{intervalPreviews[Rating.Again].label}</span>
+  // Fixed height in every state, so swapping hint <-> buttons never shifts the card above
+  return (
+    <footer className="shrink-0 h-[72px] pt-2 select-none">
+      {!isFlipped ? (
+        <div className="h-full flex items-center justify-center">
+          <p className="text-xs font-semibold text-[var(--fg-app)] opacity-70">
+            Tap card or press <kbd className="px-1.5 py-0.5 rounded-md bg-[var(--bg-card)] text-[var(--fg-card)] font-bold shadow-xs">Space</kbd> to reveal breakdown
+          </p>
+        </div>
+      ) : mode === 'due' && intervalPreviews && onGradeDue ? (
+        // Due Queue Mode: 4 Small Rating Cards
+        <div className="h-full grid grid-cols-4 gap-2">
+          {DUE_RATINGS.map(({ rating, label, primary }) => (
+            <button key={rating} onClick={() => onGradeDue(rating)} className={buttonClass(primary)}>
+              <span className="text-xs font-bold tracking-tight">{label}</span>
+              <span className={`text-[10px] font-semibold mt-0.5 ${primary ? 'opacity-85' : 'opacity-75'}`}>
+                {intervalPreviews[rating].label}
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        // Cram Mode: 2 Small Practice Cards
+        <div className="h-full grid grid-cols-2 gap-3">
+          <button onClick={() => onGradeCram?.(false)} className={buttonClass()}>
+            <span className="text-xs font-bold">Still Shaky</span>
+            <span className="text-[10px] font-semibold opacity-75 mt-0.5">Re-queue (1)</span>
           </button>
-
-          {/* Hard (2) */}
-          <button
-            onClick={() => onGradeDue(Rating.Hard)}
-            className="flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm hover:opacity-90 active:scale-95 transition-all text-center"
-          >
-            <span className="font-[family-name:var(--font-display)] text-xs font-extrabold tracking-tight">Hard</span>
-            <span className="text-[10px] font-semibold opacity-75 mt-0.5">{intervalPreviews[Rating.Hard].label}</span>
-          </button>
-
-          {/* Good (3) */}
-          <button
-            onClick={() => onGradeDue(Rating.Good)}
-            className="flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-md hover:opacity-90 active:scale-95 transition-all text-center ring-2 ring-[var(--fg-card)]"
-          >
-            <span className="font-[family-name:var(--font-display)] text-xs font-extrabold tracking-tight">Good</span>
-            <span className="text-[10px] font-semibold opacity-85 mt-0.5">{intervalPreviews[Rating.Good].label}</span>
-          </button>
-
-          {/* Easy (4) */}
-          <button
-            onClick={() => onGradeDue(Rating.Easy)}
-            className="flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm hover:opacity-90 active:scale-95 transition-all text-center"
-          >
-            <span className="font-[family-name:var(--font-display)] text-xs font-extrabold tracking-tight">Easy</span>
-            <span className="text-[10px] font-semibold opacity-75 mt-0.5">{intervalPreviews[Rating.Easy].label}</span>
+          <button onClick={() => onGradeCram?.(true)} className={buttonClass(true)}>
+            <span className="text-xs font-bold">Got It</span>
+            <span className="text-[10px] font-semibold opacity-85 mt-0.5">Next (2)</span>
           </button>
         </div>
-      </footer>
-    )
-  }
-
-  // Cram Mode: 2 Small Practice Cards
-  return (
-    <footer className="pt-2">
-      <div className="grid grid-cols-2 gap-3">
-        {/* Still Shaky */}
-        <button
-          onClick={() => onGradeCram?.(false)}
-          className="flex flex-col items-center justify-center py-3.5 px-3 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] font-[family-name:var(--font-display)] text-xs font-extrabold shadow-sm hover:opacity-90 active:scale-95 transition-all text-center"
-        >
-          <span>Still Shaky</span>
-          <span className="text-[10px] font-semibold opacity-75 mt-0.5">Re-queue (1)</span>
-        </button>
-
-        {/* Got It */}
-        <button
-          onClick={() => onGradeCram?.(true)}
-          className="flex flex-col items-center justify-center py-3.5 px-3 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] font-[family-name:var(--font-display)] text-xs font-extrabold shadow-md hover:opacity-90 active:scale-95 transition-all text-center ring-2 ring-[var(--fg-card)]"
-        >
-          <span>Got It</span>
-          <span className="text-[10px] font-semibold opacity-85 mt-0.5">Next (2)</span>
-        </button>
-      </div>
+      )}
     </footer>
   )
 }

@@ -1,6 +1,8 @@
-import { useState, useRef } from 'react'
+import { useEffectEvent, useLayoutEffect, useRef } from 'react'
 import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
 import { FlashcardView } from './FlashcardView'
+
+export type SlideDirection = 'left-to-right' | 'right-to-left'
 
 interface CardSliderProps {
   currentCard: FlashcardItem;
@@ -10,11 +12,89 @@ interface CardSliderProps {
   isFlipped: boolean;
   onFlip: () => void;
   onToggleBookmark: () => void;
-  onSwipeAdvance: (direction: 'left-to-right' | 'right-to-left') => void;
-  isSliding: boolean;
-  slideDirection: 'left-to-right' | 'right-to-left';
+  /** Swipe released past the threshold. Return false to reject it (the card springs back). */
+  onSwipeAdvance: (direction: SlideDirection) => boolean;
+  /** Direction of the in-flight slide (from a swipe, rating button or key), or null when idle. */
+  slide: SlideDirection | null;
+  /** The outgoing card has fully left: the parent should now swap in the next card. */
+  onSlideComplete: () => void;
   currentCardIndexLabel: string;
   nextCardIndexLabel: string;
+}
+
+/*
+ * Rotary track. A card's pose is a pure function of its track position `p`:
+ * 0 = resting, +1 = one card-width to the right, -1 = one card-width to the left.
+ * The incoming card always trails exactly one slot behind the current one, so the
+ * pair moves as a single rigid wheel — while dragging, on release, and on button slides.
+ */
+const ROTATE_DEG = 8
+const DROP_PX = 16
+const SLIDE_MS = 300
+const MIN_SLIDE_MS = 160
+const SNAP_BACK_MS = 220
+const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)'
+const AXIS_LOCK_PX = 6
+const COMMIT_PX = 60
+const FLICK_PX = 35
+const FLICK_MS = 260
+const TAP_PX = 8
+const TAP_MS = 350
+
+interface Slots {
+  current: HTMLDivElement | null;
+  incoming: HTMLDivElement | null;
+}
+
+interface Gesture {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  startTime: number;
+  width: number;
+  dragging: boolean;
+}
+
+const poseAt = (p: number) =>
+  `translate3d(${p * 100}%, ${Math.abs(p) * DROP_PX}px, 0) rotate(${p * ROTATE_DEG}deg)`
+
+/** Pose both cards for track position `p`. At rest the incoming card is hidden. */
+function place({ current, incoming }: Slots, p: number) {
+  if (current) current.style.transform = p === 0 ? '' : poseAt(p)
+  if (incoming) {
+    incoming.style.visibility = p === 0 ? 'hidden' : 'visible'
+    incoming.style.transform = p === 0 ? '' : poseAt(p - Math.sign(p))
+  }
+}
+
+/** Glide both cards along the track. The end pose is held until `settle` runs. */
+function glide({ current, incoming }: Slots, from: number, to: number, duration: number): Promise<void> {
+  const side = Math.sign(to || from)
+  if (side === 0) return Promise.resolve()
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const timing: KeyframeAnimationOptions = {
+    duration: reduceMotion ? 0 : duration,
+    easing: EASE_OUT,
+    fill: 'forwards',
+  }
+  const animations: Animation[] = []
+  if (current) {
+    animations.push(current.animate([{ transform: poseAt(from) }, { transform: poseAt(to) }], timing))
+  }
+  if (incoming) {
+    incoming.style.visibility = 'visible'
+    animations.push(incoming.animate([{ transform: poseAt(from - side) }, { transform: poseAt(to - side) }], timing))
+  }
+  return Promise.all(animations.map((a) => a.finished)).then(() => undefined)
+}
+
+/** Release any held animation and put both cards back at rest. */
+function settle(slots: Slots) {
+  for (const el of [slots.current, slots.incoming]) {
+    el?.getAnimations().forEach((a) => a.cancel())
+  }
+  place(slots, 0)
 }
 
 export function CardSlider({
@@ -26,199 +106,143 @@ export function CardSlider({
   onFlip,
   onToggleBookmark,
   onSwipeAdvance,
-  isSliding,
-  slideDirection,
+  slide,
+  onSlideComplete,
   currentCardIndexLabel,
   nextCardIndexLabel,
 }: CardSliderProps) {
-  const [dragOffset, setDragOffset] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const [isSnappingBack, setIsSnappingBack] = useState(false)
+  const currentRef = useRef<HTMLDivElement>(null)
+  const incomingRef = useRef<HTMLDivElement>(null)
+  const positionRef = useRef(0)
+  const gestureRef = useRef<Gesture | null>(null)
+  const busyRef = useRef(false)
+  const runIdRef = useRef(0)
+  const completeSlide = useEffectEvent(onSlideComplete)
 
-  const dragStartXRef = useRef(0)
-  const dragStartYRef = useRef(0)
-  const startTimeRef = useRef(0)
-  const isPointerDownRef = useRef(false)
-  const hasDeterminedAxisRef = useRef(false)
-  const isLockedVerticalRef = useRef(false)
-  const isDraggingRef = useRef(false)
+  const getSlots = (): Slots => ({ current: currentRef.current, incoming: incomingRef.current })
+
+  // A slide continues from wherever the cards are right now (mid-drag or at rest). Once the
+  // outgoing card lands, the parent swaps cards and sets `slide` back to null; this effect then
+  // resets both slots before the browser paints, so the new card appears exactly where the
+  // incoming one landed.
+  useLayoutEffect(() => {
+    const slots = { current: currentRef.current, incoming: incomingRef.current }
+    if (!slide) {
+      settle(slots)
+      positionRef.current = 0
+      busyRef.current = false
+      return
+    }
+
+    gestureRef.current = null
+    busyRef.current = true
+    const runId = ++runIdRef.current
+    const from = positionRef.current
+    const to = slide === 'left-to-right' ? 1 : -1
+    positionRef.current = to
+
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      completeSlide()
+    }
+    const duration = Math.max(MIN_SLIDE_MS, SLIDE_MS * (1 - Math.min(Math.abs(from), 1)))
+    glide(slots, from, to, duration).then(
+      () => {
+        if (runIdRef.current === runId) finish()
+      },
+      () => {},
+    )
+    // If the slider unmounts mid-slide, still let the parent commit so it never stays locked.
+    return finish
+  }, [slide])
+
+  const springBack = () => {
+    busyRef.current = true
+    const runId = ++runIdRef.current
+    const from = positionRef.current
+    positionRef.current = 0
+    glide(getSlots(), from, 0, SNAP_BACK_MS).then(
+      () => {
+        if (runIdRef.current !== runId) return
+        settle(getSlots())
+        busyRef.current = false
+      },
+      () => {},
+    )
+  }
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    // If clicking on interactive controls (buttons, links), don't engage drag
+    if (e.button !== 0) return
+    // Let interactive controls (bookmark, links) handle their own presses
     if ((e.target as HTMLElement).closest('button, a, input')) return
-    if (isSliding || isSnappingBack) return
+    if (slide || busyRef.current) return
 
-    dragStartXRef.current = e.clientX
-    dragStartYRef.current = e.clientY
-    startTimeRef.current = Date.now()
-    isPointerDownRef.current = true
-    hasDeterminedAxisRef.current = false
-    isLockedVerticalRef.current = false
-    isDraggingRef.current = false
-    setDragOffset(0)
+    gestureRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startTime: e.timeStamp,
+      width: currentRef.current?.offsetWidth || e.currentTarget.clientWidth || 1,
+      dragging: false,
+    }
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isPointerDownRef.current || isSliding || isSnappingBack) return
+    const gesture = gestureRef.current
+    if (!gesture || gesture.pointerId !== e.pointerId) return
 
-    const deltaX = e.clientX - dragStartXRef.current
-    const deltaY = e.clientY - dragStartYRef.current
+    const deltaX = e.clientX - gesture.startX
+    const deltaY = e.clientY - gesture.startY
 
-    if (!hasDeterminedAxisRef.current) {
-      if (Math.abs(deltaX) > 6 || Math.abs(deltaY) > 6) {
-        hasDeterminedAxisRef.current = true
-        if (Math.abs(deltaY) > Math.abs(deltaX)) {
-          // Primarily vertical movement: release to native document scroll
-          isLockedVerticalRef.current = true
-          return
-        }
-        // Horizontal movement: capture pointer and drag cards
-        isDraggingRef.current = true
-        setIsDragging(true)
-        try {
-          e.currentTarget.setPointerCapture(e.pointerId)
-        } catch {
-          // Ignore capture error
-        }
-      } else {
+    if (!gesture.dragging) {
+      if (Math.abs(deltaX) < AXIS_LOCK_PX && Math.abs(deltaY) < AXIS_LOCK_PX) return
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        // Primarily vertical: leave it to native scrolling
+        gestureRef.current = null
         return
+      }
+      gesture.dragging = true
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId)
+      } catch {
+        // Pointer may already be gone
       }
     }
 
-    if (isLockedVerticalRef.current || !isDraggingRef.current) return
-
-    setDragOffset(deltaX)
+    const p = Math.min(Math.max(deltaX / gesture.width, -1), 1)
+    positionRef.current = p
+    place(getSlots(), p)
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isPointerDownRef.current) return
-    isPointerDownRef.current = false
+    const gesture = gestureRef.current
+    if (!gesture || gesture.pointerId !== e.pointerId) return
+    gestureRef.current = null
 
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      // Ignore release error
+    const deltaX = e.clientX - gesture.startX
+    const deltaY = e.clientY - gesture.startY
+    const elapsed = e.timeStamp - gesture.startTime
+
+    if (!gesture.dragging) {
+      if (Math.abs(deltaX) < TAP_PX && Math.abs(deltaY) < TAP_PX && elapsed < TAP_MS) onFlip()
+      return
     }
 
-    const deltaX = e.clientX - dragStartXRef.current
-    const deltaY = e.clientY - dragStartYRef.current
-    const elapsed = Date.now() - startTimeRef.current
-
-    if (isDraggingRef.current) {
-      isDraggingRef.current = false
-      setIsDragging(false)
-
-      const isFlick = elapsed < 260 && Math.abs(deltaX) > 35
-      const isCommitted = Math.abs(deltaX) > 60 || isFlick
-
-      if (isCommitted) {
-        // Drag > 0 is left-to-right (moving right); Drag < 0 is right-to-left (moving left)
-        const direction: 'left-to-right' | 'right-to-left' = deltaX > 0 ? 'left-to-right' : 'right-to-left'
-        setDragOffset(0)
-        onSwipeAdvance(direction)
-      } else {
-        // Snap back to 0
-        setIsSnappingBack(true)
-        setDragOffset(0)
-        setTimeout(() => setIsSnappingBack(false), 180)
-      }
-    } else {
-      // Tap detected (minimal movement)
-      if (!hasDeterminedAxisRef.current && Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8 && elapsed < 350) {
-        onFlip()
-      }
+    const isFlick = elapsed < FLICK_MS && Math.abs(deltaX) > FLICK_PX
+    if (Math.abs(deltaX) > COMMIT_PX || isFlick) {
+      // Moving right (deltaX > 0) is left-to-right; the slide effect picks up from the current pose
+      if (onSwipeAdvance(deltaX > 0 ? 'left-to-right' : 'right-to-left')) return
     }
+    springBack()
   }
 
   const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isPointerDownRef.current) return
-    isPointerDownRef.current = false
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      // Ignore release error
-    }
-    isDraggingRef.current = false
-    setIsDragging(false)
-    setDragOffset(0)
-  }
-
-  // Determine rendering modes
-  const isDualCardActive = isSliding || isDragging || isSnappingBack
-  const incomingCard = nextCard || currentCard
-
-  // Circular rotary track physics (pinned in a huge circle)
-  const ROTATE_MAX = 8 // degrees
-  const DROP_MAX = 16 // pixels
-
-  // Compute Card Styles
-  let currentCardStyle: React.CSSProperties = {
-    touchAction: 'pan-y',
-    transformOrigin: '50% 130%',
-  }
-  let currentCardClass = ''
-
-  let incomingCardStyle: React.CSSProperties = {
-    position: 'absolute',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    touchAction: 'pan-y',
-    transformOrigin: '50% 130%',
-  }
-  let incomingCardClass = ''
-
-  if (isSliding) {
-    if (slideDirection === 'left-to-right') {
-      currentCardClass = 'animate-slide-out-right'
-      incomingCardClass = 'animate-slide-in-left'
-    } else {
-      currentCardClass = 'animate-slide-out-left'
-      incomingCardClass = 'animate-slide-in-right'
-    }
-  } else if (isDragging) {
-    const progress = Math.min(Math.max(dragOffset / 360, -1), 1)
-    const currentAngle = progress * ROTATE_MAX
-    const currentDrop = Math.abs(progress) * DROP_MAX
-
-    currentCardStyle = {
-      ...currentCardStyle,
-      transform: `translate3d(${dragOffset}px, ${currentDrop}px, 0) rotate(${currentAngle}deg)`,
-      transition: 'none',
-    }
-
-    if (dragOffset > 0) {
-      // Incoming from left
-      const incomingAngle = -ROTATE_MAX + progress * ROTATE_MAX
-      const incomingDrop = Math.max(0, DROP_MAX - progress * DROP_MAX)
-      incomingCardStyle = {
-        ...incomingCardStyle,
-        transform: `translate3d(calc(-100% + ${dragOffset}px), ${incomingDrop}px, 0) rotate(${incomingAngle}deg)`,
-        transition: 'none',
-      }
-    } else {
-      // Incoming from right
-      const incomingAngle = ROTATE_MAX + progress * ROTATE_MAX
-      const incomingDrop = Math.max(0, DROP_MAX - Math.abs(progress) * DROP_MAX)
-      incomingCardStyle = {
-        ...incomingCardStyle,
-        transform: `translate3d(calc(100% + ${dragOffset}px), ${incomingDrop}px, 0) rotate(${incomingAngle}deg)`,
-        transition: 'none',
-      }
-    }
-  } else if (isSnappingBack) {
-    currentCardStyle = {
-      ...currentCardStyle,
-      transform: 'translate3d(0, 0, 0) rotate(0deg)',
-      transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
-    }
-    const incomingTranslateX = dragOffset > 0 ? '-100%' : '100%'
-    const incomingAngle = dragOffset > 0 ? -ROTATE_MAX : ROTATE_MAX
-    incomingCardStyle = {
-      ...incomingCardStyle,
-      transform: `translate3d(${incomingTranslateX}, ${DROP_MAX}px, 0) rotate(${incomingAngle}deg)`,
-      transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
-    }
+    const gesture = gestureRef.current
+    if (!gesture || gesture.pointerId !== e.pointerId) return
+    gestureRef.current = null
+    if (gesture.dragging) springBack()
   }
 
   return (
@@ -227,11 +251,31 @@ export function CardSlider({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
-      className="relative w-full overflow-hidden py-2 min-h-[440px] select-none rounded-2xl will-change-transform"
+      className="absolute inset-0 select-none touch-pan-y"
     >
-      {/* Current Active Card */}
-      <div style={currentCardStyle} className={`w-full ${currentCardClass}`}>
+      {/* Incoming card: always mounted (hidden at rest) so a slide can start from any pose */}
+      {nextCard && (
+        <div
+          ref={incomingRef}
+          inert
+          aria-hidden="true"
+          style={{ visibility: 'hidden' }}
+          className="absolute inset-x-0 inset-y-2 origin-[50%_130%] will-change-transform pointer-events-none"
+        >
+          <FlashcardView
+            key={nextCard.id}
+            card={nextCard}
+            progress={nextProgress}
+            isFlipped={false}
+            cardIndexLabel={nextCardIndexLabel}
+          />
+        </div>
+      )}
+
+      {/* Current card */}
+      <div ref={currentRef} className="absolute inset-x-0 inset-y-2 origin-[50%_130%] will-change-transform">
         <FlashcardView
+          key={currentCard.id}
           card={currentCard}
           progress={currentProgress}
           isFlipped={isFlipped}
@@ -239,18 +283,6 @@ export function CardSlider({
           cardIndexLabel={currentCardIndexLabel}
         />
       </div>
-
-      {/* Incoming / Next Card (Simultaneously slides in during transition) */}
-      {isDualCardActive && (
-        <div style={incomingCardStyle} className={`w-full ${incomingCardClass}`}>
-          <FlashcardView
-            card={incomingCard}
-            progress={nextProgress}
-            isFlipped={false}
-            cardIndexLabel={nextCardIndexLabel}
-          />
-        </div>
-      )}
     </div>
   )
 }

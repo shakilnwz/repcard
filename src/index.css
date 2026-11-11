@@ -1,5 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+/* Web fonts (Google Sans + Material Symbols) are loaded via <link> in index.html */
 @import "tailwindcss";
+
+/* Single typeface: Google Sans, with Open Sans as the closest local fallback */
+@theme {
+  --font-sans: 'Google Sans', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
 /* Google Material Symbols Font Configuration */
 .material-symbols-rounded {
@@ -25,10 +30,6 @@
 }
 
 :root {
-  /* Dual-Font Typography */
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
   /* Strictly Defined Colors — Zero Diffused Colors, No Inbetween */
   --c-black: #000000;
   --c-navy: #071a52;
@@ -76,7 +77,7 @@
 body {
   background-color: var(--bg-app);
   color: var(--fg-app);
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
   transition: background-color 150ms ease, color 150ms ease;
@@ -90,69 +91,24 @@ body {
   text-align-last: left;
 }
 
-/* Synchronized Circular Rotary Sliding Transitions (Pinned in a huge circle) */
-@keyframes slideOutToRight {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-    transform-origin: 50% 130%;
+/* Card back face: thin scrollbar in the card's own ink, and a quick fade on reveal.
+   (Card slide/swipe motion lives in CardSlider.tsx and runs on the Web Animations API.) */
+.card-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--fg-card) transparent;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
   }
-  100% {
-    transform: translate3d(100%, 16px, 0) rotate(8deg);
-    transform-origin: 50% 130%;
+  to {
+    opacity: 1;
   }
 }
 
-@keyframes slideInFromLeft {
-  0% {
-    transform: translate3d(-100%, 16px, 0) rotate(-8deg);
-    transform-origin: 50% 130%;
-  }
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-    transform-origin: 50% 130%;
-  }
-}
-
-@keyframes slideOutToLeft {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-    transform-origin: 50% 130%;
-  }
-  100% {
-    transform: translate3d(-100%, 16px, 0) rotate(-8deg);
-    transform-origin: 50% 130%;
-  }
-}
-
-@keyframes slideInFromRight {
-  0% {
-    transform: translate3d(100%, 16px, 0) rotate(8deg);
-    transform-origin: 50% 130%;
-  }
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-    transform-origin: 50% 130%;
-  }
-}
-
-.animate-slide-out-right {
-  animation: slideOutToRight 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
-  pointer-events: none;
-}
-
-.animate-slide-in-left {
-  animation: slideInFromLeft 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
-  pointer-events: none;
-}
-
-.animate-slide-out-left {
-  animation: slideOutToLeft 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
-  pointer-events: none;
-}
-
-.animate-slide-in-right {
-  animation: slideInFromRight 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
-  pointer-events: none;
+.animate-fade-in {
+  animation: cardFadeIn 150ms ease-out;
 }
 
 /* Drawer Slide In / Out & Overlay Animations */

@@ -134,7 +134,7 @@ export function LibraryDrawer({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-5 bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm">
             <div>
-              <Dialog.Title className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
+              <Dialog.Title className="text-lg font-bold tracking-tight">
                 Controls & Libraries
               </Dialog.Title>
               <p className="text-xs opacity-80 flex items-center gap-1 mt-0.5">
@@ -156,7 +156,7 @@ export function LibraryDrawer({
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
             {/* Section 1: Study Mode Switcher */}
             <div className="space-y-3">
-              <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
+              <h3 className="text-xs uppercase tracking-wider font-bold opacity-80">
                 Study Mode
               </h3>
 
@@ -164,7 +164,7 @@ export function LibraryDrawer({
                 {/* Due Queue Mode */}
                 <button
                   onClick={() => onModeChange('due')}
-                  className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-[family-name:var(--font-display)] font-bold transition-all ${
+                  className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold transition-all ${
                     mode === 'due'
                       ? 'bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs'
                       : 'text-[var(--fg-card)] opacity-80 hover:opacity-100'
@@ -185,7 +185,7 @@ export function LibraryDrawer({
                 {/* Practice Anytime Cram Mode */}
                 <button
                   onClick={() => onModeChange('cram')}
-                  className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-[family-name:var(--font-display)] font-bold transition-all ${
+                  className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold transition-all ${
                     mode === 'cram'
                       ? 'bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs'
                       : 'text-[var(--fg-card)] opacity-80 hover:opacity-100'
@@ -220,7 +220,7 @@ export function LibraryDrawer({
 
             {/* Section 2: Quick Actions (Undo & Theme) */}
             <div className="space-y-3">
-              <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
+              <h3 className="text-xs uppercase tracking-wider font-bold opacity-80">
                 Actions & Appearance
               </h3>
 
@@ -254,7 +254,7 @@ export function LibraryDrawer({
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-[family-name:var(--font-display)] text-sm font-bold">
+                    <h3 className="text-sm font-bold">
                       Import Library Detected
                     </h3>
                     <p className="text-xs opacity-85 mt-0.5">
@@ -266,7 +266,7 @@ export function LibraryDrawer({
                 <div className="flex items-center gap-2 pt-1">
                   <button
                     onClick={onConfirmPendingImport}
-                    className="flex-1 py-1.5 px-3 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] font-[family-name:var(--font-display)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+                    className="flex-1 py-1.5 px-3 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
                   >
                     Confirm Import
                   </button>
@@ -295,7 +295,7 @@ export function LibraryDrawer({
             {/* Section 3: Configured Libraries List */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold opacity-80">
+                <h3 className="text-xs uppercase tracking-wider font-bold opacity-80">
                   Configured Sources ({libraries.length})
                 </h3>
                 <button
@@ -321,7 +321,7 @@ export function LibraryDrawer({
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-[family-name:var(--font-display)] font-bold text-sm truncate">
+                            <h4 className="font-bold text-sm truncate">
                               {lib.name}
                             </h4>
                             {isStarter && (
@@ -338,7 +338,7 @@ export function LibraryDrawer({
                         {/* Enable/Disable Toggle */}
                         <button
                           onClick={() => onToggleEnabled(lib.id)}
-                          className={`px-3 py-1 text-xs font-[family-name:var(--font-display)] font-bold rounded-lg shadow-xs transition-all ${
+                          className={`px-3 py-1 text-xs font-bold rounded-lg shadow-xs transition-all ${
                             lib.enabled
                               ? 'bg-[var(--fg-card)] text-[var(--bg-card)]'
                               : 'opacity-60 hover:opacity-100'
@@ -434,7 +434,7 @@ export function LibraryDrawer({
 
             {/* Section 4: Add New Library Form */}
             <div className="p-5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm space-y-3.5">
-              <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold flex items-center gap-1.5 opacity-90">
+              <h3 className="text-xs uppercase tracking-wider font-bold flex items-center gap-1.5 opacity-90">
                 <Plus className="w-4 h-4" />
                 Add Remote Library
               </h3>
@@ -477,7 +477,7 @@ export function LibraryDrawer({
                 <button
                   type="submit"
                   disabled={isAdding || !urlInput.trim()}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[var(--fg-card)] text-[var(--bg-card)] font-[family-name:var(--font-display)] text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                 >
                   {isAdding ? (
                     <>
@@ -499,7 +499,7 @@ export function LibraryDrawer({
               <button
                 type="button"
                 onClick={() => setBackupOpen(true)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-[family-name:var(--font-display)] font-bold shadow-sm hover:opacity-90 transition-opacity"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-bold shadow-sm hover:opacity-90 transition-opacity"
               >
                 <Database className="w-4 h-4" />
                 <span>Backup & Restore (JSON)</span>
