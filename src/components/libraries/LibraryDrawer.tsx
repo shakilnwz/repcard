@@ -129,8 +129,8 @@ export function LibraryDrawer({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-        <Dialog.Content className="fixed inset-y-0 right-0 w-full max-w-md bg-[var(--bg-app)] text-[var(--fg-app)] z-50 flex flex-col shadow-2xl focus:outline-hidden animate-in slide-in-from-right duration-200">
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 drawer-overlay" />
+        <Dialog.Content className="fixed inset-y-0 right-0 w-full max-w-md bg-[var(--bg-app)] text-[var(--fg-app)] z-50 flex flex-col shadow-2xl focus:outline-hidden drawer-content">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-5 bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm">
             <div>

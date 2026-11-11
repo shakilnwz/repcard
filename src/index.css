@@ -146,3 +146,95 @@ body {
   animation: slideInFromRight 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
+
+/* Drawer Slide In / Out & Overlay Animations */
+@keyframes drawerOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawerOverlayFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes drawerSlideInRight {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes drawerSlideOutRight {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+.drawer-overlay[data-state="open"] {
+  animation: drawerOverlayFadeIn 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.drawer-overlay[data-state="closed"] {
+  animation: drawerOverlayFadeOut 200ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.drawer-content[data-state="open"] {
+  animation: drawerSlideInRight 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.drawer-content[data-state="closed"] {
+  animation: drawerSlideOutRight 220ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Modal Zoom & Fade */
+@keyframes modalZoomIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes modalZoomOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+}
+
+.modal-overlay[data-state="open"] {
+  animation: drawerOverlayFadeIn 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-overlay[data-state="closed"] {
+  animation: drawerOverlayFadeOut 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.modal-content[data-state="open"] {
+  animation: modalZoomIn 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-content[data-state="closed"] {
+  animation: modalZoomOut 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}

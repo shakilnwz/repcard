@@ -1,4 +1,4 @@
-import { Menu } from '@/components/ui/MaterialIcons'
+import { Tune } from '@/components/ui/MaterialIcons'
 
 export type StudyMode = 'due' | 'cram'
 export type ColorPaletteMode = 'default' | 'navy-canvas' | 'black-navy-card'
@@ -16,16 +16,16 @@ export function AppHeader({ onOpenSidebar, isSyncing }: AppHeaderProps) {
         RepCard
       </h1>
 
-      {/* Sidebar Trigger */}
+      {/* Controls & Sidebar Trigger: No Background, Light Icon */}
       <button
         onClick={onOpenSidebar}
-        className="relative p-2.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm hover:opacity-90 active:scale-95 transition-all"
-        aria-label="Open sidebar"
-        title="Open study settings and libraries"
+        className="relative p-2 text-[var(--fg-app)] hover:opacity-100 opacity-85 active:scale-90 transition-all flex items-center justify-center rounded-xl"
+        aria-label="Open controls and libraries"
+        title="Controls & Settings"
       >
-        <Menu className="w-5 h-5" />
+        <Tune className="w-7 h-7" />
         {isSyncing && (
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--fg-card)] animate-ping" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--fg-app)] animate-ping" />
         )}
       </button>
     </header>

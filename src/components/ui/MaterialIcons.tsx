@@ -59,6 +59,8 @@ export function MaterialIcon({
 
 // Named Icon Components (Google Material Symbols replacements)
 export const Menu = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="menu" {...props} />
+export const Tune = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="tune" {...props} />
+export const ViewSidebar = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="view_sidebar" {...props} />
 export const Star = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="star" {...props} />
 export const ExternalLink = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="open_in_new" {...props} />
 export const Sparkles = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="auto_awesome" {...props} />

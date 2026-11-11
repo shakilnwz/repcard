@@ -81,8 +81,8 @@ export function BackupModal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xs z-60 animate-in fade-in duration-200" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-[var(--bg-app)] text-[var(--fg-app)] z-60 rounded-3xl shadow-2xl p-6 space-y-5 focus:outline-hidden animate-in zoom-in-95 duration-150">
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xs z-60 modal-overlay" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-[var(--bg-app)] text-[var(--fg-app)] z-60 rounded-3xl shadow-2xl p-6 space-y-5 focus:outline-hidden modal-content">
           {/* Header */}
           <div className="flex items-center justify-between pb-1">
             <div className="flex items-center gap-2">
