@@ -144,8 +144,12 @@ export function LibraryDrawer({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 drawer-overlay" />
         <Dialog.Content className="fixed inset-y-0 right-0 w-full max-w-md bg-[var(--bg-app)] text-[var(--fg-app)] z-50 flex flex-col shadow-2xl focus:outline-hidden drawer-content">
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))] bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm">
+          {/* Header. Raised above the scroll area (relative z-10) so its shadow falls on the content
+              scrolling beneath it instead of being painted over by it. */}
+          <div
+            style={{ boxShadow: 'var(--header-shadow)' }}
+            className="relative z-10 flex items-center justify-between px-6 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))] bg-[var(--bg-card)] text-[var(--fg-card)]"
+          >
             <div>
               <Dialog.Title className="text-lg font-bold tracking-tight">
                 Controls & Libraries

@@ -3,11 +3,12 @@ import { CheckCircle2 } from '@/components/ui/MaterialIcons'
 import { useLibraries } from '@/hooks/useLibraries'
 import { useCardProgress } from '@/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import { AppHeader, type StudyMode } from '@/components/layout/AppHeader'
+import { AppHeader, type StudyMode, type AppView } from '@/components/layout/AppHeader'
 import { COLOR_MODES, type ColorPaletteMode } from '@/lib/colorModes'
 import type { CramFilter } from '@/components/study/FilterBar'
 import { CardSlider, type SlideDirection } from '@/components/study/CardSlider'
 import { RatingBar } from '@/components/study/RatingBar'
+import { CardListView } from '@/components/study/CardListView'
 import { LibraryDrawer } from '@/components/libraries/LibraryDrawer'
 import { getIntervalPreviews, Rating, type ValidRating } from '@/lib/fsrs'
 import { makeCardCompositeKey } from '@/types/schema'
@@ -42,6 +43,7 @@ export default function App() {
   } = useCardProgress()
 
   const [mode, setMode] = useState<StudyMode>('due')
+  const [view, setView] = useState<AppView>('cards')
   const [cramFilter, setCramFilter] = useState<CramFilter>('all')
   const [drawerOpen, setDrawerOpen] = useState(() => Boolean(pendingImport))
   // Open the drawer whenever a new share-link import arrives (on launch or via a later hash change)
@@ -251,30 +253,20 @@ export default function App() {
     ],
   )
 
-  // A swipe will touch the FSRS schedule in Due mode, or in Practice mode with "count toward FSRS" on.
-  // Those swipes only grade once the answer has been seen; on an unrevealed card they just flip it.
-  const swipeGrades = mode === 'due' || countTowardSrsInCram
-
-  // Swipe (or arrow key): right is a pass (Good / Got It), left is a miss (Again / Still Shaky)
+  // Swipe (or arrow key): right is a pass (Good / Got It), left is a miss (Again / Still Shaky).
+  // Grades immediately, whether or not the answer has been revealed.
   const handleSwipeAdvance = useCallback(
     (direction: SlideDirection): boolean => {
-      if (swipeGrades && !isFlipped) {
-        setIsFlipped(true)
-        return false
-      }
       const passed = direction === 'left-to-right'
       return mode === 'due' ? handleGradeDue(passed ? Rating.Good : Rating.Again) : handleGradeCram(passed)
     },
-    [mode, swipeGrades, isFlipped, handleGradeDue, handleGradeCram],
+    [mode, handleGradeDue, handleGradeCram],
   )
 
   const frontHint =
     mode === 'due'
-      ? { primary: 'Tap to reveal the answer', secondary: 'then swipe right for Good, left for Again' }
-      : {
-          primary: 'Tap to reveal the answer',
-          secondary: `${swipeGrades ? 'then' : 'or'} swipe right for Got It, left for Still Shaky`,
-        }
+      ? { primary: 'Tap to reveal the answer', secondary: 'or swipe right for Good, left for Again' }
+      : { primary: 'Tap to reveal the answer', secondary: 'or swipe right for Got It, left for Still Shaky' }
 
   // Handle Bookmark Toggle
   const handleToggleBookmark = useCallback(() => {
@@ -309,7 +301,7 @@ export default function App() {
     onSwipe: handleSwipeAdvance,
     onUndo: handleUndo,
     onBookmark: handleToggleBookmark,
-    enabled: Boolean(currentCard),
+    enabled: Boolean(currentCard) && view === 'cards',
   })
 
   const isSyncing = Object.values(syncingMap).some(Boolean)
@@ -320,80 +312,89 @@ export default function App() {
       <AppHeader
         onOpenSidebar={() => setDrawerOpen(true)}
         isSyncing={isSyncing}
+        view={view}
+        onToggleView={() => {
+          setView((prev) => (prev === 'cards' ? 'list' : 'cards'))
+          window.scrollTo(0, 0)
+        }}
       />
 
-      {/* Card stage + rating bar. The stage's height comes from the viewport, not the card's
-          content, so flipping or swapping cards never shifts the layout. */}
-      <div className="flex-1 flex flex-col justify-center">
-        <main className="relative flex-1 min-h-[360px] max-h-[640px]">
-          {currentCard ? (
-            <CardSlider
-              currentCard={currentCard}
-              nextCard={nextCard}
-              currentProgress={currentProgress}
-              nextProgress={nextProgress}
-              isFlipped={isFlipped}
-              onFlip={() => setIsFlipped((prev) => !prev)}
-              onToggleBookmark={handleToggleBookmark}
-              onSwipeAdvance={handleSwipeAdvance}
-              frontHint={frontHint}
-              slide={slide}
-              onSlideComplete={handleSlideComplete}
-              currentCardIndexLabel={formatCardLabel(safeIndex, deckSize)}
-              nextCardIndexLabel={formatCardLabel(nextPosition, nextDeckSize)}
-            />
-          ) : (
-            <div className="h-full flex items-center">
-              <div className="w-full p-8 rounded-3xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-md text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-[var(--bg-app)] text-[var(--fg-app)] flex items-center justify-center mx-auto shadow-xs">
-                  <CheckCircle2 className="w-6 h-6" />
+      {view === 'list' ? (
+        <CardListView libraries={libraries} cardsByLibrary={cardsByLibrary} progressState={progressState} />
+      ) : (
+        /* Card stage + rating bar. The stage's height comes from the viewport, not the card's
+           content, so flipping or swapping cards never shifts the layout. */
+        <div className="flex-1 flex flex-col justify-center">
+          <main className="relative flex-1 min-h-[360px] max-h-[640px]">
+            {currentCard ? (
+              <CardSlider
+                currentCard={currentCard}
+                nextCard={nextCard}
+                currentProgress={currentProgress}
+                nextProgress={nextProgress}
+                isFlipped={isFlipped}
+                onFlip={() => setIsFlipped((prev) => !prev)}
+                onToggleBookmark={handleToggleBookmark}
+                onSwipeAdvance={handleSwipeAdvance}
+                frontHint={frontHint}
+                slide={slide}
+                onSlideComplete={handleSlideComplete}
+                currentCardIndexLabel={formatCardLabel(safeIndex, deckSize)}
+                nextCardIndexLabel={formatCardLabel(nextPosition, nextDeckSize)}
+              />
+            ) : (
+              <div className="h-full flex items-center">
+                <div className="w-full p-8 rounded-3xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-md text-center space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-[var(--bg-app)] text-[var(--fg-app)] flex items-center justify-center mx-auto shadow-xs">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">
+                      {mode === 'due' ? 'Queue Completed!' : 'No Cards Found'}
+                    </h3>
+                    <p className="text-xs opacity-85 mt-1 max-w-xs mx-auto leading-relaxed">
+                      {mode === 'due'
+                        ? 'All due cards have been reviewed for now. Switch to Practice Anytime to cram without affecting your schedule.'
+                        : 'No cards matched your current filter criteria.'}
+                    </p>
+                  </div>
+                  {mode === 'due' ? (
+                    <button
+                      onClick={() => {
+                        setMode('cram')
+                        setCursor({ id: null, index: 0 })
+                        setIsFlipped(false)
+                      }}
+                      className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
+                    >
+                      Switch to Practice Mode
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setCramFilter('all')}
+                      className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+                    >
+                      Reset Filters
+                    </button>
+                  )}
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold">
-                    {mode === 'due' ? 'Queue Completed!' : 'No Cards Found'}
-                  </h3>
-                  <p className="text-xs opacity-85 mt-1 max-w-xs mx-auto leading-relaxed">
-                    {mode === 'due'
-                      ? 'All due cards have been reviewed for now. Switch to Practice Anytime to cram without affecting your schedule.'
-                      : 'No cards matched your current filter criteria.'}
-                  </p>
-                </div>
-                {mode === 'due' ? (
-                  <button
-                    onClick={() => {
-                      setMode('cram')
-                      setCursor({ id: null, index: 0 })
-                      setIsFlipped(false)
-                    }}
-                    className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
-                  >
-                    Switch to Practice Mode
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setCramFilter('all')}
-                    className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
-                  >
-                    Reset Filters
-                  </button>
-                )}
               </div>
-            </div>
-          )}
-        </main>
+            )}
+          </main>
 
-        {/* Bottom Rating Bar (Small tactile cards) */}
-        {currentCard && (
-          <RatingBar
-            isFlipped={isFlipped}
-            mode={mode}
-            intervalPreviews={intervalPreviews}
-            onReveal={() => setIsFlipped(true)}
-            onGradeDue={handleGradeDue}
-            onGradeCram={handleGradeCram}
-          />
-        )}
-      </div>
+          {/* Bottom Rating Bar (Small tactile cards) */}
+          {currentCard && (
+            <RatingBar
+              isFlipped={isFlipped}
+              mode={mode}
+              intervalPreviews={intervalPreviews}
+              onReveal={() => setIsFlipped(true)}
+              onGradeDue={handleGradeDue}
+              onGradeCram={handleGradeCram}
+            />
+          )}
+        </div>
+      )}
 
       {/* Sidebar / Controls & Libraries Drawer */}
       <LibraryDrawer

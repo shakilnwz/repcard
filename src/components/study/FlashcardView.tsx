@@ -1,6 +1,7 @@
 import React from 'react'
 import { Star, ExternalLink, Sparkles } from '@/components/ui/MaterialIcons'
 import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
+import { getStateLabel } from '@/lib/fsrs'
 
 export interface FrontHint {
   primary: string;
@@ -34,8 +35,7 @@ export function FlashcardView({
   const isBookmarked = Boolean(progress?.bookmarked)
   const reps = progress?.fsrs?.reps ?? 0
   const cramCount = progress?.cramCount ?? 0
-  const stateCode = progress?.fsrs?.state ?? 0
-  const stateLabel = stateCode === 0 ? 'New' : stateCode === 1 ? 'Learning' : 'Review'
+  const stateLabel = getStateLabel(progress?.fsrs?.state)
 
   return (
     <div
@@ -96,48 +96,7 @@ export function FlashcardView({
           </div>
         ) : (
           <div className="space-y-5 pt-2 animate-fade-in">
-            {/* Block 1: WHAT IT IS */}
-            <div className="space-y-1">
-              <p className="text-xs uppercase tracking-wider font-bold opacity-80">
-                WHAT IT IS
-              </p>
-              <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
-                {card.fields.whatItIs}
-              </p>
-            </div>
-
-            {/* Block 2: PROBLEM SOLVED */}
-            <div className="space-y-1 pt-1">
-              <p className="text-xs uppercase tracking-wider font-bold opacity-80">
-                PROBLEM SOLVED
-              </p>
-              <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
-                {card.fields.problemSolved}
-              </p>
-            </div>
-
-            {/* Block 3: PRODUCTION CONTEXT */}
-            <div className="space-y-1 pt-1">
-              <p className="text-xs uppercase tracking-wider font-bold opacity-80">
-                PRODUCTION CONTEXT
-              </p>
-              <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
-                {card.fields.productionContext}
-              </p>
-              {card.referenceUrl && (
-                <a
-                  href={card.referenceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-semibold shadow-xs hover:opacity-90 transition-opacity"
-                >
-                  <span>Reference Spec</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
+            <CardAnswer card={card} />
           </div>
         )}
       </div>
@@ -154,5 +113,55 @@ export function FlashcardView({
         </div>
       </div>
     </div>
+  )
+}
+
+/** The answer side of a card: the three explanation blocks plus the reference link */
+export function CardAnswer({ card }: { card: FlashcardItem }) {
+  return (
+    <>
+      {/* Block 1: WHAT IT IS */}
+      <div className="space-y-1">
+        <p className="text-xs uppercase tracking-wider font-bold opacity-80">
+          WHAT IT IS
+        </p>
+        <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
+          {card.fields.whatItIs}
+        </p>
+      </div>
+
+      {/* Block 2: PROBLEM SOLVED */}
+      <div className="space-y-1 pt-1">
+        <p className="text-xs uppercase tracking-wider font-bold opacity-80">
+          PROBLEM SOLVED
+        </p>
+        <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
+          {card.fields.problemSolved}
+        </p>
+      </div>
+
+      {/* Block 3: PRODUCTION CONTEXT */}
+      <div className="space-y-1 pt-1">
+        <p className="text-xs uppercase tracking-wider font-bold opacity-80">
+          PRODUCTION CONTEXT
+        </p>
+        <p className="text-sm text-[var(--fg-card)] leading-relaxed card-content-justified">
+          {card.fields.productionContext}
+        </p>
+        {card.referenceUrl && (
+          <a
+            href={card.referenceUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-semibold shadow-xs hover:opacity-90 transition-opacity"
+          >
+            <span>Reference Spec</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+      </div>
+    </>
   )
 }

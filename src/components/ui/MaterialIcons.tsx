@@ -84,3 +84,6 @@ export const QrCodeScanner = (props: Omit<MaterialIconProps, 'name'>) => <Materi
 export const Copy = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="content_copy" {...props} />
 export const ImageIcon = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="image" {...props} />
 export const NoPhotography = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="no_photography" {...props} />
+export const ListView = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="format_list_bulleted" {...props} />
+export const CardsView = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="style" {...props} />
+export const ExpandMore = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="expand_more" {...props} />

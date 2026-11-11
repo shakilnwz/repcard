@@ -140,3 +140,10 @@ export function gradeFsrsCard(card: FsrsCard, rating: ValidRating, now = new Dat
   const record = fScheduler.repeat(card, now)
   return record[rating as Grade]
 }
+
+/** Short label for a card's FSRS state (Relearning counts as Review), shown on cards and list rows */
+export function getStateLabel(state: number = State.New): string {
+  if (state === State.New) return 'New'
+  if (state === State.Learning) return 'Learning'
+  return 'Review'
+}
