@@ -1,7 +1,7 @@
 import { Menu } from 'lucide-react'
 
 export type StudyMode = 'due' | 'cram'
-export type ColorPaletteMode = 'default' | 'navy-canvas' | 'mint-canvas'
+export type ColorPaletteMode = 'default' | 'navy-canvas' | 'black-navy-card'
 
 interface AppHeaderProps {
   onOpenSidebar: () => void;

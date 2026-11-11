@@ -119,10 +119,10 @@ export function LibraryDrawer({
 
   const colorModeLabel =
     colorMode === 'default'
-      ? 'Pure Black'
+      ? 'Lime Hero (Black)'
       : colorMode === 'navy-canvas'
-      ? 'Navy Canvas'
-      : 'Mint Canvas'
+      ? 'Lime Hero (Navy)'
+      : 'Navy Hero (Black)'
 
   const isStarterOnly = libraries.length === 1 && libraries[0].id === STARTER_LIBRARY_ID
 

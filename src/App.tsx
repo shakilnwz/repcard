@@ -60,7 +60,7 @@ export default function App() {
   const cycleColorMode = useCallback(() => {
     setColorMode((prev) => {
       if (prev === 'default') return 'navy-canvas'
-      if (prev === 'navy-canvas') return 'mint-canvas'
+      if (prev === 'navy-canvas') return 'black-navy-card'
       return 'default'
     })
   }, [])

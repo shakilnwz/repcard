@@ -11,7 +11,33 @@
   --c-navy: #071a52;
   --c-mint: #a7ff83;
 
-  /* Pure Black Canvas Default Theme: Pure Black Viewport (#000000) + Deep Navy Card (#071a52) + Mint Highlights (#a7ff83) */
+  /* Default Theme: Pure Black Canvas (#000000) + Lime Card (#a7ff83) + Deep Navy Text (#071a52) */
+  --bg-app: #000000;
+  --fg-app: var(--c-mint);
+  --bg-card: var(--c-mint);
+  --fg-card: var(--c-navy);
+  --card-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.7), 0 4px 14px -2px rgba(0, 0, 0, 0.5);
+  --pill-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.5);
+  --button-primary-bg: var(--c-mint);
+  --button-primary-fg: var(--c-navy);
+  --button-secondary-bg: var(--c-navy);
+  --button-secondary-fg: var(--c-mint);
+}
+
+[data-color-mode="navy-canvas"] {
+  --bg-app: var(--c-navy);
+  --fg-app: var(--c-mint);
+  --bg-card: var(--c-mint);
+  --fg-card: var(--c-navy);
+  --card-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.45), 0 4px 12px -2px rgba(0, 0, 0, 0.25);
+  --pill-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.3);
+  --button-primary-bg: var(--c-mint);
+  --button-primary-fg: var(--c-navy);
+  --button-secondary-bg: var(--c-navy);
+  --button-secondary-fg: var(--c-mint);
+}
+
+[data-color-mode="black-navy-card"] {
   --bg-app: #000000;
   --fg-app: var(--c-mint);
   --bg-card: var(--c-navy);
@@ -22,32 +48,6 @@
   --button-primary-fg: var(--c-mint);
   --button-secondary-bg: #000000;
   --button-secondary-fg: var(--c-mint);
-}
-
-[data-color-mode="navy-canvas"] {
-  --bg-app: var(--c-navy);
-  --fg-app: var(--c-mint);
-  --bg-card: #000000;
-  --fg-card: var(--c-mint);
-  --card-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
-  --pill-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.3);
-  --button-primary-bg: #000000;
-  --button-primary-fg: var(--c-mint);
-  --button-secondary-bg: var(--c-navy);
-  --button-secondary-fg: var(--c-mint);
-}
-
-[data-color-mode="mint-canvas"] {
-  --bg-app: var(--c-mint);
-  --fg-app: var(--c-navy);
-  --bg-card: var(--c-navy);
-  --fg-card: var(--c-mint);
-  --card-shadow: 0 8px 30px -4px rgba(7, 26, 82, 0.22), 0 4px 12px -2px rgba(7, 26, 82, 0.12);
-  --pill-shadow: 0 2px 8px -1px rgba(7, 26, 82, 0.15);
-  --button-primary-bg: var(--c-navy);
-  --button-primary-fg: var(--c-mint);
-  --button-secondary-bg: var(--c-mint);
-  --button-secondary-fg: var(--c-navy);
 }
 
 body {
