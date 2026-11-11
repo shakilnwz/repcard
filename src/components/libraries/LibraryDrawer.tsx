@@ -10,10 +10,12 @@ import {
   AlertCircle,
   ShieldCheck,
   CheckCircle2,
+  Database,
 } from 'lucide-react'
 import type { LibrarySource } from '@/types/schema'
 import { generateLibraryShareLink, type ImportableLibraryPayload } from '@/lib/hashImport'
 import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'
+import { BackupModal } from './BackupModal'
 
 interface LibraryDrawerProps {
   open: boolean;
@@ -21,6 +23,7 @@ interface LibraryDrawerProps {
   libraries: LibrarySource[];
   syncingMap: Record<string, boolean>;
   pendingImport: ImportableLibraryPayload | null;
+  reviewedCardsCount: number;
   onAddLibrary: (url: string, name?: string) => Promise<{ success: boolean; error?: string }>;
   onToggleEnabled: (id: string) => void;
   onSyncLibrary: (id: string, force?: boolean) => Promise<boolean>;
@@ -28,6 +31,7 @@ interface LibraryDrawerProps {
   onRemoveLibrary: (id: string, purgeProgress?: boolean) => void;
   onConfirmPendingImport: () => Promise<unknown>;
   onDismissPendingImport: () => void;
+  onRestoreComplete: () => void;
 }
 
 export function LibraryDrawer({
@@ -36,6 +40,7 @@ export function LibraryDrawer({
   libraries,
   syncingMap,
   pendingImport,
+  reviewedCardsCount,
   onAddLibrary,
   onToggleEnabled,
   onSyncLibrary,
@@ -43,6 +48,7 @@ export function LibraryDrawer({
   onRemoveLibrary,
   onConfirmPendingImport,
   onDismissPendingImport,
+  onRestoreComplete,
 }: LibraryDrawerProps) {
   const [urlInput, setUrlInput] = useState('')
   const [nameInput, setNameInput] = useState('')
@@ -50,6 +56,7 @@ export function LibraryDrawer({
   const [addError, setAddError] = useState<string | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [backupOpen, setBackupOpen] = useState(false)
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -347,7 +354,28 @@ export function LibraryDrawer({
                 Click <strong>Share Link</strong> on any library to copy an encrypted URL hash link. Open that link on your phone browser to instantly prefill your endpoint without typing.
               </p>
             </div>
+
+            {/* Backup & Restore Trigger */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setBackupOpen(true)}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-[family-name:var(--font-display)] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-mint)]/60 transition-colors"
+              >
+                <Database className="w-3.5 h-3.5 text-[var(--accent-mint)]" />
+                <span>Backup & Restore (JSON)</span>
+              </button>
+            </div>
           </div>
+
+          {/* Backup Modal */}
+          <BackupModal
+            open={backupOpen}
+            onOpenChange={setBackupOpen}
+            librariesCount={libraries.length}
+            reviewedCardsCount={reviewedCardsCount}
+            onRestoreComplete={onRestoreComplete}
+          />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

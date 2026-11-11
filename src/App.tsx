@@ -333,6 +333,7 @@ export default function App() {
         libraries={libraries}
         syncingMap={syncingMap}
         pendingImport={pendingImport}
+        reviewedCardsCount={Object.keys(progressState).length}
         onAddLibrary={addLibrary}
         onToggleEnabled={toggleLibraryEnabled}
         onSyncLibrary={syncLibrary}
@@ -340,6 +341,7 @@ export default function App() {
         onRemoveLibrary={removeLibrary}
         onConfirmPendingImport={confirmPendingImport}
         onDismissPendingImport={dismissPendingImport}
+        onRestoreComplete={() => window.location.reload()}
       />
     </div>
   )
