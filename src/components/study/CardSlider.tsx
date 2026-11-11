@@ -147,9 +147,14 @@ export function CardSlider({
   const isDualCardActive = isSliding || isDragging || isSnappingBack
   const incomingCard = nextCard || currentCard
 
+  // Circular rotary track physics (pinned in a huge circle)
+  const ROTATE_MAX = 8 // degrees
+  const DROP_MAX = 16 // pixels
+
   // Compute Card Styles
   let currentCardStyle: React.CSSProperties = {
     touchAction: 'pan-y',
+    transformOrigin: '50% 130%',
   }
   let currentCardClass = ''
 
@@ -159,6 +164,7 @@ export function CardSlider({
     width: '100%',
     height: '100%',
     touchAction: 'pan-y',
+    transformOrigin: '50% 130%',
   }
   let incomingCardClass = ''
 
@@ -171,27 +177,47 @@ export function CardSlider({
       incomingCardClass = 'animate-slide-in-right'
     }
   } else if (isDragging) {
+    const progress = Math.min(Math.max(dragOffset / 360, -1), 1)
+    const currentAngle = progress * ROTATE_MAX
+    const currentDrop = Math.abs(progress) * DROP_MAX
+
     currentCardStyle = {
       ...currentCardStyle,
-      transform: `translate3d(${dragOffset}px, 0, 0)`,
+      transform: `translate3d(${dragOffset}px, ${currentDrop}px, 0) rotate(${currentAngle}deg)`,
       transition: 'none',
     }
-    const incomingTranslateX = dragOffset > 0 ? `calc(-100% + ${dragOffset}px)` : `calc(100% + ${dragOffset}px)`
-    incomingCardStyle = {
-      ...incomingCardStyle,
-      transform: `translate3d(${incomingTranslateX}, 0, 0)`,
-      transition: 'none',
+
+    if (dragOffset > 0) {
+      // Incoming from left
+      const incomingAngle = -ROTATE_MAX + progress * ROTATE_MAX
+      const incomingDrop = Math.max(0, DROP_MAX - progress * DROP_MAX)
+      incomingCardStyle = {
+        ...incomingCardStyle,
+        transform: `translate3d(calc(-100% + ${dragOffset}px), ${incomingDrop}px, 0) rotate(${incomingAngle}deg)`,
+        transition: 'none',
+      }
+    } else {
+      // Incoming from right
+      const incomingAngle = ROTATE_MAX + progress * ROTATE_MAX
+      const incomingDrop = Math.max(0, DROP_MAX - Math.abs(progress) * DROP_MAX)
+      incomingCardStyle = {
+        ...incomingCardStyle,
+        transform: `translate3d(calc(100% + ${dragOffset}px), ${incomingDrop}px, 0) rotate(${incomingAngle}deg)`,
+        transition: 'none',
+      }
     }
   } else if (isSnappingBack) {
     currentCardStyle = {
       ...currentCardStyle,
-      transform: 'translate3d(0, 0, 0)',
-      transition: 'transform 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+      transform: 'translate3d(0, 0, 0) rotate(0deg)',
+      transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
     }
+    const incomingTranslateX = dragOffset > 0 ? '-100%' : '100%'
+    const incomingAngle = dragOffset > 0 ? -ROTATE_MAX : ROTATE_MAX
     incomingCardStyle = {
       ...incomingCardStyle,
-      transform: dragOffset > 0 ? 'translate3d(-100%, 0, 0)' : 'translate3d(100%, 0, 0)',
-      transition: 'transform 180ms cubic-bezier(0.16, 1, 0.3, 1)',
+      transform: `translate3d(${incomingTranslateX}, ${DROP_MAX}px, 0) rotate(${incomingAngle}deg)`,
+      transition: 'transform 200ms cubic-bezier(0.16, 1, 0.3, 1)',
     }
   }
 
@@ -201,7 +227,7 @@ export function CardSlider({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
-      className="relative w-full overflow-hidden min-h-[420px] select-none rounded-2xl will-change-transform"
+      className="relative w-full overflow-hidden py-2 min-h-[440px] select-none rounded-2xl will-change-transform"
     >
       {/* Current Active Card */}
       <div style={currentCardStyle} className={`w-full ${currentCardClass}`}>

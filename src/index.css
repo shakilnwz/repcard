@@ -90,60 +90,68 @@ body {
   text-align-last: left;
 }
 
-/* Synchronized Dual-Card Sliding Transitions */
+/* Synchronized Circular Rotary Sliding Transitions (Pinned in a huge circle) */
 @keyframes slideOutToRight {
   0% {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform-origin: 50% 130%;
   }
   100% {
-    transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 16px, 0) rotate(8deg);
+    transform-origin: 50% 130%;
   }
 }
 
 @keyframes slideInFromLeft {
   0% {
-    transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 16px, 0) rotate(-8deg);
+    transform-origin: 50% 130%;
   }
   100% {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform-origin: 50% 130%;
   }
 }
 
 @keyframes slideOutToLeft {
   0% {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform-origin: 50% 130%;
   }
   100% {
-    transform: translate3d(-100%, 0, 0);
+    transform: translate3d(-100%, 16px, 0) rotate(-8deg);
+    transform-origin: 50% 130%;
   }
 }
 
 @keyframes slideInFromRight {
   0% {
-    transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 16px, 0) rotate(8deg);
+    transform-origin: 50% 130%;
   }
   100% {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform-origin: 50% 130%;
   }
 }
 
 .animate-slide-out-right {
-  animation: slideOutToRight 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  animation: slideOutToRight 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
 
 .animate-slide-in-left {
-  animation: slideInFromLeft 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  animation: slideInFromLeft 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
 
 .animate-slide-out-left {
-  animation: slideOutToLeft 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  animation: slideOutToLeft 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
 
 .animate-slide-in-right {
-  animation: slideInFromRight 240ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
+  animation: slideInFromRight 250ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
 
