@@ -25,18 +25,13 @@ Build a fast, distraction-free, mobile-first Progressive Web App (PWA) for revie
 The interface must feel calm, focused, and comfortable for multi-session daily reading on mobile screens.
 
 ### Strict Aesthetic Rules
-- **Zero Gradients:** Do **not** use `bg-gradient-*` or `linear-gradient()` anywhere in the UI. Rely strictly on flat, solid surfaces, crisp `1px` structural borders, and high-contrast typography.
-- **Brand Color Tokens (Strict — No Color Changes):**
-  - **Canvas Background / Deep Midnight:** `#05133d`
-  - **Primary Surface / Deep Navy:** `#071a52`
-  - **Elevated Panel / Secondary Pill:** `#0b246e`
-  - **Structural Border / Divider:** `#143594`
-  - **Primary Accent / Mint Lime:** `#a7ff83`
-  - **Accent Foreground / Dark Navy:** `#071a52`
-  - **Primary Body Text / Off-White:** `#f8fafc`
-  - **Secondary Text / Muted Slate Blue:** `#a3b8e0`
-  - **Danger Solid / Rating Coral:** `#ff6b6b`
-- **Contrast & Surface Hierarchy:** `#a7ff83` text/accents on `#071a52` surfaces provide an exceptional `12.6:1` contrast ratio (WCAG AAA). Use `#a7ff83` for primary CTAs (with `#071a52` bold label text), active state indicators, progress bars, and key badges.
+- **Zero Gradients:** Do **not** use `bg-gradient-*` or `linear-gradient()` anywhere in the UI. Rely strictly on flat, solid surfaces, soft tactile shadows, and high-contrast typography.
+- **Strict Two-Color Palette (Zero Diffused Colors, No In-Between):**
+  - **Color 1 (Deep Navy):** `#071a52`
+  - **Color 2 (Mint Lime):** `#a7ff83`
+  - No diffused or intermediary colors (`#05133d`, `#0b246e`, `#143594`, `#f8fafc`, `#a3b8e0`, `#ff6b6b` are strictly prohibited). Every UI element, surface, button, text, and icon is rendered exclusively in `#071a52` or `#a7ff83`.
+- **Zero Borders & Tactile Elevation:** No structural `1px` borders anywhere (`border-0`). Depth, card elevation, and visual hierarchy are established solely through subtle shadows (`shadow-sm`, `shadow-md`).
+- **Switched Color Hierarchy:** The dominant background is switched to **Mint Lime** (`#a7ff83`), with typography, active surfaces, and interactive controls rendered in high-contrast **Deep Navy** (`#071a52`), delivering a pristine `12.6:1` contrast ratio (WCAG AAA).
 
 ### Dual-Font Typography System & CSS Variables (`src/index.css`)
 
@@ -55,9 +50,18 @@ Both **Space Grotesk** and **Google Sans** are actively loaded and paired togeth
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Solid Color System — Zero Gradients (Strict No Change) */
-  --bg-canvas: #05133d;        /* Outer viewport background */
-  --bg-surface: #071a52;       /* Primary brand navy card & header surface */
+  /* Strictly 2 Colors — Zero Diffused Colors, No Inbetween */
+  --c-navy: #071a52;
+  --c-mint: #a7ff83;
+
+  /* Switched Color Palette */
+  --bg-app: var(--c-mint);
+  --fg-app: var(--c-navy);
+  --bg-card: var(--c-navy);
+  --fg-card: var(--c-mint);
+  --card-shadow: 0 8px 30px -4px rgba(7, 26, 82, 0.22);
+}
+```
   --bg-elevated: #0b246e;      /* Secondary elevated panel / pill background */
   --border-subtle: #143594;    /* 1px solid structural border */
   --text-primary: #f8fafc;     /* Crisp off-white for body readability */

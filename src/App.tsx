@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { CheckCircle2 } from 'lucide-react'
 import { useLibraries } from '@/hooks/useLibraries'
 import { useCardProgress } from '@/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import { AppHeader, type StudyMode } from '@/components/layout/AppHeader'
+import { AppHeader, type StudyMode, type ColorPaletteMode } from '@/components/layout/AppHeader'
 import { FilterBar, type CramFilter } from '@/components/study/FilterBar'
 import { FlashcardView } from '@/components/study/FlashcardView'
 import { RatingBar } from '@/components/study/RatingBar'
@@ -45,8 +45,25 @@ export default function App() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
   const [countTowardSrsInCram, setCountTowardSrsInCram] = useState(false)
-
   const [sessionNow, setSessionNow] = useState(() => Date.now())
+  const [colorMode, setColorMode] = useState<ColorPaletteMode>('default')
+
+  // Apply color mode to document root
+  useEffect(() => {
+    if (colorMode === 'default') {
+      document.documentElement.removeAttribute('data-color-mode')
+    } else {
+      document.documentElement.setAttribute('data-color-mode', colorMode)
+    }
+  }, [colorMode])
+
+  const cycleColorMode = useCallback(() => {
+    setColorMode((prev) => {
+      if (prev === 'default') return 'mint-card'
+      if (prev === 'mint-card') return 'mint-pure'
+      return 'default'
+    })
+  }, [])
 
   // Helper to determine which library contains a card
   const getCardLibraryId = useCallback(
@@ -161,6 +178,7 @@ export default function App() {
 
       if (countTowardSrsInCram) {
         gradeCardDue(currentKey, currentLibraryId, currentCard.id, gotIt ? Rating.Good : Rating.Again)
+        setSessionNow(Date.now())
       }
 
       setIsFlipped(false)
@@ -216,7 +234,7 @@ export default function App() {
   const activeLibsCount = libraries.filter((l) => l.enabled).length
 
   return (
-    <div className="min-h-dvh bg-[var(--bg-canvas)] text-[var(--text-primary)] font-[family-name:var(--font-body)] flex flex-col justify-between max-w-lg mx-auto px-4 py-4">
+    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-body)] flex flex-col justify-between max-w-lg mx-auto px-4 py-4 transition-colors duration-150">
       {/* Top Header */}
       <AppHeader
         mode={mode}
@@ -226,17 +244,18 @@ export default function App() {
           setIsFlipped(false)
         }}
         dueCount={dueCards.length}
-        totalCards={activeCards.length}
         canUndo={canUndo}
         onUndo={handleUndo}
         activeLibrariesCount={activeLibsCount}
         isSyncing={isSyncing}
         onOpenLibraries={() => setDrawerOpen(true)}
+        colorMode={colorMode}
+        onCycleColorMode={cycleColorMode}
       />
 
       {/* Cram Mode Filter Pills */}
       {mode === 'cram' && (
-        <div className="mt-3">
+        <div className="mt-2.5">
           <FilterBar
             currentFilter={cramFilter}
             onFilterChange={(f) => {
@@ -251,13 +270,13 @@ export default function App() {
 
       {/* Starter Deck Reminder Banner */}
       {isStarterOnly && (
-        <div className="mt-3 p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between gap-2 text-xs">
-          <span className="text-[var(--text-secondary)] truncate">
+        <div className="mt-3 p-3 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm flex items-center justify-between gap-2 text-xs">
+          <span className="truncate opacity-85">
             Using built-in starter deck.
           </span>
           <button
             onClick={() => setDrawerOpen(true)}
-            className="shrink-0 font-[family-name:var(--font-display)] font-semibold text-[var(--accent-mint)] hover:underline"
+            className="shrink-0 font-[family-name:var(--font-display)] font-bold text-[var(--bg-app)] underline hover:opacity-90 transition-opacity"
           >
             + Add Your Endpoint
           </button>
@@ -278,15 +297,15 @@ export default function App() {
             }`}
           />
         ) : (
-          <div className="p-8 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] flex items-center justify-center mx-auto text-[var(--accent-mint)]">
+          <div className="p-8 rounded-3xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-md text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-[var(--bg-app)] text-[var(--fg-app)] flex items-center justify-center mx-auto shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--text-primary)]">
+              <h3 className="font-[family-name:var(--font-display)] text-lg font-bold">
                 {mode === 'due' ? 'Queue Completed!' : 'No Cards Found'}
               </h3>
-              <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-xs mx-auto">
+              <p className="text-xs opacity-85 mt-1 max-w-xs mx-auto leading-relaxed">
                 {mode === 'due'
                   ? 'All due cards have been reviewed for now. Switch to Practice Anytime to cram without affecting your schedule.'
                   : 'No cards matched your current filter criteria.'}
@@ -299,14 +318,14 @@ export default function App() {
                   setCurrentIndex(0)
                   setIsFlipped(false)
                 }}
-                className="py-2.5 px-4 rounded-xl bg-[var(--accent-mint)] text-[var(--accent-mint-fg)] font-[family-name:var(--font-display)] text-xs font-bold hover:opacity-90 transition-opacity"
+                className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-display)] text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
               >
                 Switch to Practice Mode
               </button>
             ) : (
               <button
                 onClick={() => setCramFilter('all')}
-                className="py-2.5 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--accent-mint)]"
+                className="py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
               >
                 Reset Filters
               </button>

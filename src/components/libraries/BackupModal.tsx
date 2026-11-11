@@ -82,20 +82,20 @@ export function BackupModal({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xs z-60 animate-in fade-in duration-200" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] z-60 rounded-2xl shadow-2xl p-5 space-y-5 focus:outline-hidden animate-in zoom-in-95 duration-150">
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-[var(--bg-app)] text-[var(--fg-app)] z-60 rounded-3xl shadow-2xl p-6 space-y-5 focus:outline-hidden animate-in zoom-in-95 duration-150">
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+          <div className="flex items-center justify-between pb-1">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-mint)]">
-                <Database className="w-3.5 h-3.5" />
+              <div className="w-8 h-8 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] flex items-center justify-center shadow-xs">
+                <Database className="w-4 h-4" />
               </div>
-              <Dialog.Title className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--text-primary)]">
+              <Dialog.Title className="font-[family-name:var(--font-display)] text-base font-bold">
                 Backup & Restore
               </Dialog.Title>
             </div>
             <Dialog.Close asChild>
               <button
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
+                className="w-7 h-7 rounded-lg flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
@@ -104,36 +104,36 @@ export function BackupModal({
           </div>
 
           {/* Current Local State Summary */}
-          <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs space-y-1">
-            <p className="text-[var(--text-secondary)]">Current Local Browser State:</p>
-            <p className="font-semibold text-[var(--text-primary)]">
+          <div className="p-3.5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs space-y-1 shadow-xs">
+            <p className="opacity-80">Current Local Browser State:</p>
+            <p className="font-bold">
               {librariesCount} libraries configured • {reviewedCardsCount} card records
             </p>
           </div>
 
           {/* Export Button */}
           <div className="space-y-2">
-            <h4 className="font-[family-name:var(--font-display)] text-xs font-semibold text-[var(--accent-mint)] uppercase tracking-wider">
+            <h4 className="font-[family-name:var(--font-display)] text-xs font-bold uppercase tracking-wider opacity-85">
               Export Backup
             </h4>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-xs opacity-80 leading-relaxed">
               Save your configured endpoints, review intervals, and cram counters into an offline JSON file.
             </p>
             <button
               onClick={handleExport}
-              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-xs font-[family-name:var(--font-display)] font-semibold text-[var(--text-primary)] hover:border-[var(--accent-mint)]/60 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
             >
-              <Download className="w-3.5 h-3.5 text-[var(--accent-mint)]" />
+              <Download className="w-4 h-4" />
               <span>Download Backup (.json)</span>
             </button>
           </div>
 
           {/* Import Button */}
-          <div className="space-y-2 pt-2 border-t border-[var(--border-subtle)]">
-            <h4 className="font-[family-name:var(--font-display)] text-xs font-semibold text-[var(--accent-mint)] uppercase tracking-wider">
+          <div className="space-y-2 pt-2">
+            <h4 className="font-[family-name:var(--font-display)] text-xs font-bold uppercase tracking-wider opacity-85">
               Restore from Backup
             </h4>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-xs opacity-80 leading-relaxed">
               Restore previously exported flashcard endpoints and FSRS study progress.
             </p>
 
@@ -147,33 +147,27 @@ export function BackupModal({
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[var(--accent-mint)] text-[var(--accent-mint-fg)] text-xs font-[family-name:var(--font-display)] font-bold hover:opacity-90 transition-opacity"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
             >
-              <Upload className="w-3.5 h-3.5" />
+              <Upload className="w-4 h-4" />
               <span>Select Backup File</span>
             </button>
           </div>
 
           {/* Status Alert */}
           {importStatus && (
-            <div
-              className={`p-3 rounded-xl text-xs flex items-start gap-2 ${
-                importStatus.success
-                  ? 'bg-emerald-950/40 border border-emerald-800 text-emerald-300'
-                  : 'bg-red-950/40 border border-red-900/60 text-red-300'
-              }`}
-            >
+            <div className="p-3 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs flex items-start gap-2 shadow-xs font-medium">
               {importStatus.success ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               )}
               <span>{importStatus.message}</span>
             </div>
           )}
 
           {/* Tip */}
-          <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)] pt-1">
+          <div className="flex items-center gap-1.5 text-[11px] opacity-75 pt-1">
             <FileText className="w-3.5 h-3.5" />
             <span>Backups are plain JSON and 100% human-readable.</span>
           </div>
