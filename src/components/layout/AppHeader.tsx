@@ -1,7 +1,7 @@
 import { Layers, RotateCcw, FolderGit2, RefreshCw, Palette } from 'lucide-react'
 
 export type StudyMode = 'due' | 'cram'
-export type ColorPaletteMode = 'default' | 'mint-card' | 'mint-pure'
+export type ColorPaletteMode = 'default' | 'mint-canvas' | 'mint-pure'
 
 interface AppHeaderProps {
   mode: StudyMode;
@@ -30,9 +30,9 @@ export function AppHeader({
 }: AppHeaderProps) {
   const colorModeLabel =
     colorMode === 'default'
-      ? 'Mint Canvas'
-      : colorMode === 'mint-card'
       ? 'Navy Canvas'
+      : colorMode === 'mint-canvas'
+      ? 'Mint Canvas'
       : 'Pure Mint'
 
   return (

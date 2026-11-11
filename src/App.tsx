@@ -59,8 +59,8 @@ export default function App() {
 
   const cycleColorMode = useCallback(() => {
     setColorMode((prev) => {
-      if (prev === 'default') return 'mint-card'
-      if (prev === 'mint-card') return 'mint-pure'
+      if (prev === 'default') return 'mint-canvas'
+      if (prev === 'mint-canvas') return 'mint-pure'
       return 'default'
     })
   }, [])

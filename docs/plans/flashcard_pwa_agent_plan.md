@@ -31,7 +31,12 @@ The interface must feel calm, focused, and comfortable for multi-session daily r
   - **Color 2 (Mint Lime):** `#a7ff83`
   - No diffused or intermediary colors (`#05133d`, `#0b246e`, `#143594`, `#f8fafc`, `#a3b8e0`, `#ff6b6b` are strictly prohibited). Every UI element, surface, button, text, and icon is rendered exclusively in `#071a52` or `#a7ff83`.
 - **Zero Borders & Tactile Elevation:** No structural `1px` borders anywhere (`border-0`). Depth, card elevation, and visual hierarchy are established solely through subtle shadows (`shadow-sm`, `shadow-md`).
-- **Switched Color Hierarchy:** The dominant background is switched to **Mint Lime** (`#a7ff83`), with typography, active surfaces, and interactive controls rendered in high-contrast **Deep Navy** (`#071a52`), delivering a pristine `12.6:1` contrast ratio (WCAG AAA).
+- **Navy Canvas Default Theme (Switched Flashcard):**
+  - **Viewport Background (Deep Navy):** `#071a52`
+  - **Flashcard Surface (Mint Lime):** `#a7ff83`
+  - **Flashcard Typography (Deep Navy):** `#071a52`
+  - **Viewport Controls & Top Header (Mint Lime):** `#a7ff83`
+  - Delivers a pristine `12.6:1` contrast ratio (WCAG AAA) with zero diffused colors.
 
 ### Dual-Font Typography System & CSS Variables (`src/index.css`)
 
@@ -54,35 +59,22 @@ Both **Space Grotesk** and **Google Sans** are actively loaded and paired togeth
   --c-navy: #071a52;
   --c-mint: #a7ff83;
 
-  /* Switched Color Palette */
-  --bg-app: var(--c-mint);
-  --fg-app: var(--c-navy);
-  --bg-card: var(--c-navy);
-  --fg-card: var(--c-mint);
-  --card-shadow: 0 8px 30px -4px rgba(7, 26, 82, 0.22);
-}
-```
-  --bg-elevated: #0b246e;      /* Secondary elevated panel / pill background */
-  --border-subtle: #143594;    /* 1px solid structural border */
-  --text-primary: #f8fafc;     /* Crisp off-white for body readability */
-  --text-secondary: #a3b8e0;   /* Muted slate-blue for metadata & labels */
-  --accent-mint: #a7ff83;      /* Brand mint-lime accent */
-  --accent-mint-fg: #071a52;   /* Dark navy text on mint buttons */
-  --danger-solid: #ff6b6b;     /* Solid coral for 'Again' button border/text */
-}
-
-@theme {
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
+  /* Navy Canvas Default Theme */
+  --bg-app: var(--c-navy);
+  --fg-app: var(--c-mint);
+  --bg-card: var(--c-mint);
+  --fg-card: var(--c-navy);
+  --card-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.45);
 }
 
 body {
-  background-color: var(--bg-canvas);
-  color: var(--text-primary);
+  background-color: var(--bg-app);
+  color: var(--fg-app);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
+```
 
 /* Card Body Justification Safeguards */
 .card-content-justified {
