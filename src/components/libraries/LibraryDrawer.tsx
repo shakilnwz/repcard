@@ -6,7 +6,6 @@ import {
   RefreshCw,
   Share2,
   Trash2,
-  Check,
   AlertCircle,
   ShieldCheck,
   CheckCircle2,
@@ -14,11 +13,14 @@ import {
   RotateCcw,
   Palette,
   Sparkles,
+  QrCodeScanner,
 } from '@/components/ui/MaterialIcons'
 import type { LibrarySource } from '@/types/schema'
-import { generateLibraryShareLink, type ImportableLibraryPayload } from '@/lib/hashImport'
+import { parseLibraryShareLink, type ImportableLibraryPayload } from '@/lib/hashImport'
 import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'
 import { BackupModal } from './BackupModal'
+import { ShareLibraryModal } from './ShareLibraryModal'
+import { ScanLibraryModal } from './ScanLibraryModal'
 import { FilterBar, type CramFilter } from '@/components/study/FilterBar'
 import type { StudyMode, ColorPaletteMode } from '@/components/layout/AppHeader'
 
@@ -49,7 +51,7 @@ interface LibraryDrawerProps {
   onSyncLibrary: (id: string, force?: boolean) => Promise<boolean>;
   onSyncAll: (force?: boolean) => Promise<void>;
   onRemoveLibrary: (id: string, purgeProgress?: boolean) => void;
-  onConfirmPendingImport: () => Promise<unknown>;
+  onConfirmPendingImport: () => Promise<{ success: boolean; error?: string } | undefined>;
   onDismissPendingImport: () => void;
   onRestoreComplete: () => void;
 }
@@ -86,9 +88,15 @@ export function LibraryDrawer({
   const [nameInput, setNameInput] = useState('')
   const [isAdding, setIsAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
-  const [copiedId, setCopiedId] = useState<string | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [backupOpen, setBackupOpen] = useState(false)
+  // The shared library outlives `shareOpen` so the modal keeps its content while animating out
+  const [shareLibrary, setShareLibrary] = useState<LibrarySource | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [scanOpen, setScanOpen] = useState(false)
+  const [importBusy, setImportBusy] = useState(false)
+  const [importFailure, setImportFailure] = useState<{ payload: ImportableLibraryPayload; error: string } | null>(null)
+  const importError = importFailure && importFailure.payload === pendingImport ? importFailure.error : null
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -97,7 +105,11 @@ export function LibraryDrawer({
     setIsAdding(true)
     setAddError(null)
 
-    const result = await onAddLibrary(urlInput, nameInput)
+    // A pasted RepCard share link carries the endpoint (and a name) inside its #import_lib hash
+    const shared = parseLibraryShareLink(urlInput)
+    const result = shared
+      ? await onAddLibrary(shared.url, nameInput.trim() || shared.name)
+      : await onAddLibrary(urlInput, nameInput)
     setIsAdding(false)
 
     if (result.success) {
@@ -108,13 +120,14 @@ export function LibraryDrawer({
     }
   }
 
-  const handleCopyShareLink = (lib: LibrarySource) => {
-    if (!lib.url) return
-    const link = generateLibraryShareLink({ name: lib.name, url: lib.url })
-    navigator.clipboard.writeText(link).then(() => {
-      setCopiedId(lib.id)
-      setTimeout(() => setCopiedId(null), 2000)
-    })
+  const handleConfirmImport = async () => {
+    if (!pendingImport) return
+    const payload = pendingImport
+    setImportBusy(true)
+    setImportFailure(null)
+    const result = await onConfirmPendingImport()
+    setImportBusy(false)
+    if (result && !result.success) setImportFailure({ payload, error: result.error || 'Failed to add library' })
   }
 
   const colorModeLabel =
@@ -263,15 +276,25 @@ export function LibraryDrawer({
                   </div>
                 </div>
 
+                {importError && (
+                  <div className="flex items-start gap-1.5 p-2 rounded-lg bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-medium" role="alert">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    <span className="break-words min-w-0">{importError}</span>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-2 pt-1">
                   <button
-                    onClick={onConfirmPendingImport}
-                    className="flex-1 py-1.5 px-3 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+                    onClick={handleConfirmImport}
+                    disabled={importBusy}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity disabled:opacity-60"
                   >
-                    Confirm Import
+                    {importBusy && <RefreshCw className="w-3 h-3 animate-spin" />}
+                    <span>{importBusy ? 'Adding…' : 'Confirm Import'}</span>
                   </button>
                   <button
                     onClick={onDismissPendingImport}
+                    disabled={importBusy}
                     className="py-1.5 px-3 rounded-lg opacity-85 hover:opacity-100 text-xs font-medium transition-opacity"
                   >
                     Dismiss
@@ -371,24 +394,18 @@ export function LibraryDrawer({
                             </button>
                           )}
 
-                          {/* Copy Setup Link */}
+                          {/* Share: QR code + setup link */}
                           {!isStarter && lib.url && (
                             <button
-                              onClick={() => handleCopyShareLink(lib)}
+                              onClick={() => {
+                                setShareLibrary(lib)
+                                setShareOpen(true)
+                              }}
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--bg-app)] text-[var(--fg-app)] font-bold shadow-xs hover:opacity-90 transition-opacity"
-                              title="Copy 1-tap setup link for mobile"
+                              title="Share this library as a QR code or setup link"
                             >
-                              {copiedId === lib.id ? (
-                                <>
-                                  <Check className="w-3 h-3" />
-                                  <span>Copied!</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Share2 className="w-3 h-3" />
-                                  <span>Share Link</span>
-                                </>
-                              )}
+                              <Share2 className="w-3 h-3" />
+                              <span>Share</span>
                             </button>
                           )}
                         </div>
@@ -439,10 +456,21 @@ export function LibraryDrawer({
                 Add Remote Library
               </h3>
 
+              <button
+                type="button"
+                onClick={() => setScanOpen(true)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+              >
+                <QrCodeScanner className="w-4 h-4" />
+                <span>Scan QR Code</span>
+              </button>
+
+              <p className="text-[11px] text-center opacity-75">or paste an endpoint URL or share link</p>
+
               <form onSubmit={handleAddSubmit} className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium opacity-85 mb-1">
-                    Endpoint URL (Google Apps Script / JSON) *
+                    Endpoint URL or Share Link *
                   </label>
                   <input
                     type="url"
@@ -515,6 +543,10 @@ export function LibraryDrawer({
             reviewedCardsCount={reviewedCardsCount}
             onRestoreComplete={onRestoreComplete}
           />
+
+          <ShareLibraryModal library={shareLibrary} open={shareOpen} onOpenChange={setShareOpen} />
+
+          <ScanLibraryModal open={scanOpen} onOpenChange={setScanOpen} onAddLibrary={onAddLibrary} />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

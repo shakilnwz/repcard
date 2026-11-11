@@ -79,3 +79,8 @@ export const Palette = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon
 export const Download = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="download" {...props} />
 export const Upload = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="upload" {...props} />
 export const FileText = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="description" {...props} />
+export const QrCode = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="qr_code_2" {...props} />
+export const QrCodeScanner = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="qr_code_scanner" {...props} />
+export const Copy = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="content_copy" {...props} />
+export const ImageIcon = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="image" {...props} />
+export const NoPhotography = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="no_photography" {...props} />

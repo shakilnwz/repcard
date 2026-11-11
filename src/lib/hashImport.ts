@@ -3,6 +3,8 @@ export interface ImportableLibraryPayload {
   url: string;
 }
 
+const HASH_PREFIX = 'import_lib='
+
 function utf8ToBase64(str: string): string {
   try {
     return window.btoa(
@@ -29,6 +31,38 @@ function base64ToUtf8(str: string): string {
   }
 }
 
+function isHttpUrl(value: string): boolean {
+  try {
+    return ['http:', 'https:'].includes(new URL(value).protocol)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Decodes the `import_lib` value. New links use unpadded base64url (shorter, so the QR code is
+ * less dense); older links used percent-encoded standard base64, and both still decode.
+ */
+function decodeImportPayload(encoded: string): ImportableLibraryPayload | null {
+  try {
+    const base64 = decodeURIComponent(encoded).replace(/-/g, '+').replace(/_/g, '/')
+    const jsonStr = base64ToUtf8(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='))
+    if (!jsonStr) return null
+
+    const parsed = JSON.parse(jsonStr) as Partial<ImportableLibraryPayload>
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.url !== 'string') return null
+    if (!isHttpUrl(parsed.url.trim())) return null
+
+    return {
+      name: parsed.name ? String(parsed.name).trim() : undefined,
+      url: parsed.url.trim(),
+    }
+  } catch (err) {
+    console.warn('[hashImport] Failed to decode library payload:', err)
+    return null
+  }
+}
+
 /**
  * Encodes a library endpoint into a private shareable hash link.
  * Example: https://repcard.pages.dev/#import_lib=eyJuYW1lIjoi...
@@ -38,45 +72,42 @@ export function generateLibraryShareLink(library: ImportableLibraryPayload): str
     name: library.name?.trim(),
     url: library.url.trim(),
   })
-  const base64 = utf8ToBase64(payloadStr)
+  const base64url = utf8ToBase64(payloadStr).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
   const origin = window.location.origin + window.location.pathname
-  return `${origin}#import_lib=${encodeURIComponent(base64)}`
+  return `${origin}#${HASH_PREFIX}${base64url}`
+}
+
+/**
+ * Reads a RepCard share link (from any RepCard origin, e.g. a scanned QR code or a pasted link).
+ * Returns null when the text is not a share link.
+ */
+export function parseLibraryShareLink(text: string): ImportableLibraryPayload | null {
+  try {
+    const hash = new URL(text.trim()).hash.slice(1)
+    return hash.startsWith(HASH_PREFIX) ? decodeImportPayload(hash.slice(HASH_PREFIX.length)) : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Turns scanned QR text into something importable: a RepCard share link, or else a bare
+ * http(s) endpoint URL. Returns null for anything else.
+ */
+export function parseScannedLibrary(text: string): ImportableLibraryPayload | null {
+  const shared = parseLibraryShareLink(text)
+  if (shared) return shared
+  const trimmed = text.trim()
+  return isHttpUrl(trimmed) ? { url: trimmed } : null
 }
 
 /**
  * Checks and parses #import_lib=<base64> from the current window.location.hash.
  */
 export function checkUrlHashForLibrary(): ImportableLibraryPayload | null {
-  try {
-    const hash = window.location.hash.slice(1) // remove '#'
-    if (!hash) return null
-
-    const match = hash.match(/^import_lib=(.+)$/)
-    if (!match || !match[1]) return null
-
-    const base64 = decodeURIComponent(match[1])
-    const jsonStr = base64ToUtf8(base64)
-    if (!jsonStr) return null
-
-    const parsed = JSON.parse(jsonStr) as Partial<ImportableLibraryPayload>
-    if (!parsed || typeof parsed !== 'object' || !parsed.url || typeof parsed.url !== 'string') {
-      return null
-    }
-
-    // Basic URL format validation
-    const parsedUrl = new URL(parsed.url)
-    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
-      return null
-    }
-
-    return {
-      name: parsed.name ? String(parsed.name).trim() : undefined,
-      url: parsed.url.trim(),
-    }
-  } catch (err) {
-    console.warn('[hashImport] Failed to parse library from hash:', err)
-    return null
-  }
+  const hash = window.location.hash.slice(1) // remove '#'
+  if (!hash.startsWith(HASH_PREFIX)) return null
+  return decodeImportPayload(hash.slice(HASH_PREFIX.length))
 }
 
 /**

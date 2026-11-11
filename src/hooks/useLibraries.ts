@@ -140,6 +140,17 @@ export function useLibraries() {
     )
   }, [libraries, syncLibrary])
 
+  // A share link opened while the app is already running (e.g. an installed PWA receiving a
+  // scanned QR link) only changes the hash, so pick it up without a reload
+  useEffect(() => {
+    const onHashChange = () => {
+      const payload = checkUrlHashForLibrary()
+      if (payload) setPendingImport(payload)
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
   // Run background stale-while-revalidate sync once on initial mount
   useEffect(() => {
     syncAll(false)

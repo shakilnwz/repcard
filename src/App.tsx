@@ -44,6 +44,12 @@ export default function App() {
   const [mode, setMode] = useState<StudyMode>('due')
   const [cramFilter, setCramFilter] = useState<CramFilter>('all')
   const [drawerOpen, setDrawerOpen] = useState(() => Boolean(pendingImport))
+  // Open the drawer whenever a new share-link import arrives (on launch or via a later hash change)
+  const [shownImport, setShownImport] = useState(pendingImport)
+  if (pendingImport !== shownImport) {
+    setShownImport(pendingImport)
+    if (pendingImport) setDrawerOpen(true)
+  }
   // Which card is on screen: tracked by id (so it survives the deck re-sorting/shrinking after a
   // grade or undo), with a positional fallback for when that card is no longer in the deck.
   const [cursor, setCursor] = useState<{ id: string | null; index: number }>({ id: null, index: 0 })

@@ -101,8 +101,12 @@ body {
 }
 
 /* Card back face: thin scrollbar in the card's own ink, and a quick fade on reveal.
-   (Card slide/swipe motion lives in CardSlider.tsx and runs on the Web Animations API.) */
+   (Card slide/swipe motion lives in CardSlider.tsx and runs on the Web Animations API.)
+   touch-action must be restated here: a scroll container re-enables every pan direction for
+   itself and its descendants, so the slider's `pan-y` stops at this box and the browser would
+   claim horizontal drags (pointercancel) instead of letting them drive the swipe. */
 .card-scroll {
+  touch-action: pan-y pinch-zoom;
   scrollbar-width: thin;
   scrollbar-color: var(--fg-card) transparent;
 }
@@ -173,26 +177,28 @@ body {
   animation: drawerSlideOutRight 220ms cubic-bezier(0.4, 0, 1, 1) forwards;
 }
 
-/* Modal Zoom & Fade */
+/* Modal Zoom & Fade. Centering comes from the -translate-x/y-1/2 utilities, which Tailwind v4
+   applies through the separate `translate` property, so these keyframes must not translate by
+   -50% again (that would double the offset and push the modal up-left off screen). */
 @keyframes modalZoomIn {
   from {
     opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
+    transform: translateY(2%) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: none;
   }
 }
 
 @keyframes modalZoomOut {
   from {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: none;
   }
   to {
     opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
+    transform: translateY(2%) scale(0.96);
   }
 }
 
