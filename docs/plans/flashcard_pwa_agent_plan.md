@@ -38,23 +38,23 @@ The interface must feel calm, focused, and comfortable for multi-session daily r
   - **Viewport Controls & Top Header (Mint Lime):** `#a7ff83`
   - Delivers a pristine `12.6:1` contrast ratio (WCAG AAA) with zero diffused colors.
 
-### Dual-Font Typography System & CSS Variables (`src/index.css`)
+### Single-Font Typography & CSS Variables (`src/index.css`)
 
-Both **Space Grotesk** and **Google Sans** are actively loaded and paired together across the UI rather than one serving as an alternate/fallback:
+The whole UI uses one typeface: **Google Sans** (loaded from Google Fonts, weights 400–700), with **Open Sans** as the closest local fallback. Space Grotesk was dropped (2026-11) — hierarchy comes from size and weight, not a second family.
 
-- **`--font-display` (Space Grotesk):** Geometric, monospace-infused, technical personality. Used for flashcard terms/concepts, top-level headings, numeric badges, intervals (`~3d`, `<10m`), and key UI accents.
-- **`--font-body` (Google Sans):** Geometric humanist proportions with open apertures and high legibility. Used for explanatory reading, card breakdown paragraphs (*WHAT IT IS*, *PROBLEM SOLVED*, *PRODUCTION CONTEXT*), buttons, drawer items, and general interface text.
+- **`--font-sans` (Tailwind `@theme`):** `'Google Sans', 'Open Sans', system-ui stack`. Tailwind's preflight applies it to `html`, so every element inherits it; no per-element font utilities are needed.
+- **Weights:** Google Sans tops out at 700 — use `font-bold` for the heaviest emphasis.
 - **Text Justification (`text-justify`):** Card explanatory paragraphs are styled with `text-justify hyphens-auto leading-relaxed` and `[text-align-last:left]` to give clean, editorial, symmetrical card blocks without loose spacing rivers on mobile.
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+/* Fonts are loaded via <link> in index.html (not a render-blocking CSS @import) */
 @import "tailwindcss";
 
-:root {
-  /* Dual-Font Typography */
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+@theme {
+  --font-sans: 'Google Sans', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
+:root {
   /* Strictly 2 Colors — Zero Diffused Colors, No Inbetween */
   --c-navy: #071a52;
   --c-mint: #a7ff83;
@@ -70,7 +70,7 @@ Both **Space Grotesk** and **Google Sans** are actively loaded and paired togeth
 body {
   background-color: var(--bg-app);
   color: var(--fg-app);
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
@@ -192,14 +192,15 @@ Support two seamless ways to read cards multiple times a day:
 ### Card Anatomy (Distraction-Free Single Card View)
 - **Front Face:**
   - Top metadata row: Library badge, Domain pill (`AI Systems / LLM Serving`), and Level badge (`High-Level` in `#a7ff83` text on `#0b246e`).
-  - Center focus: Large `Space Grotesk` (`font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#f8fafc]`) displaying the **Term / Concept**.
-  - Prompt footer: Subtle *"Tap card or press Space to reveal breakdown"* hint in `Google Sans` (`font-body text-xs text-[#a3b8e0]`).
+  - Center focus: Large Google Sans (`text-2xl sm:text-3xl font-bold tracking-tight`) displaying the **Term / Concept**.
+  - Prompt: mode-aware gesture hint on the card (*"Tap to reveal the answer — then swipe right for Good, left for Again"*); the bottom bar shows a thumb-reachable **Show answer** button (`Space`).
+  - Swipe/arrow keys: right = pass (Good / Got It), left = miss (Again / Still Shaky). A swipe that would change the FSRS schedule only grades a revealed card; on an unrevealed card it flips it.
 - **Back Face (Revealed in place with crisp instant/150ms transition):**
-  - Keeps the **Term / Concept** anchored at the top in `Space Grotesk` (`font-display font-semibold text-lg text-[#f8fafc]`).
+  - Keeps the **Term / Concept** anchored at the top; the card keeps a fixed size and the breakdown scrolls inside it, so revealing never shifts the layout.
   - Renders three structured, high-legibility blocks separated by `1px solid #143594` dividers:
-    1. **WHAT IT IS** (`font-display text-xs uppercase tracking-wider text-[#a7ff83] font-semibold`) + concise explanation in `Google Sans` (`font-body text-sm text-[#f8fafc] leading-relaxed card-content-justified`).
-    2. **PROBLEM SOLVED** (`font-display text-xs uppercase tracking-wider text-[#a7ff83] font-semibold`) + bottleneck/trade-off summary in `Google Sans` (`font-body text-sm text-[#f8fafc] leading-relaxed card-content-justified`).
-    3. **PRODUCTION CONTEXT** (`font-display text-xs uppercase tracking-wider text-[#a7ff83] font-semibold`) + real-world framework explanation in `Google Sans` (`font-body text-sm text-[#f8fafc] leading-relaxed card-content-justified`) with clickable external `referenceUrl` chip.
+    1. **WHAT IT IS** (`text-xs uppercase tracking-wider font-bold`) + concise explanation (`text-sm leading-relaxed card-content-justified`).
+    2. **PROBLEM SOLVED** (`text-xs uppercase tracking-wider font-bold`) + bottleneck/trade-off summary (`text-sm leading-relaxed card-content-justified`).
+    3. **PRODUCTION CONTEXT** (`text-xs uppercase tracking-wider font-bold`) + real-world framework explanation (`text-sm leading-relaxed card-content-justified`) with clickable external `referenceUrl` chip.
 
 ## 7. React Architecture & Best Practices Checklist
 
@@ -297,23 +298,19 @@ export default defineConfig({
 
 ## 9. Step-by-Step Execution Tasks for Coding Agent
 
-1. **Task 1 — Scaffold & Design Tokens:** Initialize Vite + React + TypeScript + Tailwind CSS + [shadcn/ui](https://ui.shadcn.com/docs/installation/vite). Load both [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) and [Google Sans](https://fonts.google.com/specimen/Google+Sans) from Google Fonts, configure `--font-display` and `--font-body`, set up text justification rules (`.card-content-justified`), and apply the solid `#071a52` / `#a7ff83` color tokens in `src/index.css` with zero gradients.
+1. **Task 1 — Scaffold & Design Tokens:** Initialize Vite + React + TypeScript + Tailwind CSS + [shadcn/ui](https://ui.shadcn.com/docs/installation/vite). Load [Google Sans](https://fonts.google.com/specimen/Google+Sans) from Google Fonts and set it as Tailwind's `--font-sans` (Open Sans as fallback), set up text justification rules (`.card-content-justified`), and apply the solid `#071a52` / `#a7ff83` color tokens in `src/index.css` with zero gradients.
 2. **Task 2 — Data Layer & FSRS Engine:** Install `zod` and [`ts-fsrs`](https://open-spaced-repetition.github.io/ts-fsrs/). Implement `src/types/schema.ts`, `src/lib/storage.ts`, and `src/lib/fsrs.ts` with composite keys (`${libraryId}::${cardId}`) and 1-step rating undo.
 3. **Task 3 — Multi-Library Sync Manager:** Build `useLibraries.ts` and `LibraryDrawer.tsx` supporting Add, Edit, Enable/Disable toggle, Delete, manual refresh (`?refresh=1`), and `#import_lib=` hash link generation/parsing.
-4. **Task 4 — Distraction-Free Study UI:** Build `FlashcardView.tsx`, `RatingBar.tsx`, and `FilterBar.tsx` supporting both **Due Queue (FSRS)** and **Practice Anytime (Cram Mode)** with mobile thumb-zone ergonomics and keyboard shortcuts (`Space`, `1–4`, `U` for undo).
+4. **Task 4 — Distraction-Free Study UI:** Build `FlashcardView.tsx`, `RatingBar.tsx`, and `FilterBar.tsx` supporting both **Due Queue (FSRS)** and **Practice Anytime (Cram Mode)** with mobile thumb-zone ergonomics and keyboard shortcuts (`Space`, `1–4`, `←`/`→` to swipe, `U` for undo).
 5. **Task 5 — Progress Backup & PWA Packaging:** Add a JSON Export/Import modal for `localStorage` backup, configure [`vite-plugin-pwa`](https://vite-pwa-org.netlify.app/guide/), add `public/_redirects` and `public/_headers` for [Cloudflare Pages](https://v4.vitejs.dev/guide/static-deploy), and verify `npm run build` succeeds cleanly.
 
 ## 10. Engineering & Design Justification
 
-### A. Dual-Font System Justification: Space Grotesk + Google Sans (Active Pairing)
-Rather than treating Google Sans merely as a passive system fallback behind Space Grotesk, the UI deliberately pairs both fonts for clear cognitive division:
-1. **Space Grotesk (`--font-display`):**
-   - **Role:** High-impact anchor for Term / Concept titles, badges, numerical intervals (`<10m`, `~3d`), and modal headers.
-   - **Why It Works:** Space Grotesk possesses a distinct, modern, geometric character with subtle mechanical idiosyncrasies. When reading a concept term (e.g., *"Speculative Decoding"*, *"Raft Consensus"*), it provides immediate gravitas and visual memorability, anchoring the card's identity instantly.
-2. **Google Sans (`--font-body`):**
-   - **Role:** Long-form body reading across card breakdowns (*WHAT IT IS*, *PROBLEM SOLVED*, *PRODUCTION CONTEXT*), buttons, settings, and drawer lists.
-   - **Why It Works:** Space Grotesk can become visually fatiguing when read across multi-sentence technical paragraphs on mobile screens. Google Sans features open apertures, balanced humanist proportions, and consistent stroke weights designed specifically for effortless scanning and dense information intake.
-3. **Cognitive Synergy:** Pairing Space Grotesk for the "what" (the term to recall) with Google Sans for the "how/why" (the mental model explanation) establishes an instinctive hierarchy that accelerates card comprehension during repeated daily sessions.
+### A. Single Typeface: Google Sans
+The UI originally paired Space Grotesk (terms, headings) with Google Sans (body). It now uses **Google Sans alone**:
+1. **Consistency:** One family keeps the card, rating bar and drawer visually coherent; hierarchy is carried by size (`text-2xl`/`text-3xl` terms vs `text-sm` body) and weight (`font-bold` labels).
+2. **Legibility:** Google Sans' open apertures and humanist proportions read well both as large terms and in dense multi-sentence breakdowns on mobile.
+3. **Performance:** One fewer web-font download on first load of the PWA.
 
 ### B. Text Justification Justification (`card-content-justified`)
 1. **Architectural Symmetry:** The back of each flashcard is structured into three distinct compartments separated by `1px solid #143594` borders. Justified text forms neat, solid rectangular text columns flush against both margins, matching the clean architectural geometry of the card container.

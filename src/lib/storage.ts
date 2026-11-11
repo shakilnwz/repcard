@@ -10,6 +10,7 @@ const KEY_LIBRARIES = 'srs:libraries:v1'
 const PREFIX_CARDS = 'srs:cards:v1:'
 const KEY_PROGRESS = 'srs:progress:v1'
 const KEY_ACTIVE_LIB = 'srs:active_library:v1'
+const KEY_COLOR_MODE = 'srs:color_mode:v1'
 
 function safeGetItem<T>(key: string, fallback: T): T {
   try {
@@ -179,4 +180,15 @@ export function importAppData(jsonString: string): { success: boolean; error?: s
   } catch (err) {
     return { success: false, error: (err as Error).message }
   }
+}
+
+/**
+ * Color mode preference (raw string; the caller validates it against the known modes)
+ */
+export function getColorModePreference(): string | null {
+  return safeGetItem<string | null>(KEY_COLOR_MODE, null)
+}
+
+export function saveColorModePreference(mode: string): boolean {
+  return safeSetItem(KEY_COLOR_MODE, mode)
 }

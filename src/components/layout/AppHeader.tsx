@@ -1,7 +1,7 @@
 import { Tune } from '@/components/ui/MaterialIcons'
+export type { ColorPaletteMode } from '@/lib/colorModes'
 
 export type StudyMode = 'due' | 'cram'
-export type ColorPaletteMode = 'default' | 'navy-canvas' | 'black-navy-card'
 
 interface AppHeaderProps {
   onOpenSidebar: () => void;

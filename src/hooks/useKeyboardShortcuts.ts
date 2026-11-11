@@ -6,6 +6,8 @@ interface KeyboardShortcutsOptions {
   onFlip: () => void;
   onGradeDue?: (rating: 1 | 2 | 3 | 4) => void;
   onGradeCram?: (gotIt: boolean) => void;
+  /** Arrow keys: same as swiping (→ pass, ← miss) */
+  onSwipe?: (direction: 'left-to-right' | 'right-to-left') => void;
   onUndo?: () => void;
   onBookmark?: () => void;
   enabled?: boolean;
@@ -17,6 +19,7 @@ export function useKeyboardShortcuts({
   onFlip,
   onGradeDue,
   onGradeCram,
+  onSwipe,
   onUndo,
   onBookmark,
   enabled = true,
@@ -46,7 +49,14 @@ export function useKeyboardShortcuts({
         }
       }
 
-      // Undo shortcut: 'u' or 'U' or 'z'
+      // Arrow keys mirror the swipe gestures
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault()
+        onSwipe?.(e.key === 'ArrowRight' ? 'left-to-right' : 'right-to-left')
+        return
+      }
+
+      // Undo shortcut: 'u' or 'U'
       if (e.key === 'u' || e.key === 'U') {
         e.preventDefault()
         onUndo?.()
@@ -90,5 +100,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [enabled, isFlipped, mode, onFlip, onGradeDue, onGradeCram, onUndo, onBookmark])
+  }, [enabled, isFlipped, mode, onFlip, onGradeDue, onGradeCram, onSwipe, onUndo, onBookmark])
 }

@@ -1,11 +1,13 @@
 import React from 'react'
 
+/*
+ * Icons come from a subset of Material Symbols Rounded (see vite.config.ts): only the glyphs
+ * named below are downloaded, at a fixed 24 opsz / 400 weight / 0 grade, with FILL 0..1.
+ * To add an icon, add a named export with its `name="..."` here; the font URL picks it up.
+ */
 export interface MaterialIconProps extends React.HTMLAttributes<HTMLSpanElement> {
   name: string;
   fill?: boolean;
-  weight?: number;
-  grade?: number;
-  opticalSize?: number;
   className?: string;
 }
 
@@ -24,9 +26,6 @@ function getFontSizeStyle(className?: string): React.CSSProperties {
 export function MaterialIcon({
   name,
   fill = false,
-  weight = 400,
-  grade = 0,
-  opticalSize = 24,
   className = '',
   style,
   ...props
@@ -35,7 +34,7 @@ export function MaterialIcon({
   const sizeStyle = getFontSizeStyle(className)
 
   const variationStyle: React.CSSProperties = {
-    fontVariationSettings: `'FILL' ${isFilled ? 1 : 0}, 'wght' ${weight}, 'GRAD' ${grade}, 'opsz' ${opticalSize}`,
+    fontVariationSettings: `'FILL' ${isFilled ? 1 : 0}`,
     lineHeight: 1,
     display: 'inline-flex',
     alignItems: 'center',

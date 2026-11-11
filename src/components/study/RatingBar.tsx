@@ -4,6 +4,7 @@ interface RatingBarProps {
   isFlipped: boolean;
   mode: 'due' | 'cram';
   intervalPreviews?: Record<ValidRating, IntervalPreviewItem>;
+  onReveal: () => void;
   onGradeDue?: (rating: ValidRating) => void;
   onGradeCram?: (gotIt: boolean) => void;
 }
@@ -24,18 +25,24 @@ export function RatingBar({
   isFlipped,
   mode,
   intervalPreviews,
+  onReveal,
   onGradeDue,
   onGradeCram,
 }: RatingBarProps) {
-  // Fixed height in every state, so swapping hint <-> buttons never shifts the card above
+  // Fixed height in every state, so swapping reveal <-> rating buttons never shifts the card above
   return (
     <footer className="shrink-0 h-[72px] pt-2 select-none">
       {!isFlipped ? (
-        <div className="h-full flex items-center justify-center">
-          <p className="text-xs font-semibold text-[var(--fg-app)] opacity-70">
-            Tap card or press <kbd className="px-1.5 py-0.5 rounded-md bg-[var(--bg-card)] text-[var(--fg-card)] font-bold shadow-xs">Space</kbd> to reveal breakdown
-          </p>
-        </div>
+        // Thumb-reachable reveal (the card itself carries the tap / swipe hint)
+        <button
+          onClick={onReveal}
+          className="w-full h-full flex items-center justify-center gap-2 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-md ring-2 ring-[var(--fg-card)] hover:opacity-90 active:scale-[0.98] transition-all"
+        >
+          <span className="text-sm font-bold">Show answer</span>
+          <kbd className="px-1.5 py-0.5 rounded-md bg-[var(--fg-card)] text-[var(--bg-card)] text-[10px] font-bold">
+            Space
+          </kbd>
+        </button>
       ) : mode === 'due' && intervalPreviews && onGradeDue ? (
         // Due Queue Mode: 4 Small Rating Cards
         <div className="h-full grid grid-cols-4 gap-2">

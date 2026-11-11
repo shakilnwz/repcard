@@ -2,6 +2,11 @@ import React from 'react'
 import { Star, ExternalLink, Sparkles } from '@/components/ui/MaterialIcons'
 import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
 
+export interface FrontHint {
+  primary: string;
+  secondary?: string;
+}
+
 interface FlashcardViewProps {
   card: FlashcardItem;
   progress: LocalCardProgress | null;
@@ -9,6 +14,8 @@ interface FlashcardViewProps {
   onFlip?: () => void;
   onToggleBookmark?: () => void;
   cardIndexLabel?: string;
+  /** Gesture hint on the unrevealed face (depends on the study mode) */
+  frontHint?: FrontHint;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -20,6 +27,7 @@ export function FlashcardView({
   onFlip,
   onToggleBookmark,
   cardIndexLabel,
+  frontHint = { primary: 'Tap to reveal the answer' },
   className = '',
   style,
 }: FlashcardViewProps) {
@@ -34,7 +42,8 @@ export function FlashcardView({
       onClick={onFlip}
       style={{
         boxShadow: 'var(--card-shadow)',
-        touchAction: 'pan-y',
+        // Vertical scroll and pinch-zoom stay native; horizontal drags drive the swipe
+        touchAction: 'pan-y pinch-zoom',
         ...style,
       }}
       className={`h-full cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 flex flex-col active:scale-[0.99] transition-transform duration-100 ${className}`}
@@ -81,13 +90,9 @@ export function FlashcardView({
       {/* Body: fills the card and scrolls internally, so flipping never resizes the card */}
       <div className="card-scroll flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain">
         {!isFlipped ? (
-          <div className="my-auto py-8 text-center space-y-2">
-            <p className="text-sm font-medium text-[var(--fg-card)] opacity-85">
-              Tap card to flip • Swipe for next
-            </p>
-            <p className="text-xs opacity-70">
-              or press <kbd className="px-2 py-0.5 text-xs rounded-md bg-[var(--fg-card)] text-[var(--bg-card)] font-bold shadow-xs">Space</kbd> to reveal breakdown
-            </p>
+          <div className="my-auto py-8 text-center space-y-1.5">
+            <p className="text-sm font-medium text-[var(--fg-card)] opacity-85">{frontHint.primary}</p>
+            {frontHint.secondary && <p className="text-xs opacity-70">{frontHint.secondary}</p>}
           </div>
         ) : (
           <div className="space-y-5 pt-2 animate-fade-in">

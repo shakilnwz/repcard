@@ -1,6 +1,6 @@
 import { useEffectEvent, useLayoutEffect, useRef } from 'react'
 import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
-import { FlashcardView } from './FlashcardView'
+import { FlashcardView, type FrontHint } from './FlashcardView'
 
 export type SlideDirection = 'left-to-right' | 'right-to-left'
 
@@ -14,6 +14,7 @@ interface CardSliderProps {
   onToggleBookmark: () => void;
   /** Swipe released past the threshold. Return false to reject it (the card springs back). */
   onSwipeAdvance: (direction: SlideDirection) => boolean;
+  frontHint?: FrontHint;
   /** Direction of the in-flight slide (from a swipe, rating button or key), or null when idle. */
   slide: SlideDirection | null;
   /** The outgoing card has fully left: the parent should now swap in the next card. */
@@ -106,6 +107,7 @@ export function CardSlider({
   onFlip,
   onToggleBookmark,
   onSwipeAdvance,
+  frontHint,
   slide,
   onSlideComplete,
   currentCardIndexLabel,
@@ -251,7 +253,7 @@ export function CardSlider({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
-      className="absolute inset-0 select-none touch-pan-y"
+      className="absolute inset-0 select-none touch-pan-y touch-pinch-zoom"
     >
       {/* Incoming card: always mounted (hidden at rest) so a slide can start from any pose */}
       {nextCard && (
@@ -267,6 +269,7 @@ export function CardSlider({
             card={nextCard}
             progress={nextProgress}
             isFlipped={false}
+            frontHint={frontHint}
             cardIndexLabel={nextCardIndexLabel}
           />
         </div>
@@ -280,6 +283,7 @@ export function CardSlider({
           progress={currentProgress}
           isFlipped={isFlipped}
           onToggleBookmark={onToggleBookmark}
+          frontHint={frontHint}
           cardIndexLabel={currentCardIndexLabel}
         />
       </div>

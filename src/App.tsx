@@ -1,9 +1,10 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { useState, useMemo, useCallback, useLayoutEffect, useRef } from 'react'
 import { CheckCircle2 } from '@/components/ui/MaterialIcons'
 import { useLibraries } from '@/hooks/useLibraries'
 import { useCardProgress } from '@/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import { AppHeader, type StudyMode, type ColorPaletteMode } from '@/components/layout/AppHeader'
+import { AppHeader, type StudyMode } from '@/components/layout/AppHeader'
+import { COLOR_MODES, type ColorPaletteMode } from '@/lib/colorModes'
 import type { CramFilter } from '@/components/study/FilterBar'
 import { CardSlider, type SlideDirection } from '@/components/study/CardSlider'
 import { RatingBar } from '@/components/study/RatingBar'
@@ -11,6 +12,7 @@ import { LibraryDrawer } from '@/components/libraries/LibraryDrawer'
 import { getIntervalPreviews, Rating, type ValidRating } from '@/lib/fsrs'
 import { makeCardCompositeKey } from '@/types/schema'
 import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'
+import { getColorModePreference, saveColorModePreference } from '@/lib/storage'
 
 export default function App() {
   const {
@@ -48,36 +50,44 @@ export default function App() {
   const [isFlipped, setIsFlipped] = useState(false)
   const [countTowardSrsInCram, setCountTowardSrsInCram] = useState(false)
   const [sessionNow, setSessionNow] = useState(() => Date.now())
-  const [colorMode, setColorMode] = useState<ColorPaletteMode>('default')
+  const [colorMode, setColorMode] = useState<ColorPaletteMode>(() => {
+    const stored = getColorModePreference()
+    return COLOR_MODES.find((m) => m === stored) ?? 'default'
+  })
 
-  // Apply color mode to document root
-  useEffect(() => {
+  // Apply (and remember) the color mode before paint, so a saved theme never flashes the default
+  useLayoutEffect(() => {
+    const root = document.documentElement
     if (colorMode === 'default') {
-      document.documentElement.removeAttribute('data-color-mode')
+      root.removeAttribute('data-color-mode')
     } else {
-      document.documentElement.setAttribute('data-color-mode', colorMode)
+      root.setAttribute('data-color-mode', colorMode)
     }
+    // Keep the browser / PWA status bar the same color as the canvas
+    const canvas = getComputedStyle(root).getPropertyValue('--bg-app').trim()
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', canvas || '#000000')
+    saveColorModePreference(colorMode)
   }, [colorMode])
 
   const cycleColorMode = useCallback(() => {
-    setColorMode((prev) => {
-      if (prev === 'default') return 'navy-canvas'
-      if (prev === 'navy-canvas') return 'black-navy-card'
-      return 'default'
-    })
+    setColorMode((prev) => COLOR_MODES[(COLOR_MODES.indexOf(prev) + 1) % COLOR_MODES.length])
   }, [])
 
-  // Helper to determine which library contains a card
-  const getCardLibraryId = useCallback(
-    (cardId: string) => {
-      for (const [libId, cards] of Object.entries(cardsByLibrary)) {
-        if (cards.some((c) => c.id === cardId)) {
-          return libId
-        }
+  // Card id -> owning library id, built once per library change (was a full scan per lookup,
+  // which made every deck filter O(n²)). The first library containing an id wins, as before.
+  const cardLibraryIndex = useMemo(() => {
+    const index = new Map<string, string>()
+    for (const [libId, cards] of Object.entries(cardsByLibrary)) {
+      for (const card of cards) {
+        if (!index.has(card.id)) index.set(card.id, libId)
       }
-      return STARTER_LIBRARY_ID
-    },
-    [cardsByLibrary],
+    }
+    return index
+  }, [cardsByLibrary])
+
+  const getCardLibraryId = useCallback(
+    (cardId: string) => cardLibraryIndex.get(cardId) ?? STARTER_LIBRARY_ID,
+    [cardLibraryIndex],
   )
 
   // 1. Compute Due Cards Queue
@@ -198,30 +208,31 @@ export default function App() {
     setSlide(null)
   }, [])
 
-  // Handle Due Mode Rating
+  // Handle Due Mode Rating. A miss (Again) slides the card out to the left, a pass to the right,
+  // matching the swipe gestures.
   const handleGradeDue = useCallback(
-    (rating: ValidRating) => {
-      if (!currentCard || !currentKey) return
-      advanceWithSlide(() => {
+    (rating: ValidRating): boolean => {
+      if (!currentCard || !currentKey) return false
+      return advanceWithSlide(() => {
         gradeCardDue(currentKey, currentLibraryId, currentCard.id, rating)
         setSessionNow(Date.now())
-      })
+      }, rating === Rating.Again ? 'right-to-left' : 'left-to-right')
     },
     [currentCard, currentKey, currentLibraryId, gradeCardDue, advanceWithSlide],
   )
 
   // Handle Cram Mode Practice
   const handleGradeCram = useCallback(
-    (gotIt: boolean) => {
-      if (!currentCard || !currentKey) return
-      advanceWithSlide(() => {
+    (gotIt: boolean): boolean => {
+      if (!currentCard || !currentKey) return false
+      return advanceWithSlide(() => {
         recordCramPractice(currentKey, currentLibraryId, currentCard.id)
 
         if (countTowardSrsInCram) {
           gradeCardDue(currentKey, currentLibraryId, currentCard.id, gotIt ? Rating.Good : Rating.Again)
           setSessionNow(Date.now())
         }
-      })
+      }, gotIt ? 'left-to-right' : 'right-to-left')
     },
     [
       currentCard,
@@ -234,34 +245,30 @@ export default function App() {
     ],
   )
 
-  // Handle Swipe Advance (Both left-to-right and right-to-left gestures)
+  // A swipe will touch the FSRS schedule in Due mode, or in Practice mode with "count toward FSRS" on.
+  // Those swipes only grade once the answer has been seen; on an unrevealed card they just flip it.
+  const swipeGrades = mode === 'due' || countTowardSrsInCram
+
+  // Swipe (or arrow key): right is a pass (Good / Got It), left is a miss (Again / Still Shaky)
   const handleSwipeAdvance = useCallback(
     (direction: SlideDirection): boolean => {
-      if (!currentCard || !currentKey) return false
-      return advanceWithSlide(() => {
-        if (mode === 'due') {
-          gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
-          setSessionNow(Date.now())
-        } else {
-          recordCramPractice(currentKey, currentLibraryId, currentCard.id)
-          if (countTowardSrsInCram) {
-            gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
-            setSessionNow(Date.now())
-          }
-        }
-      }, direction)
+      if (swipeGrades && !isFlipped) {
+        setIsFlipped(true)
+        return false
+      }
+      const passed = direction === 'left-to-right'
+      return mode === 'due' ? handleGradeDue(passed ? Rating.Good : Rating.Again) : handleGradeCram(passed)
     },
-    [
-      mode,
-      currentCard,
-      currentKey,
-      currentLibraryId,
-      countTowardSrsInCram,
-      gradeCardDue,
-      recordCramPractice,
-      advanceWithSlide,
-    ],
+    [mode, swipeGrades, isFlipped, handleGradeDue, handleGradeCram],
   )
+
+  const frontHint =
+    mode === 'due'
+      ? { primary: 'Tap to reveal the answer', secondary: 'then swipe right for Good, left for Again' }
+      : {
+          primary: 'Tap to reveal the answer',
+          secondary: `${swipeGrades ? 'then' : 'or'} swipe right for Got It, left for Still Shaky`,
+        }
 
   // Handle Bookmark Toggle
   const handleToggleBookmark = useCallback(() => {
@@ -293,6 +300,7 @@ export default function App() {
     onFlip: () => setIsFlipped((prev) => !prev),
     onGradeDue: (grade) => handleGradeDue(grade as ValidRating),
     onGradeCram: handleGradeCram,
+    onSwipe: handleSwipeAdvance,
     onUndo: handleUndo,
     onBookmark: handleToggleBookmark,
     enabled: Boolean(currentCard),
@@ -301,7 +309,7 @@ export default function App() {
   const isSyncing = Object.values(syncingMap).some(Boolean)
 
   return (
-    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] flex flex-col max-w-lg mx-auto px-4 py-4 transition-colors duration-150 overflow-x-clip">
+    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] flex flex-col max-w-lg mx-auto safe-area-pad transition-colors duration-150 overflow-x-clip">
       {/* Top Header: Big Title & Sidebar Trigger */}
       <AppHeader
         onOpenSidebar={() => setDrawerOpen(true)}
@@ -322,6 +330,7 @@ export default function App() {
               onFlip={() => setIsFlipped((prev) => !prev)}
               onToggleBookmark={handleToggleBookmark}
               onSwipeAdvance={handleSwipeAdvance}
+              frontHint={frontHint}
               slide={slide}
               onSlideComplete={handleSlideComplete}
               currentCardIndexLabel={formatCardLabel(safeIndex, deckSize)}
@@ -373,6 +382,7 @@ export default function App() {
             isFlipped={isFlipped}
             mode={mode}
             intervalPreviews={intervalPreviews}
+            onReveal={() => setIsFlipped(true)}
             onGradeDue={handleGradeDue}
             onGradeCram={handleGradeCram}
           />
