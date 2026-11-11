@@ -1,7 +1,7 @@
 import { Menu } from 'lucide-react'
 
 export type StudyMode = 'due' | 'cram'
-export type ColorPaletteMode = 'default' | 'mint-canvas' | 'mint-pure'
+export type ColorPaletteMode = 'default' | 'navy-canvas' | 'mint-canvas'
 
 interface AppHeaderProps {
   onOpenSidebar: () => void;
@@ -19,13 +19,13 @@ export function AppHeader({ onOpenSidebar, isSyncing }: AppHeaderProps) {
       {/* Sidebar Trigger */}
       <button
         onClick={onOpenSidebar}
-        className="relative p-2.5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm hover:opacity-90 active:scale-95 transition-all"
+        className="relative p-2.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm hover:opacity-90 active:scale-95 transition-all"
         aria-label="Open sidebar"
         title="Open study settings and libraries"
       >
         <Menu className="w-5 h-5" />
         {isSyncing && (
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--bg-app)] animate-ping" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--fg-card)] animate-ping" />
         )}
       </button>
     </header>

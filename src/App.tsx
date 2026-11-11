@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { CheckCircle2 } from 'lucide-react'
 import { useLibraries } from '@/hooks/useLibraries'
 import { useCardProgress } from '@/hooks/useCardProgress'
@@ -59,8 +59,8 @@ export default function App() {
 
   const cycleColorMode = useCallback(() => {
     setColorMode((prev) => {
-      if (prev === 'default') return 'mint-canvas'
-      if (prev === 'mint-canvas') return 'mint-pure'
+      if (prev === 'default') return 'navy-canvas'
+      if (prev === 'navy-canvas') return 'mint-canvas'
       return 'default'
     })
   }, [])
@@ -154,37 +154,56 @@ export default function App() {
     return getIntervalPreviews(currentFsrs)
   }, [currentFsrs])
 
+  const [isExiting, setIsExiting] = useState(false)
+  const isTransitioningRef = useRef(false)
+
+  // Advance with Left-to-Right swipe transition
+  const advanceWithSlide = useCallback((action: () => void) => {
+    if (isTransitioningRef.current) return
+    isTransitioningRef.current = true
+    setIsExiting(true)
+
+    setTimeout(() => {
+      action()
+      setIsExiting(false)
+      isTransitioningRef.current = false
+    }, 180)
+  }, [])
+
   // Handle Due Mode Rating
   const handleGradeDue = useCallback(
     (rating: ValidRating) => {
       if (!currentCard || !currentKey) return
-      gradeCardDue(currentKey, currentLibraryId, currentCard.id, rating)
-      setSessionNow(Date.now())
-      setIsFlipped(false)
+      advanceWithSlide(() => {
+        gradeCardDue(currentKey, currentLibraryId, currentCard.id, rating)
+        setSessionNow(Date.now())
+        setIsFlipped(false)
 
-      if (currentDeck.length > 1) {
-        setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
-      }
+        if (currentDeck.length > 1) {
+          setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
+        }
+      })
     },
-    [currentCard, currentKey, currentLibraryId, currentDeck.length, gradeCardDue],
+    [currentCard, currentKey, currentLibraryId, currentDeck.length, gradeCardDue, advanceWithSlide],
   )
 
   // Handle Cram Mode Practice
   const handleGradeCram = useCallback(
     (gotIt: boolean) => {
       if (!currentCard || !currentKey) return
+      advanceWithSlide(() => {
+        recordCramPractice(currentKey, currentLibraryId, currentCard.id)
 
-      recordCramPractice(currentKey, currentLibraryId, currentCard.id)
+        if (countTowardSrsInCram) {
+          gradeCardDue(currentKey, currentLibraryId, currentCard.id, gotIt ? Rating.Good : Rating.Again)
+          setSessionNow(Date.now())
+        }
 
-      if (countTowardSrsInCram) {
-        gradeCardDue(currentKey, currentLibraryId, currentCard.id, gotIt ? Rating.Good : Rating.Again)
-        setSessionNow(Date.now())
-      }
-
-      setIsFlipped(false)
-      if (currentDeck.length > 1) {
-        setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
-      }
+        setIsFlipped(false)
+        if (currentDeck.length > 1) {
+          setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
+        }
+      })
     },
     [
       currentCard,
@@ -194,8 +213,43 @@ export default function App() {
       countTowardSrsInCram,
       recordCramPractice,
       gradeCardDue,
+      advanceWithSlide,
     ],
   )
+
+  // Handle Physical Left-to-Right Swipe Gesture
+  const handleSwipeNext = useCallback(() => {
+    if (isTransitioningRef.current) return
+    if (!currentCard || !currentKey) return
+
+    if (mode === 'due') {
+      gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
+      setSessionNow(Date.now())
+      setIsFlipped(false)
+      if (currentDeck.length > 1) {
+        setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
+      }
+    } else {
+      recordCramPractice(currentKey, currentLibraryId, currentCard.id)
+      if (countTowardSrsInCram) {
+        gradeCardDue(currentKey, currentLibraryId, currentCard.id, Rating.Good)
+        setSessionNow(Date.now())
+      }
+      setIsFlipped(false)
+      if (currentDeck.length > 1) {
+        setCurrentIndex((prev) => (prev + 1) % currentDeck.length)
+      }
+    }
+  }, [
+    mode,
+    currentCard,
+    currentKey,
+    currentLibraryId,
+    currentDeck.length,
+    countTowardSrsInCram,
+    gradeCardDue,
+    recordCramPractice,
+  ])
 
   // Handle Bookmark Toggle
   const handleToggleBookmark = useCallback(() => {
@@ -232,7 +286,7 @@ export default function App() {
   const isSyncing = Object.values(syncingMap).some(Boolean)
 
   return (
-    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-body)] flex flex-col justify-between max-w-lg mx-auto px-4 py-4 transition-colors duration-150">
+    <div className="min-h-dvh bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-body)] flex flex-col justify-between max-w-lg mx-auto px-4 py-4 transition-colors duration-150 overflow-x-hidden">
       {/* Top Header: Big Title & Sidebar Trigger */}
       <AppHeader
         onOpenSidebar={() => setDrawerOpen(true)}
@@ -240,14 +294,17 @@ export default function App() {
       />
 
       {/* Main Flashcard View */}
-      <main className="my-auto py-4">
+      <main className="my-auto py-4 overflow-x-hidden">
         {currentCard ? (
           <FlashcardView
+            key={currentCard.id}
             card={currentCard}
             progress={currentProgress}
             isFlipped={isFlipped}
             onFlip={() => setIsFlipped((prev) => !prev)}
             onToggleBookmark={handleToggleBookmark}
+            onSwipeNext={handleSwipeNext}
+            isExiting={isExiting}
             cardIndexLabel={`Card ${safeIndex + 1} of ${currentDeck.length}${
               mode === 'due' ? ' (Due)' : ' (Practice)'
             }`}

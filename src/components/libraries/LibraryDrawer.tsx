@@ -119,10 +119,10 @@ export function LibraryDrawer({
 
   const colorModeLabel =
     colorMode === 'default'
+      ? 'Pure Black'
+      : colorMode === 'navy-canvas'
       ? 'Navy Canvas'
-      : colorMode === 'mint-canvas'
-      ? 'Mint Canvas'
-      : 'Pure Mint'
+      : 'Mint Canvas'
 
   const isStarterOnly = libraries.length === 1 && libraries[0].id === STARTER_LIBRARY_ID
 
@@ -132,7 +132,7 @@ export function LibraryDrawer({
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
         <Dialog.Content className="fixed inset-y-0 right-0 w-full max-w-md bg-[var(--bg-app)] text-[var(--fg-app)] z-50 flex flex-col shadow-2xl focus:outline-hidden animate-in slide-in-from-right duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-5 bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm">
+          <div className="flex items-center justify-between px-6 py-5 bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm">
             <div>
               <Dialog.Title className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight">
                 Controls & Libraries
@@ -160,22 +160,22 @@ export function LibraryDrawer({
                 Study Mode
               </h3>
 
-              <div className="grid grid-cols-2 p-1 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm text-xs">
+              <div className="grid grid-cols-2 p-1 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm text-xs">
                 {/* Due Queue Mode */}
                 <button
                   onClick={() => onModeChange('due')}
                   className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-[family-name:var(--font-display)] font-bold transition-all ${
                     mode === 'due'
-                      ? 'bg-[var(--bg-app)] text-[var(--fg-app)] shadow-xs'
-                      : 'text-[var(--bg-app)] opacity-80 hover:opacity-100'
+                      ? 'bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs'
+                      : 'text-[var(--fg-card)] opacity-80 hover:opacity-100'
                   }`}
                 >
                   <span>Due Queue</span>
                   <span
                     className={`px-1.5 py-0.2 text-[10px] rounded-full font-extrabold ${
                       mode === 'due'
-                        ? 'bg-[var(--fg-app)] text-[var(--bg-app)]'
-                        : 'bg-[var(--bg-app)] text-[var(--fg-app)]'
+                        ? 'bg-[var(--bg-card)] text-[var(--fg-card)]'
+                        : 'bg-[var(--fg-card)] text-[var(--bg-card)]'
                     }`}
                   >
                     {dueCount}
@@ -187,8 +187,8 @@ export function LibraryDrawer({
                   onClick={() => onModeChange('cram')}
                   className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-[family-name:var(--font-display)] font-bold transition-all ${
                     mode === 'cram'
-                      ? 'bg-[var(--bg-app)] text-[var(--fg-app)] shadow-xs'
-                      : 'text-[var(--bg-app)] opacity-80 hover:opacity-100'
+                      ? 'bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs'
+                      : 'text-[var(--fg-card)] opacity-80 hover:opacity-100'
                   }`}
                 >
                   <span>Practice Anytime</span>
@@ -198,7 +198,7 @@ export function LibraryDrawer({
 
               {/* If Cram Mode: Show Filter Bar & Schedule Count Toggle inside sidebar */}
               {mode === 'cram' && (
-                <div className="p-3.5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-xs space-y-3 mt-2">
+                <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-xs space-y-3 mt-2">
                   <div className="overflow-x-auto">
                     <FilterBar
                       currentFilter={cramFilter}
@@ -212,7 +212,7 @@ export function LibraryDrawer({
                       type="checkbox"
                       checked={countTowardSrs}
                       onChange={onToggleCountTowardSrs}
-                      className="rounded accent-[var(--bg-app)]"
+                      className="rounded accent-[var(--fg-card)]"
                     />
                     <span>Count practice flips toward FSRS schedule</span>
                   </label>
@@ -230,7 +230,7 @@ export function LibraryDrawer({
                 {/* Theme Cycle Button */}
                 <button
                   onClick={onCycleColorMode}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
                   title="Switch 2-color layout"
                 >
                   <Palette className="w-4 h-4" />
@@ -241,7 +241,7 @@ export function LibraryDrawer({
                 <button
                   onClick={onUndo}
                   disabled={!canUndo}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity disabled:opacity-40"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity disabled:opacity-40"
                   title={canUndo ? 'Undo last rating (U)' : 'No recent rating to undo'}
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -252,7 +252,7 @@ export function LibraryDrawer({
 
             {/* Pending URL Hash Import Banner */}
             {pendingImport && (
-              <div className="p-4 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm space-y-3">
+              <div className="p-4 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm space-y-3">
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
                   <div>
@@ -268,7 +268,7 @@ export function LibraryDrawer({
                 <div className="flex items-center gap-2 pt-1">
                   <button
                     onClick={onConfirmPendingImport}
-                    className="flex-1 py-1.5 px-3 rounded-lg bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-display)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
+                    className="flex-1 py-1.5 px-3 rounded-lg bg-[var(--fg-card)] text-[var(--bg-card)] font-[family-name:var(--font-display)] text-xs font-bold shadow-xs hover:opacity-90 transition-opacity"
                   >
                     Confirm Import
                   </button>
@@ -284,7 +284,7 @@ export function LibraryDrawer({
 
             {/* Starter Deck Alert */}
             {isStarterOnly && (
-              <div className="p-3.5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-xs text-xs space-y-1">
+              <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-xs text-xs space-y-1">
                 <p className="font-bold flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> Using built-in starter deck
                 </p>
@@ -317,7 +317,7 @@ export function LibraryDrawer({
                   return (
                     <div
                       key={lib.id}
-                      className="p-4 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm space-y-3"
+                      className="p-4 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm space-y-3"
                     >
                       {/* Top Row: Name, Active Toggle, Card Count */}
                       <div className="flex items-start justify-between gap-3">
@@ -327,7 +327,7 @@ export function LibraryDrawer({
                               {lib.name}
                             </h4>
                             {isStarter && (
-                              <span className="px-1.5 py-0.2 text-[10px] font-bold rounded bg-[var(--bg-app)] text-[var(--fg-app)]">
+                              <span className="px-1.5 py-0.2 text-[10px] font-bold rounded bg-[var(--fg-card)] text-[var(--bg-card)]">
                                 Demo
                               </span>
                             )}
@@ -342,7 +342,7 @@ export function LibraryDrawer({
                           onClick={() => onToggleEnabled(lib.id)}
                           className={`px-3 py-1 text-xs font-[family-name:var(--font-display)] font-bold rounded-lg shadow-xs transition-all ${
                             lib.enabled
-                              ? 'bg-[var(--bg-app)] text-[var(--fg-app)]'
+                              ? 'bg-[var(--fg-card)] text-[var(--bg-card)]'
                               : 'opacity-60 hover:opacity-100'
                           }`}
                         >
@@ -352,7 +352,7 @@ export function LibraryDrawer({
 
                       {/* Error state if any */}
                       {lib.lastError && (
-                        <div className="flex items-start gap-1.5 p-2 rounded-lg bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-medium">
+                        <div className="flex items-start gap-1.5 p-2 rounded-lg bg-[var(--bg-app)] text-[var(--fg-card)] text-xs font-medium">
                           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                           <span className="break-all">{lib.lastError}</span>
                         </div>
@@ -366,7 +366,7 @@ export function LibraryDrawer({
                             <button
                               onClick={() => onSyncLibrary(lib.id, true)}
                               disabled={isSyncing}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--bg-app)] text-[var(--fg-app)] font-bold shadow-xs hover:opacity-90 transition-opacity disabled:opacity-50"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--bg-app)] text-[var(--fg-card)] font-bold shadow-xs hover:opacity-90 transition-opacity disabled:opacity-50"
                             >
                               <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
                               <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
@@ -377,7 +377,7 @@ export function LibraryDrawer({
                           {!isStarter && lib.url && (
                             <button
                               onClick={() => handleCopyShareLink(lib)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--bg-app)] text-[var(--fg-app)] font-bold shadow-xs hover:opacity-90 transition-opacity"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--bg-app)] text-[var(--fg-card)] font-bold shadow-xs hover:opacity-90 transition-opacity"
                               title="Copy 1-tap setup link for mobile"
                             >
                               {copiedId === lib.id ? (
@@ -405,7 +405,7 @@ export function LibraryDrawer({
                                     onRemoveLibrary(lib.id, false)
                                     setDeleteConfirmId(null)
                                   }}
-                                  className="px-2.5 py-1 rounded-lg bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-bold shadow-xs"
+                                  className="px-2.5 py-1 rounded-lg bg-[var(--bg-app)] text-[var(--fg-card)] text-xs font-bold shadow-xs"
                                 >
                                   Delete
                                 </button>
@@ -435,7 +435,7 @@ export function LibraryDrawer({
             </div>
 
             {/* Section 4: Add New Library Form */}
-            <div className="p-5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] shadow-sm space-y-3.5">
+            <div className="p-5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm space-y-3.5">
               <h3 className="font-[family-name:var(--font-display)] text-xs uppercase tracking-wider font-bold flex items-center gap-1.5 opacity-90">
                 <Plus className="w-4 h-4" />
                 Add Remote Library
@@ -452,7 +452,7 @@ export function LibraryDrawer({
                     placeholder="https://script.google.com/macros/s/.../exec"
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] placeholder-[var(--fg-app)]/50 focus:outline-hidden shadow-xs font-medium"
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-[var(--bg-app)] text-[var(--fg-card)] placeholder-[var(--fg-card)]/50 focus:outline-hidden shadow-xs font-medium"
                   />
                 </div>
 
@@ -465,12 +465,12 @@ export function LibraryDrawer({
                     placeholder="e.g. My AI & Systems Flashcards"
                     value={nameInput}
                     onChange={(e) => setNameInput(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] placeholder-[var(--fg-app)]/50 focus:outline-hidden shadow-xs font-medium"
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-[var(--bg-app)] text-[var(--fg-card)] placeholder-[var(--fg-card)]/50 focus:outline-hidden shadow-xs font-medium"
                   />
                 </div>
 
                 {addError && (
-                  <div className="p-2.5 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] text-xs font-medium flex items-start gap-1.5 shadow-xs">
+                  <div className="p-2.5 rounded-xl bg-[var(--bg-app)] text-[var(--fg-card)] text-xs font-medium flex items-start gap-1.5 shadow-xs">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{addError}</span>
                   </div>
@@ -479,7 +479,7 @@ export function LibraryDrawer({
                 <button
                   type="submit"
                   disabled={isAdding || !urlInput.trim()}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[var(--bg-app)] text-[var(--fg-app)] font-[family-name:var(--font-display)] text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[var(--fg-card)] text-[var(--bg-card)] font-[family-name:var(--font-display)] text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                 >
                   {isAdding ? (
                     <>
@@ -501,7 +501,7 @@ export function LibraryDrawer({
               <button
                 type="button"
                 onClick={() => setBackupOpen(true)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-[family-name:var(--font-display)] font-bold shadow-sm hover:opacity-90 transition-opacity"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-[family-name:var(--font-display)] font-bold shadow-sm hover:opacity-90 transition-opacity"
               >
                 <Database className="w-4 h-4" />
                 <span>Backup & Restore (JSON)</span>

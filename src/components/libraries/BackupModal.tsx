@@ -86,7 +86,7 @@ export function BackupModal({
           {/* Header */}
           <div className="flex items-center justify-between pb-1">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] flex items-center justify-center shadow-xs">
                 <Database className="w-4 h-4" />
               </div>
               <Dialog.Title className="font-[family-name:var(--font-display)] text-base font-bold">
@@ -104,7 +104,7 @@ export function BackupModal({
           </div>
 
           {/* Current Local State Summary */}
-          <div className="p-3.5 rounded-2xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs space-y-1 shadow-xs">
+          <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs space-y-1 shadow-xs">
             <p className="opacity-80">Current Local Browser State:</p>
             <p className="font-bold">
               {librariesCount} libraries configured • {reviewedCardsCount} card records
@@ -121,7 +121,7 @@ export function BackupModal({
             </p>
             <button
               onClick={handleExport}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
             >
               <Download className="w-4 h-4" />
               <span>Download Backup (.json)</span>
@@ -147,7 +147,7 @@ export function BackupModal({
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--fg-app)] text-[var(--bg-app)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[var(--bg-card)] text-[var(--fg-card)] text-xs font-[family-name:var(--font-display)] font-bold shadow-xs hover:opacity-90 transition-opacity"
             >
               <Upload className="w-4 h-4" />
               <span>Select Backup File</span>
