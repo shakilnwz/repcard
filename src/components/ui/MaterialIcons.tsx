@@ -87,3 +87,7 @@ export const NoPhotography = (props: Omit<MaterialIconProps, 'name'>) => <Materi
 export const ListView = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="format_list_bulleted" {...props} />
 export const CardsView = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="style" {...props} />
 export const ExpandMore = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="expand_more" {...props} />
+export const Sort = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="sort" {...props} />
+export const ArrowUpward = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="arrow_upward" {...props} />
+export const ArrowDownward = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="arrow_downward" {...props} />
+export const TouchApp = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="touch_app" {...props} />

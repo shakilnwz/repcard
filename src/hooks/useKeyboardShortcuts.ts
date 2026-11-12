@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import type { SlideDirection } from '@/components/study/CardSlider'
 
 interface KeyboardShortcutsOptions {
   isFlipped: boolean;
@@ -6,11 +7,18 @@ interface KeyboardShortcutsOptions {
   onFlip: () => void;
   onGradeDue?: (rating: 1 | 2 | 3 | 4) => void;
   onGradeCram?: (gotIt: boolean) => void;
-  /** Arrow keys: same as swiping (→ pass, ← miss) */
-  onSwipe?: (direction: 'left-to-right' | 'right-to-left') => void;
+  /** Arrow keys mirror the swipes: ↑ pass, ↓ miss, → next card, ← previous card */
+  onSwipe?: (direction: SlideDirection) => void;
   onUndo?: () => void;
   onBookmark?: () => void;
   enabled?: boolean;
+}
+
+const ARROW_SWIPES: Partial<Record<string, SlideDirection>> = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowRight: 'right-to-left',
+  ArrowLeft: 'left-to-right',
 }
 
 export function useKeyboardShortcuts({
@@ -49,10 +57,11 @@ export function useKeyboardShortcuts({
         }
       }
 
-      // Arrow keys mirror the swipe gestures
-      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      // Arrow keys mirror the swipe gestures (→ is a left swipe, bringing in the next card)
+      const arrowSwipe = ARROW_SWIPES[e.key]
+      if (arrowSwipe) {
         e.preventDefault()
-        onSwipe?.(e.key === 'ArrowRight' ? 'left-to-right' : 'right-to-left')
+        onSwipe?.(arrowSwipe)
         return
       }
 

@@ -14,10 +14,13 @@ import {
   Palette,
   Sparkles,
   QrCodeScanner,
+  Sort,
+  TouchApp,
 } from '@/components/ui/MaterialIcons'
 import type { LibrarySource } from '@/types/schema'
 import { parseLibraryShareLink, type ImportableLibraryPayload } from '@/lib/hashImport'
 import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'
+import type { CardSortOrder } from '@/lib/cardSort'
 import { BackupModal } from './BackupModal'
 import { ShareLibraryModal } from './ShareLibraryModal'
 import { ScanLibraryModal } from './ScanLibraryModal'
@@ -34,6 +37,10 @@ interface LibraryDrawerProps {
   cramFilter: CramFilter;
   onCramFilterChange: (filter: CramFilter) => void;
   cramFilterCounts: Record<CramFilter, number>;
+  cardSort: CardSortOrder;
+  onCardSortChange: (order: CardSortOrder) => void;
+  showRatingButtons: boolean;
+  onToggleRatingButtons: () => void;
   countTowardSrs: boolean;
   onToggleCountTowardSrs: () => void;
   // Quick Actions
@@ -56,6 +63,11 @@ interface LibraryDrawerProps {
   onRestoreComplete: () => void;
 }
 
+const SORT_OPTIONS: { id: CardSortOrder; label: string }[] = [
+  { id: 'newest', label: 'Newest first' },
+  { id: 'oldest', label: 'Oldest first' },
+]
+
 export function LibraryDrawer({
   open,
   onOpenChange,
@@ -65,6 +77,10 @@ export function LibraryDrawer({
   cramFilter,
   onCramFilterChange,
   cramFilterCounts,
+  cardSort,
+  onCardSortChange,
+  showRatingButtons,
+  onToggleRatingButtons,
   countTowardSrs,
   onToggleCountTowardSrs,
   canUndo,
@@ -233,6 +249,60 @@ export function LibraryDrawer({
                   </label>
                 </div>
               )}
+
+              {/* Card order: applies to both study modes and the list view */}
+              <div className="flex items-center justify-between gap-3 p-1 pl-3.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm text-xs">
+                <span className="flex items-center gap-1.5 font-semibold">
+                  <Sort className="w-3.5 h-3.5" />
+                  Card order
+                </span>
+                <div className="grid grid-cols-2 gap-1">
+                  {SORT_OPTIONS.map(({ id, label }) => (
+                    <button
+                      key={id}
+                      onClick={() => onCardSortChange(id)}
+                      aria-pressed={cardSort === id}
+                      className={`py-2 px-3 rounded-xl font-bold transition-all ${
+                        cardSort === id
+                          ? 'bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs'
+                          : 'text-[var(--fg-card)] opacity-80 hover:opacity-100'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rating buttons: swiping grades by default; this adds the full button row */}
+              <button
+                role="switch"
+                aria-checked={showRatingButtons}
+                onClick={onToggleRatingButtons}
+                className="w-full flex items-center justify-between gap-3 py-3 px-3.5 rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] shadow-sm text-xs text-left"
+              >
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <TouchApp className="w-3.5 h-3.5" />
+                    Rating buttons
+                  </span>
+                  <span className="block text-[11px] opacity-75 mt-0.5">
+                    {mode === 'due' ? 'Again · Hard · Good · Easy' : 'Still Shaky · Got It'} under the card
+                  </span>
+                </span>
+                <span
+                  aria-hidden="true"
+                  className={`relative shrink-0 w-10 h-6 rounded-full transition-colors ${
+                    showRatingButtons ? 'bg-[var(--fg-card)]' : 'bg-[var(--bg-app)]'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 left-1 w-4 h-4 rounded-full transition-transform ${
+                      showRatingButtons ? 'translate-x-4 bg-[var(--bg-card)]' : 'bg-[var(--fg-app)]'
+                    }`}
+                  />
+                </span>
+              </button>
             </div>
 
             {/* Section 2: Quick Actions (Undo & Theme) */}

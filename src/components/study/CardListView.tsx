@@ -1,18 +1,25 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Star, ExpandMore } from '@/components/ui/MaterialIcons'
 import { makeCardCompositeKey, type FlashcardItem, type LibrarySource, type LocalCardProgress } from '@/types/schema'
 import { getStateLabel } from '@/lib/fsrs'
+import { sortCards, type CardSortOrder } from '@/lib/cardSort'
 import { CardAnswer } from './FlashcardView'
 
 interface CardListViewProps {
   libraries: LibrarySource[];
   cardsByLibrary: Record<string, FlashcardItem[]>;
   progressState: Record<string, LocalCardProgress>;
+  sortOrder: CardSortOrder;
 }
 
 /** Every card of every configured library (enabled or not), grouped by library. */
-export function CardListView({ libraries, cardsByLibrary, progressState }: CardListViewProps) {
+export function CardListView({ libraries, cardsByLibrary, progressState, sortOrder }: CardListViewProps) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(() => new Set())
+  const sortedByLibrary = useMemo(
+    () =>
+      Object.fromEntries(Object.entries(cardsByLibrary).map(([libId, cards]) => [libId, sortCards(cards, sortOrder)])),
+    [cardsByLibrary, sortOrder],
+  )
 
   const toggleLibrary = (id: string) =>
     setCollapsed((prev) => {
@@ -29,7 +36,7 @@ export function CardListView({ libraries, cardsByLibrary, progressState }: CardL
   return (
     <section className="flex-1 space-y-6 pb-2" aria-label="All cards by library">
       {libraries.map((lib) => {
-        const cards = cardsByLibrary[lib.id] ?? []
+        const cards = sortedByLibrary[lib.id] ?? []
         const isOpen = !collapsed.has(lib.id)
 
         return (

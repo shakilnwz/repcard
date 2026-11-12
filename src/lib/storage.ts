@@ -11,6 +11,8 @@ const PREFIX_CARDS = 'srs:cards:v1:'
 const KEY_PROGRESS = 'srs:progress:v1'
 const KEY_ACTIVE_LIB = 'srs:active_library:v1'
 const KEY_COLOR_MODE = 'srs:color_mode:v1'
+const KEY_CARD_SORT = 'srs:card_sort:v1'
+const KEY_RATING_BUTTONS = 'srs:rating_buttons:v1'
 
 function safeGetItem<T>(key: string, fallback: T): T {
   try {
@@ -191,4 +193,26 @@ export function getColorModePreference(): string | null {
 
 export function saveColorModePreference(mode: string): boolean {
   return safeSetItem(KEY_COLOR_MODE, mode)
+}
+
+/**
+ * Card sort order preference (raw string; the caller validates it against the known orders)
+ */
+export function getCardSortPreference(): string | null {
+  return safeGetItem<string | null>(KEY_CARD_SORT, null)
+}
+
+export function saveCardSortPreference(order: string): boolean {
+  return safeSetItem(KEY_CARD_SORT, order)
+}
+
+/**
+ * Whether the rating buttons show under the card (off by default: grading is by swipe)
+ */
+export function getRatingButtonsPreference(): boolean {
+  return safeGetItem<boolean>(KEY_RATING_BUTTONS, false) === true
+}
+
+export function saveRatingButtonsPreference(show: boolean): boolean {
+  return safeSetItem(KEY_RATING_BUTTONS, show)
 }

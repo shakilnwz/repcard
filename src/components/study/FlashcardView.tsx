@@ -45,7 +45,7 @@ export function FlashcardView({
         touchAction: 'pan-y pinch-zoom',
         ...style,
       }}
-      className={`card-depth h-full cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 flex flex-col active:scale-[0.99] transition-transform duration-100 ${className}`}
+      className={`shadow-[var(--card-shadow)] h-full cursor-pointer select-none rounded-2xl bg-[var(--bg-card)] text-[var(--fg-card)] p-6 flex flex-col active:scale-[0.99] transition-transform duration-100 ${className}`}
     >
       {/* Top Metadata Header */}
       <div className="shrink-0">
