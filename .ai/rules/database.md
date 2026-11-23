@@ -1,0 +1,39 @@
+---
+paths:
+  - '**/Migrations/**'
+  - '**/migrations/**'
+  - 'database/**'
+  - 'drizzle/**'
+  - 'modules/**/database/**'
+  - 'prisma/**'
+---
+
+# Database
+
+## Bound conventions
+The **Database** section of `docs/conventions/coding.md`, the money and concurrency rules in
+`docs/conventions/security.md`, the data-ownership rules of the declared modularity level in
+`docs/conventions/architecture.md` → *Modules*, and the profile's database section.
+
+## Never edit a migration that has run outside your machine
+Add a new migration instead. An edited migration silently desynchronises every existing database;
+check `git log` on the file — if it has been pushed, it has run somewhere.
+
+## Inspect before writing
+Read the live schema first (Boost's `database-schema`, `information_schema`, or the ORM's
+introspection) — the migration history may already disagree with it.
+
+## One table per create migration; schema only
+No backfill, no conditional data logic, no model calls in a migration. Data moves in a command or
+job. No `ENUM` columns. Every foreign key states its delete behaviour; financial and audit history
+is never cascaded away. Temporal columns end in `_at`.
+
+## A module migrates only its own tables
+At modularity Level 2 or above, no foreign key, join or query crosses into another module's tables.
+
+## Factories with models
+A new Model or entity gets a factory or builder, with states for its meaningful variants, in the
+same change.
+
+## Seeders create no usable credential
+A seeded account usable outside local development is a published backdoor.

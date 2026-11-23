@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+#
+# check — the rule checks that hold whoever made the change: any coding agent, or a person.
+# Run it in CI, and optionally in a pre-commit hook:  .ai/bin/check
+#
+#   sync      every agent's generated rule files, and .ai/rules/index.md, match .ai/rules/
+#   markers   after Phase 0, no <!-- bootstrap: … --> placeholder remains
+#   trace     every requirement of an Implemented spec is cited by a test tag (NNNN.Rn)
+#   budgets   AGENTS.md fits Codex's 32 KiB; each Antigravity rule fits its 24,000 bytes
+#   incoming  warns, without failing, while a <file>.specforge-incoming awaits reconciliation
+#
+# The stack's own gates — lint, format, type check, tests, arch tests — run beside it in CI.
+# Exit 0 when every check holds, 1 when any fails; a warning never fails.
+# Portable: bash 3.2 or later and POSIX awk, sed, grep, find. No git, no network.
+
+set -u
+export LC_ALL=C
+
+failures=0
+
+fail() {
+    printf 'FAIL  %s\n' "$1"
+    failures=$((failures + 1))
+}
+
+pass() {
+    printf 'ok    %s\n' "$1"
+}
+
+note() {
+    printf 'warn  %s\n' "$1"
+}
+
+check_sync() {
+    if output=$("$root/.ai/bin/sync-rules" --check 2>&1); then
+        pass 'agent rule files and .ai/rules/index.md match .ai/rules/'
+    else
+        printf '%s\n' "$output" | sed 's/^/      /'
+        fail 'agent rule files out of sync — run .ai/bin/sync-rules'
+    fi
+}
+
+check_markers() {
+    phase=$(sed -n 's/^\*\*Phase \([0-9][0-9]*\).*/\1/p' AGENTS.md 2>/dev/null | sed -n 1p)
+    if [ -z "$phase" ] || [ "$phase" = 0 ]; then
+        pass "placeholders allowed during Phase ${phase:-0}"
+        return 0
+    fi
+    hits=$(grep -rnF --exclude-dir=bin '<!-- bootstrap:' AGENTS.md CLAUDE.md docs .ai .github 2>/dev/null)
+    if [ -z "$hits" ]; then
+        pass 'no bootstrap placeholders remain'
+    else
+        printf '%s\n' "$hits" | sed 's/^/      /'
+        fail "bootstrap placeholders remain in Phase $phase"
+    fi
+}
+
+check_trace() {
+    tmp=$(mktemp "${TMPDIR:-/tmp}/check.XXXXXX") || { fail 'trace: cannot create a temporary file'; return 0; }
+    grep -rhoE '[0-9]{4}\.R[0-9]+' . \
+        --exclude-dir=.git --exclude-dir=docs --exclude-dir=.ai --exclude-dir=.claude \
+        --exclude-dir=.cursor --exclude-dir=.agents --exclude-dir=.windsurf --exclude-dir=.kiro \
+        --exclude-dir=.github --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=bin \
+        --exclude-dir=obj --exclude-dir=.next --exclude-dir=dist --exclude-dir=build \
+        2>/dev/null | sort -u > "$tmp"
+
+    specs=0
+    missing=0
+    find docs apps -type f -path '*/specs/[0-9][0-9][0-9][0-9]-*/spec.md' 2>/dev/null | sort > "$tmp.specs"
+    while IFS= read -r spec; do
+        status=$(grep -m1 '^- \*\*Status:\*\*' "$spec" | sed 's/<!--.*-->//')
+        case $status in *Implemented*) ;; *) continue ;; esac
+        specs=$((specs + 1))
+        num=$(basename "$(dirname "$spec")" | cut -c1-4)
+        ids=$({
+            sed -n 's/^### \(R[0-9][0-9]*\)[^0-9].*/\1/p' "$spec"
+            sed -n 's/^| *\(R[0-9][0-9]*\) *|.*/\1/p' "$spec"
+        } | sort -u)
+        for id in $ids; do
+            if ! grep -qxF "$num.$id" "$tmp"; then
+                fail "trace: $num.$id ($spec) is cited by no test"
+                missing=$((missing + 1))
+            fi
+        done
+    done < "$tmp.specs"
+    rm -f "$tmp" "$tmp.specs"
+
+    if [ "$missing" -eq 0 ]; then
+        pass "every requirement of $specs Implemented spec(s) is cited by a test"
+    fi
+}
+
+check_budgets() {
+    if [ -f AGENTS.md ]; then
+        size=$(wc -c < AGENTS.md | tr -d ' ')
+        if [ "$size" -le 32768 ]; then
+            pass "AGENTS.md is $size bytes, within Codex's 32 KiB"
+        else
+            fail "AGENTS.md is $size bytes; Codex reads at most 32 KiB of project instructions by default"
+        fi
+    fi
+    for f in .agents/rules/*.md; do
+        [ -f "$f" ] || continue
+        size=$(wc -c < "$f" | tr -d ' ')
+        if [ "$size" -gt 24000 ]; then
+            fail "$f is $size bytes; Antigravity truncates rule files over 24,000 bytes"
+        fi
+    done
+}
+
+check_incoming() {
+    found=$(find . \( -name .git -o -name node_modules -o -name vendor \) -prune -o \
+        -type f -name '*.specforge-incoming' -print 2>/dev/null | sed 's|^\./||' | sort)
+    if [ -z "$found" ]; then
+        pass 'no kit file awaits reconciliation'
+        return 0
+    fi
+    printf '%s\n' "$found" | while IFS= read -r f; do
+        note "$f: the kit's version of ${f%.specforge-incoming} — merge what you want, then delete it"
+    done
+}
+
+main() {
+    case ${1-} in
+        '') ;;
+        -h | --help) sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        *) printf 'usage: .ai/bin/check\n' >&2; exit 2 ;;
+    esac
+
+    root=$(cd "$(dirname "$0")/../.." && pwd) || exit 2
+    cd "$root" || exit 2
+
+    check_sync
+    check_markers
+    check_trace
+    check_budgets
+    check_incoming
+
+    if [ "$failures" -gt 0 ]; then
+        printf 'check: %d failed\n' "$failures"
+        exit 1
+    fi
+    printf 'check: every rule holds\n'
+}
+
+main "$@"

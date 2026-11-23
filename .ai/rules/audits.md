@@ -1,0 +1,29 @@
+---
+paths:
+  - '.ai/prompts/**'
+  - 'docs/audit/**'
+  - 'docs/reports/**'
+---
+
+# Audits
+
+## Bound conventions
+`docs/conventions/auditing.md` binds every audit; `docs/conventions/lifecycle.md` binds the gates
+and `docs/audit/readiness.md`.
+
+## An audit is read-only
+It changes nothing but its own document: no code, migration, config, dependency or database write.
+A fix seen mid-audit is written as the finding's **Fix**, and applied later as its own change.
+
+## Pin, declare, verify
+Record date, branch, commit and working-tree state first. Declare scope, method and the bar. Every
+finding has location, evidence, impact and fix. Re-read every Critical and High against the code
+before writing it; a sub-agent's finding is a lead until you have.
+
+## Never waive, never advance
+An agent never marks a readiness criterion waived and never advances `AGENTS.md`'s **Phase** line.
+Both are the owner's decisions, made after reading the gate report.
+
+## Closing a finding
+Replay its trigger against HEAD. Only then change its row, in the same change as the fix, naming
+the commit. IDs are never reused or renumbered.

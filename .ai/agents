@@ -1,0 +1,22 @@
+# The coding agents that work in this project. Uncomment each one in use, then run
+# .ai/bin/sync-rules: it writes that agent's native rule files from .ai/rules/, and removes the
+# files of an agent you comment out again. Every agent reads AGENTS.md either way.
+#
+#   key           agent                   generated from .ai/rules/
+#   claude        Claude Code             .claude/rules/ai-*.md
+#   codex         Codex                   nothing — Codex reads AGENTS.md only
+#   cursor        Cursor                  .cursor/rules/ai-*.mdc
+#   copilot       GitHub Copilot          .github/instructions/ai-*.instructions.md
+#   windsurf      Windsurf / Devin        .windsurf/rules/ai-*.md
+#   antigravity   Google Antigravity      .agents/rules/ai-*.md
+#   gemini        Gemini CLI              .gemini/settings.json, if absent, pointing it at AGENTS.md
+#   kiro          Kiro                    .kiro/steering/ai-*.md
+
+# claude
+# codex
+# cursor
+# copilot
+# windsurf
+antigravity
+# gemini
+# kiro
