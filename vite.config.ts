@@ -109,10 +109,11 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    setupFiles: './tests/setup.ts',
     globals: true,
     css: true,
     include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}'],
-    exclude: ['node_modules', 'dist', 'obsidian/**'],
+    exclude: ['node_modules', 'dist'],
     passWithNoTests: true,
   },
 })
