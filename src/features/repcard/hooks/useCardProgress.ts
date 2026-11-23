@@ -3,7 +3,7 @@ import {
   getAllProgress,
   saveCardProgress,
   getCardProgress,
-} from '@/lib/storage'
+} from '@/features/repcard/lib/storage'
 import {
   createDefaultFsrsCard,
   gradeFsrsCard,
@@ -11,8 +11,8 @@ import {
   deserializeFsrsCard,
   type ValidRating,
   type FsrsCard,
-} from '@/lib/fsrs'
-import type { LocalCardProgress } from '@/types/schema'
+} from '@/features/repcard/lib/fsrs'
+import type { LocalCardProgress } from '@/features/repcard/types/schema'
 
 interface UndoRecord {
   key: string;

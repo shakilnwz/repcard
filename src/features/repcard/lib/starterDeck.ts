@@ -1,4 +1,4 @@
-import type { FlashcardItem, LibrarySource } from '@/types/schema'
+import type { FlashcardItem, LibrarySource } from '@/features/repcard/types/schema'
 
 export const STARTER_LIBRARY_ID = 'starter-deck'
 

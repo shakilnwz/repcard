@@ -12,7 +12,7 @@ import { defineConfig } from 'vitest/config'
  * so adding an icon there is all it takes; nothing to keep in sync by hand.
  */
 function materialSymbolsSubset(): Plugin {
-  const iconsFile = fileURLToPath(new URL('./src/components/ui/MaterialIcons.tsx', import.meta.url))
+  const iconsFile = fileURLToPath(new URL('./src/shared/ui/MaterialIcons.tsx', import.meta.url))
   return {
     name: 'material-symbols-subset',
     configureServer(server) {

@@ -3,7 +3,7 @@ import {
   RemoteLibraryPayloadSchema,
   type LibrarySource,
   type FlashcardItem,
-} from '@/types/schema'
+} from '@/features/repcard/types/schema'
 import {
   getLibraries,
   saveLibraries,
@@ -11,13 +11,13 @@ import {
   saveCachedCards,
   removeCachedCards,
   purgeLibraryProgress,
-} from '@/lib/storage'
+} from '@/features/repcard/lib/storage'
 import {
   checkUrlHashForLibrary,
   clearImportHash,
   type ImportableLibraryPayload,
-} from '@/lib/hashImport'
-import { STARTER_LIBRARY_ID, STARTER_LIBRARY_META, STARTER_CARDS } from '@/lib/starterDeck'
+} from '@/features/repcard/lib/hashImport'
+import { STARTER_LIBRARY_ID, STARTER_LIBRARY_META, STARTER_CARDS } from '@/features/repcard/lib/starterDeck'
 
 /**
  * Builds request URL, appending refresh query param if force=true

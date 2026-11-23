@@ -9,9 +9,9 @@ import {
   ImageIcon,
   NoPhotography,
   QrCodeScanner,
-} from '@/components/ui/MaterialIcons'
-import { parseScannedLibrary, type ImportableLibraryPayload } from '@/lib/hashImport'
-import { decodeQrFromImageFile, describeCameraError, drawScaled, loadQrDecoder } from '@/lib/qrScan'
+} from '@/shared/ui/MaterialIcons'
+import { parseScannedLibrary, type ImportableLibraryPayload } from '@/features/repcard/lib/hashImport'
+import { decodeQrFromImageFile, describeCameraError, drawScaled, loadQrDecoder } from '@/features/repcard/lib/qrScan'
 
 interface ScanLibraryModalProps {
   open: boolean;

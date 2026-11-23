@@ -1,4 +1,4 @@
-import type { FlashcardItem } from '@/types/schema'
+import type { FlashcardItem } from '@/features/repcard/types/schema'
 
 export const CARD_SORT_ORDERS = ['newest', 'oldest'] as const
 export type CardSortOrder = (typeof CARD_SORT_ORDERS)[number]

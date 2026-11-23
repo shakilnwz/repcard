@@ -1,5 +1,5 @@
-import { Tune, ListView, CardsView } from '@/components/ui/MaterialIcons'
-export type { ColorPaletteMode } from '@/lib/colorModes'
+import { Tune, ListView, CardsView } from '@/shared/ui/MaterialIcons'
+export type { ColorPaletteMode } from '@/features/repcard/lib/colorModes'
 
 export type StudyMode = 'due' | 'cram'
 export type AppView = 'cards' | 'list'

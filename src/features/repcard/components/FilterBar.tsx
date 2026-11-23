@@ -1,5 +1,5 @@
 import React from 'react'
-import { Star, Flame, Sparkles } from '@/components/ui/MaterialIcons'
+import { Star, Flame, Sparkles } from '@/shared/ui/MaterialIcons'
 
 export type CramFilter = 'all' | 'high' | 'low' | 'bookmarked' | 'hardest'
 

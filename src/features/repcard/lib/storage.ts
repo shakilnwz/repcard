@@ -3,7 +3,7 @@ import type {
   FlashcardItem,
   LocalCardProgress,
   AppExportData,
-} from '@/types/schema'
+} from '@/features/repcard/types/schema'
 import { STARTER_LIBRARY_ID, STARTER_LIBRARY_META, STARTER_CARDS } from './starterDeck'
 
 const KEY_LIBRARIES = 'srs:libraries:v1'

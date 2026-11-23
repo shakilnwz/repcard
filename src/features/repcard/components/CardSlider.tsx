@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useLayoutEffect, useRef } from 'react'
-import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
-import { ArrowDownward, ArrowUpward } from '@/components/ui/MaterialIcons'
+import type { FlashcardItem, LocalCardProgress } from '@/features/repcard/types/schema'
+import { ArrowDownward, ArrowUpward } from '@/shared/ui/MaterialIcons'
 import { FlashcardView } from './FlashcardView'
 
 /**

@@ -1,7 +1,7 @@
 import React from 'react'
-import { Star, ExternalLink, Sparkles } from '@/components/ui/MaterialIcons'
-import type { FlashcardItem, LocalCardProgress } from '@/types/schema'
-import { getStateLabel } from '@/lib/fsrs'
+import { Star, ExternalLink, Sparkles } from '@/shared/ui/MaterialIcons'
+import type { FlashcardItem, LocalCardProgress } from '@/features/repcard/types/schema'
+import { getStateLabel } from '@/features/repcard/lib/fsrs'
 
 export interface FrontHint {
   primary: string;

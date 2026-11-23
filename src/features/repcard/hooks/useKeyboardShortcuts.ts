@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import type { SlideDirection } from '@/components/study/CardSlider'
+import type { SlideDirection } from '@/features/repcard/components/CardSlider'
 
 interface KeyboardShortcutsOptions {
   isFlipped: boolean;

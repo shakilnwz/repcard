@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Star, ExpandMore } from '@/components/ui/MaterialIcons'
-import { makeCardCompositeKey, type FlashcardItem, type LibrarySource, type LocalCardProgress } from '@/types/schema'
-import { getStateLabel } from '@/lib/fsrs'
-import { sortCards, type CardSortOrder } from '@/lib/cardSort'
+import { Star, ExpandMore } from '@/shared/ui/MaterialIcons'
+import { makeCardCompositeKey, type FlashcardItem, type LibrarySource, type LocalCardProgress } from '@/features/repcard/types/schema'
+import { getStateLabel } from '@/features/repcard/lib/fsrs'
+import { sortCards, type CardSortOrder } from '@/features/repcard/lib/cardSort'
 import { CardAnswer } from './FlashcardView'
 
 interface CardListViewProps {

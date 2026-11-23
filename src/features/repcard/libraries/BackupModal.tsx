@@ -8,8 +8,8 @@ import {
   CheckCircle2,
   AlertCircle,
   FileText,
-} from '@/components/ui/MaterialIcons'
-import { exportAppData, importAppData } from '@/lib/storage'
+} from '@/shared/ui/MaterialIcons'
+import { exportAppData, importAppData } from '@/features/repcard/lib/storage'
 
 interface BackupModalProps {
   open: boolean;

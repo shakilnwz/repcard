@@ -1,4 +1,4 @@
-import { Rating, type ValidRating, type IntervalPreviewItem } from '@/lib/fsrs'
+import { Rating, type ValidRating, type IntervalPreviewItem } from '@/features/repcard/lib/fsrs'
 
 interface RatingBarProps {
   isFlipped: boolean;

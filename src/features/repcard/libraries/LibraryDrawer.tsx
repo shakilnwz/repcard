@@ -16,16 +16,16 @@ import {
   QrCodeScanner,
   Sort,
   TouchApp,
-} from '@/components/ui/MaterialIcons'
-import type { LibrarySource } from '@/types/schema'
-import { parseLibraryShareLink, type ImportableLibraryPayload } from '@/lib/hashImport'
-import { STARTER_LIBRARY_ID } from '@/lib/starterDeck'
-import type { CardSortOrder } from '@/lib/cardSort'
+} from '@/shared/ui/MaterialIcons'
+import type { LibrarySource } from '@/features/repcard/types/schema'
+import { parseLibraryShareLink, type ImportableLibraryPayload } from '@/features/repcard/lib/hashImport'
+import { STARTER_LIBRARY_ID } from '@/features/repcard/lib/starterDeck'
+import type { CardSortOrder } from '@/features/repcard/lib/cardSort'
 import { BackupModal } from './BackupModal'
 import { ShareLibraryModal } from './ShareLibraryModal'
 import { ScanLibraryModal } from './ScanLibraryModal'
-import { FilterBar, type CramFilter } from '@/components/study/FilterBar'
-import type { StudyMode, ColorPaletteMode } from '@/components/layout/AppHeader'
+import { FilterBar, type CramFilter } from '@/features/repcard/components/FilterBar'
+import type { StudyMode, ColorPaletteMode } from '@/features/repcard/components/AppHeader'
 
 interface LibraryDrawerProps {
   open: boolean;

@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { X, Check, Copy, Share2, QrCode, ShieldCheck } from '@/components/ui/MaterialIcons'
-import { QrCodeImage } from '@/components/ui/QrCodeImage'
-import { generateLibraryShareLink } from '@/lib/hashImport'
-import type { LibrarySource } from '@/types/schema'
+import { X, Check, Copy, Share2, QrCode, ShieldCheck } from '@/shared/ui/MaterialIcons'
+import { QrCodeImage } from '@/features/repcard/ui/QrCodeImage'
+import { generateLibraryShareLink } from '@/features/repcard/lib/hashImport'
+import type { LibrarySource } from '@/features/repcard/types/schema'
 
 interface ShareLibraryModalProps {
   /** The library being shared. Kept by the parent after closing so the exit animation has content. */

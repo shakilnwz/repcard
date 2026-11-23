@@ -7,7 +7,7 @@ import {
   type Grade,
   type RecordLogItem,
 } from 'ts-fsrs'
-import type { SerializedFsrsCard } from '@/types/schema'
+import type { SerializedFsrsCard } from '@/features/repcard/types/schema'
 
 export { Rating, State }
 export type { FsrsCard, Grade }
