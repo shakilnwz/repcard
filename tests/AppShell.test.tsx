@@ -9,8 +9,11 @@ import { DEFAULT_IGNORE_PATTERNS } from '@/features/vault/lib/ignore';
 import { useAppStore } from '@/shared/store/useAppStore';
 
 function resetStore() {
+  if (typeof document !== 'undefined') {
+    delete document.documentElement.dataset.colorMode;
+  }
   useAppStore.setState({
-    theme: 'dark',
+    colorMode: 'default',
     vimMode: true,
     sidebarOpen: true,
     inspectorOpen: true,
@@ -80,7 +83,7 @@ describe('AppShell', () => {
     const user = userEvent.setup();
     render(<KnowledgebaseShell />);
 
-    expect(screen.getByText('GenForge Lab Knowledgebase')).toBeInTheDocument();
+    expect(screen.getByText('RepCard Knowledgebase')).toBeInTheDocument();
 
     const sidebar = screen.getByRole('complementary', { name: 'Vault sidebar' });
     await user.click(
@@ -111,9 +114,13 @@ describe('AppShell', () => {
     const user = userEvent.setup();
     render(<KnowledgebaseShell />);
 
-    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(document.documentElement.dataset.colorMode).toBeUndefined();
     await user.click(screen.getByRole('button', { name: /switch theme/i }));
-    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(document.documentElement.dataset.colorMode).toBe('navy-canvas');
+    await user.click(screen.getByRole('button', { name: /switch theme/i }));
+    expect(document.documentElement.dataset.colorMode).toBe('black-navy-card');
+    await user.click(screen.getByRole('button', { name: /switch theme/i }));
+    expect(document.documentElement.dataset.colorMode).toBeUndefined();
 
     await user.click(screen.getByRole('button', { name: /connect github repo/i }));
     const onboarding = screen.getByRole('dialog', {

@@ -3,14 +3,15 @@ import {
   FilePlus2,
   FileText,
   Network,
+  Palette,
   Radar,
   RefreshCw,
   Search,
-  SunMoon,
   X,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { useEffect, useRef, useState } from 'react';
 import type { VaultSearchHit } from '@/shared/lib/searchEngine';
+import { COLOR_MODE_LABELS } from '@/shared/lib/theme';
 import { createNewVaultNote, syncNow } from '@/features/vault/lib/vaultService';
 import { useAppStore } from '@/shared/store/useAppStore';
 
@@ -18,14 +19,14 @@ export function CommandPaletteModal() {
   const open = useAppStore((s) => s.commandPaletteOpen);
   const vaultSource = useAppStore((s) => s.vaultSource);
   const recentFiles = useAppStore((s) => s.recentFiles);
-  const theme = useAppStore((s) => s.theme);
+  const colorMode = useAppStore((s) => s.colorMode);
 
   const setCommandPaletteOpen = useAppStore((s) => s.setCommandPaletteOpen);
   const navigateToPath = useAppStore((s) => s.navigateToPath);
   const setPendingCanvasNodeId = useAppStore((s) => s.setPendingCanvasNodeId);
   const setStageView = useAppStore((s) => s.setStageView);
   const setActivePath = useAppStore((s) => s.setActivePath);
-  const setTheme = useAppStore((s) => s.setTheme);
+  const cycleColorMode = useAppStore((s) => s.cycleColorMode);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState('');
@@ -139,11 +140,11 @@ export function CommandPaletteModal() {
     },
     {
       id: 'toggle-theme',
-      label: 'Switch Theme (Dark / Light)',
-      icon: SunMoon,
+      label: `Cycle Appearance Palette (${COLOR_MODE_LABELS[colorMode]})`,
+      icon: Palette,
       disabled: false,
       action: () => {
-        setTheme(theme === 'dark' ? 'light' : 'dark');
+        cycleColorMode();
         setCommandPaletteOpen(false);
       },
     },
@@ -154,12 +155,12 @@ export function CommandPaletteModal() {
       role="dialog"
       aria-modal="true"
       aria-label="Command Palette & Global Search"
-      className="fixed inset-0 z-50 flex items-start justify-center bg-[#0B132B]/80 p-4 pt-[10vh] backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[10vh] backdrop-blur-xs"
       onClick={(e) => {
         if (e.target === e.currentTarget) setCommandPaletteOpen(false);
       }}
     >
-      <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-2xl">
+      <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-[var(--bg-surface)] shadow-2xl">
         {newNoteMode ? (
           <form onSubmit={handleCreateNote} className="space-y-3 p-4 text-xs">
             <div className="flex items-center justify-between">
@@ -181,11 +182,11 @@ export function CommandPaletteModal() {
                 value={newNotePath}
                 onChange={(e) => setNewNotePath(e.target.value)}
                 placeholder="ai_enginnering/notes/new-topic.md"
-                className="min-w-0 flex-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                className="min-w-0 flex-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-2 text-xs text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
               />
               <button
                 type="submit"
-                className="rounded-md bg-[var(--accent-primary)] px-4 py-2 font-semibold text-[var(--accent-on-primary)] hover:opacity-90"
+                className="key-depth rounded-xl bg-[var(--button-primary-bg)] px-4 py-2 font-bold text-[var(--button-primary-fg)] hover:opacity-90"
               >
                 Create & Edit
               </button>
@@ -193,7 +194,10 @@ export function CommandPaletteModal() {
           </form>
         ) : (
           <>
-            <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
+            <div
+              style={{ boxShadow: 'var(--header-shadow)' }}
+              className="relative z-10 flex items-center gap-2 bg-[var(--bg-surface)] px-4 py-3"
+            >
               <Search className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
               <input
                 ref={inputRef}
@@ -241,9 +245,9 @@ export function CommandPaletteModal() {
                         <button
                           type="button"
                           onClick={() => openHit(hit)}
-                          className={`flex w-full flex-col gap-1 rounded-lg px-3 py-2 text-left transition-colors ${
+                          className={`flex w-full flex-col gap-1 rounded-xl px-3 py-2 text-left transition-colors ${
                             idx === selectedIdx
-                              ? 'bg-[var(--bg-hover)] ring-1 ring-[var(--accent-primary)]/40'
+                              ? 'bg-[var(--bg-hover)] text-[var(--accent-primary)] shadow-xs'
                               : 'hover:bg-[var(--bg-hover)]'
                           }`}
                         >

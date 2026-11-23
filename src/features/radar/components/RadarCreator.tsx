@@ -13,7 +13,7 @@ import {
   Sparkles,
   Trash2,
   Wand2,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { useMemo, useState } from 'react';
 import { RadarChart } from '@/features/radar/components/RadarChart';
 import { computeRadarLayout } from '@/features/radar/lib/radarLayout';
@@ -396,12 +396,12 @@ export function RadarCreator({
       className="flex h-full min-h-0 flex-col gap-3"
     >
       {/* Studio Top Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs shadow-sm">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Back to Viewer</span>
@@ -412,7 +412,7 @@ export function RadarCreator({
             <span>Radar Studio</span>
           </span>
 
-          <span className="rounded-full bg-[var(--bg-elevated)] px-2 py-0.5 text-[11px] text-[var(--text-muted)] tabular-nums">
+          <span className="rounded-full bg-[var(--bg-elevated)] px-2.5 py-0.5 text-[11px] text-[var(--text-muted)] tabular-nums">
             {doc.steps.length} steps · {totalItems} items
           </span>
         </div>
@@ -421,7 +421,7 @@ export function RadarCreator({
           <button
             type="button"
             onClick={() => void handleCopyJson()}
-            className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             {copied ? (
               <>
@@ -439,7 +439,7 @@ export function RadarCreator({
           <button
             type="button"
             onClick={handleDownloadJson}
-            className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Download .json</span>
@@ -450,7 +450,7 @@ export function RadarCreator({
               type="button"
               disabled={saving || Boolean(jsonError)}
               onClick={() => void handleSaveLocalClick()}
-              className="inline-flex items-center gap-1 rounded-md border border-[var(--accent-primary)]/50 bg-[var(--bg-hover)] px-3 py-1.5 font-semibold text-[var(--accent-primary)] hover:opacity-90 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-hover)] px-3.5 py-1.5 font-bold text-[var(--accent-primary)] shadow-xs hover:opacity-90 disabled:opacity-50"
             >
               <Save className="h-3.5 w-3.5" />
               <span>Save Locally</span>
@@ -458,19 +458,19 @@ export function RadarCreator({
           )}
 
           {canSaveToVault && onSaveToVault && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <input
                 type="text"
                 value={targetPath}
                 onChange={(e) => setTargetPath(e.target.value)}
                 aria-label="Vault radar JSON path"
-                className="w-48 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 font-mono text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                className="w-48 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 font-mono text-[11px] text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
               />
               <button
                 type="button"
                 disabled={saving || Boolean(jsonError)}
                 onClick={() => void handleSaveVault()}
-                className="inline-flex items-center gap-1 rounded-md bg-[var(--accent-primary)] px-3 py-1.5 font-semibold text-[var(--accent-on-primary)] hover:opacity-90 disabled:opacity-50"
+                className="key-depth inline-flex items-center gap-1 rounded-xl bg-[var(--button-primary-bg)] px-3.5 py-1.5 font-bold text-[var(--button-primary-fg)] hover:opacity-90 disabled:opacity-50"
               >
                 <Save className="h-3.5 w-3.5" />
                 <span>{saving ? 'Saving...' : 'Save to Vault'}</span>
@@ -481,7 +481,7 @@ export function RadarCreator({
       </div>
 
       {saveMessage && (
-        <div className="rounded-lg border border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] px-3 py-1.5 text-xs font-medium text-[var(--accent-primary)]">
+        <div className="rounded-2xl bg-[var(--bg-hover)] px-3.5 py-2 text-xs font-medium text-[var(--accent-primary)] shadow-xs">
           {saveMessage}
         </div>
       )}
@@ -489,18 +489,21 @@ export function RadarCreator({
       {/* Split-Screen Authoring + Live Preview */}
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-12">
         {/* Left Pane: Visual Builder / JSON Input */}
-        <div className="flex min-h-[440px] flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] lg:col-span-5">
-          <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-3 py-2 text-xs">
-            <div className="inline-flex rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-0.5">
+        <div className="flex min-h-[440px] flex-col overflow-hidden rounded-2xl bg-[var(--bg-surface)] shadow-md lg:col-span-5">
+          <div
+            style={{ boxShadow: 'var(--header-shadow)' }}
+            className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs"
+          >
+            <div className="inline-flex rounded-xl bg-[var(--bg-canvas)] p-0.5 shadow-xs">
               <button
                 type="button"
                 onClick={() => {
                   setTab('visual');
                   setJsonText(serializeRadarJson(doc));
                 }}
-                className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition-colors ${
+                className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-bold transition-colors ${
                   tab === 'visual'
-                    ? 'bg-[var(--accent-primary)] text-[var(--accent-on-primary)]'
+                    ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -510,9 +513,9 @@ export function RadarCreator({
               <button
                 type="button"
                 onClick={() => setTab('json')}
-                className={`inline-flex items-center gap-1 rounded px-2.5 py-1 font-semibold transition-colors ${
+                className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-bold transition-colors ${
                   tab === 'json'
-                    ? 'bg-[var(--accent-primary)] text-[var(--accent-on-primary)]'
+                    ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
@@ -539,7 +542,7 @@ export function RadarCreator({
                 <button
                   type="button"
                   onClick={handleFormatCanonical}
-                  className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+                  className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                 >
                   <FileJson className="h-3 w-3" />
                   <span>Format Canonical JSON</span>
@@ -549,12 +552,12 @@ export function RadarCreator({
               {jsonError ? (
                 <div
                   role="alert"
-                  className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-[11px] text-rose-300"
+                  className="rounded-xl bg-rose-500/15 px-3 py-2 text-[11px] text-rose-300 shadow-xs"
                 >
                   {jsonError}
                 </div>
               ) : (
-                <div className="rounded-lg border border-[var(--accent-primary)]/35 bg-[var(--bg-hover)] px-3 py-1.5 text-[11px] font-medium text-[var(--accent-primary)]">
+                <div className="rounded-xl bg-[var(--bg-hover)] px-3 py-1.5 text-[11px] font-medium text-[var(--accent-primary)] shadow-xs">
                   Detected: genforge-radar · {doc.steps.length} steps · {totalItems} items
                   {jsonNotice ? ` — ${jsonNotice}` : ''}
                 </div>
@@ -565,13 +568,13 @@ export function RadarCreator({
                 value={jsonText}
                 onChange={(e) => handleJsonChange(e.target.value)}
                 spellCheck={false}
-                className="min-h-[300px] flex-1 resize-none rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 font-mono text-[12px] leading-relaxed text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                className="min-h-[300px] flex-1 resize-none rounded-2xl bg-[var(--bg-canvas)] p-3.5 font-mono text-[12px] leading-relaxed text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
               />
             </div>
           ) : (
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3 text-xs">
               {/* Metadata */}
-              <div className="space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+              <div className="space-y-2 rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
                 <div className="grid gap-2 sm:grid-cols-2">
                   <label className="block">
                     <span className="mb-1 block text-[11px] text-[var(--text-muted)]">
@@ -583,7 +586,7 @@ export function RadarCreator({
                       onChange={(e) =>
                         commitDoc((p) => ({ ...p, title: e.target.value }))
                       }
-                      className="w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                      className="w-full rounded-xl bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                     />
                   </label>
                   <label className="block">
@@ -600,14 +603,14 @@ export function RadarCreator({
                         }))
                       }
                       placeholder="Optional edition or date"
-                      className="w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                      className="w-full rounded-xl bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                     />
                   </label>
                 </div>
               </div>
 
               {/* Steps / Rings */}
-              <div className="space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+              <div className="space-y-2 rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                     Steps / Rings (Inner → Outer)
@@ -615,7 +618,7 @@ export function RadarCreator({
                   <button
                     type="button"
                     onClick={handleAddStep}
-                    className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
                   >
                     <Plus className="h-3 w-3" />
                     <span>Add Step</span>
@@ -626,7 +629,7 @@ export function RadarCreator({
                   {doc.steps.map((step, idx) => (
                     <div
                       key={step.id}
-                      className="flex items-center gap-1.5 rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1.5"
+                      className="flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] p-2 shadow-xs"
                     >
                       <input
                         type="color"
@@ -657,7 +660,7 @@ export function RadarCreator({
                             ),
                           }))
                         }
-                        className="min-w-0 flex-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-xs font-semibold text-[var(--text-primary)]"
+                        className="min-w-0 flex-1 rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-xs font-semibold text-[var(--text-primary)]"
                       />
                       <button
                         type="button"
@@ -692,7 +695,7 @@ export function RadarCreator({
               </div>
 
               {/* Quadrants */}
-              <div className="space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+              <div className="space-y-2 rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <label className="flex items-center gap-2 font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                     <input
@@ -706,7 +709,7 @@ export function RadarCreator({
                     <button
                       type="button"
                       onClick={handleAddQuadrant}
-                      className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/50"
+                      className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
                     >
                       <Plus className="h-3 w-3" />
                       <span>Add Quadrant</span>
@@ -719,7 +722,7 @@ export function RadarCreator({
                     {doc.quadrants.map((q) => (
                       <div
                         key={q.id}
-                        className="flex items-center gap-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1.5"
+                        className="flex items-center gap-1 rounded-xl bg-[var(--bg-surface)] p-1.5 shadow-xs"
                       >
                         <input
                           type="text"
@@ -734,7 +737,7 @@ export function RadarCreator({
                               ),
                             }))
                           }
-                          className="min-w-0 flex-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-primary)]"
+                          className="min-w-0 flex-1 rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-primary)]"
                         />
                         <button
                           type="button"
@@ -756,7 +759,7 @@ export function RadarCreator({
               </div>
 
               {/* Items per Step */}
-              <div className="space-y-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+              <div className="space-y-3 rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-semibold tracking-wide text-[var(--text-muted)] uppercase">
                     Step Items
@@ -764,14 +767,14 @@ export function RadarCreator({
                   <button
                     type="button"
                     onClick={() => setBulkOpen((b) => !b)}
-                    className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] font-medium text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
                   >
                     <ListPlus className="h-3 w-3" />
                     <span>Bulk Paste</span>
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {doc.steps.map((s) => {
                     const count = (doc.items[s.id] ?? []).length;
                     const active = s.id === resolvedStepId;
@@ -782,13 +785,13 @@ export function RadarCreator({
                         onClick={() => setActiveStepId(s.id)}
                         style={
                           active
-                            ? { borderColor: s.color, color: s.color }
+                            ? { backgroundColor: `${s.color}24`, color: s.color }
                             : undefined
                         }
-                        className={`rounded-md border px-2 py-1 text-[11px] font-bold transition-colors ${
+                        className={`rounded-xl px-2.5 py-1 text-[11px] font-bold shadow-xs transition-colors ${
                           active
-                            ? 'bg-[var(--bg-surface)]'
-                            : 'border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                            ? ''
+                            : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                         }`}
                       >
                         {s.label} ({count})
@@ -798,26 +801,26 @@ export function RadarCreator({
                 </div>
 
                 {bulkOpen && (
-                  <div className="space-y-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-2">
+                  <div className="space-y-1.5 rounded-xl bg-[var(--bg-surface)] p-2.5 shadow-xs">
                     <textarea
                       rows={4}
                       value={bulkText}
                       onChange={(e) => setBulkText(e.target.value)}
                       placeholder="Paste one item title per line..."
-                      className="w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-2 text-xs text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                      className="w-full rounded-xl bg-[var(--bg-canvas)] p-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                     />
                     <div className="flex justify-end gap-1.5">
                       <button
                         type="button"
                         onClick={() => setBulkOpen(false)}
-                        className="rounded px-2 py-1 text-[11px] text-[var(--text-secondary)]"
+                        className="rounded-lg px-2.5 py-1 text-[11px] text-[var(--text-secondary)]"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
                         onClick={handleBulkAdd}
-                        className="rounded bg-[var(--accent-primary)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent-on-primary)]"
+                        className="rounded-lg bg-[var(--button-primary-bg)] px-2.5 py-1 text-[11px] font-bold text-[var(--button-primary-fg)]"
                       >
                         Add Lines
                       </button>
@@ -827,7 +830,7 @@ export function RadarCreator({
 
                 <form
                   onSubmit={handleAddItem}
-                  className="space-y-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-2.5"
+                  className="space-y-2 rounded-xl bg-[var(--bg-surface)] p-3 shadow-xs"
                 >
                   <div className="flex gap-1.5">
                     <input
@@ -836,14 +839,14 @@ export function RadarCreator({
                       onChange={(e) => setNewTitle(e.target.value)}
                       placeholder="New item title..."
                       aria-label="New item title"
-                      className="min-w-0 flex-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                      className="min-w-0 flex-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                     />
                     {doc.quadrants.length > 0 && (
                       <select
                         value={newQuadrant}
                         onChange={(e) => setNewQuadrant(e.target.value)}
                         aria-label="New item quadrant"
-                        className="rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-primary)]"
+                        className="rounded-xl bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-primary)]"
                       >
                         {doc.quadrants.map((q) => (
                           <option key={q.id} value={q.id}>
@@ -855,7 +858,7 @@ export function RadarCreator({
                     <button
                       type="submit"
                       disabled={!newTitle.trim()}
-                      className="inline-flex items-center gap-1 rounded bg-[var(--accent-primary)] px-2.5 py-1 text-xs font-semibold text-[var(--accent-on-primary)] disabled:opacity-50"
+                      className="inline-flex items-center gap-1 rounded-xl bg-[var(--button-primary-bg)] px-3 py-1 text-xs font-bold text-[var(--button-primary-fg)] disabled:opacity-50"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       <span>Add</span>
@@ -868,14 +871,14 @@ export function RadarCreator({
                       value={newDescription}
                       onChange={(e) => setNewDescription(e.target.value)}
                       placeholder="Short note (optional)"
-                      className="rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
+                      className="rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
                     />
                     <input
                       type="text"
                       value={newLink}
                       onChange={(e) => setNewLink(e.target.value)}
                       placeholder="Vault path or URL"
-                      className="rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
+                      className="rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
                     />
                     <div className="flex gap-1">
                       <input
@@ -883,7 +886,7 @@ export function RadarCreator({
                         value={newTags}
                         onChange={(e) => setNewTags(e.target.value)}
                         placeholder="tags, comma"
-                        className="min-w-0 flex-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
+                        className="min-w-0 flex-1 rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
                       />
                       <select
                         value={newMovement}
@@ -891,7 +894,7 @@ export function RadarCreator({
                           setNewMovement(e.target.value as RadarMovement)
                         }
                         aria-label="Movement badge"
-                        className="rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-1.5 py-1 text-[11px] text-[var(--text-primary)]"
+                        className="rounded-lg bg-[var(--bg-canvas)] px-1.5 py-1 text-[11px] text-[var(--text-primary)]"
                       >
                         <option value="same">● Steady</option>
                         <option value="new">◆ New</option>
@@ -902,13 +905,13 @@ export function RadarCreator({
                   </div>
                 </form>
 
-                <ul className="max-h-64 space-y-1 overflow-y-auto">
+                <ul className="max-h-64 space-y-1.5 overflow-y-auto">
                   {(doc.items[resolvedStepId] ?? []).map((item) => {
                     const isEditing = editingItemId === item.id;
                     return (
                       <li
                         key={item.id}
-                        className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-2"
+                        className="rounded-xl bg-[var(--bg-surface)] p-2.5 shadow-xs"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <button
@@ -931,7 +934,7 @@ export function RadarCreator({
                               )
                             }
                             aria-label={`Move ${item.title} to step`}
-                            className="rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-1.5 py-0.5 text-[10px] text-[var(--text-secondary)]"
+                            className="rounded-lg bg-[var(--bg-canvas)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)]"
                           >
                             {doc.steps.map((s) => (
                               <option key={s.id} value={s.id}>
@@ -953,7 +956,7 @@ export function RadarCreator({
                         </div>
 
                         {isEditing && (
-                          <div className="mt-2 space-y-1.5 border-t border-[var(--border-subtle)] pt-2">
+                          <div className="mt-2 space-y-1.5 pt-2">
                             <input
                               type="text"
                               value={item.title}
@@ -962,7 +965,7 @@ export function RadarCreator({
                                   title: e.target.value,
                                 })
                               }
-                              className="w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-primary)]"
+                              className="w-full rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-primary)]"
                             />
                             <input
                               type="text"
@@ -973,7 +976,7 @@ export function RadarCreator({
                                 })
                               }
                               placeholder="Description..."
-                              className="w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
+                              className="w-full rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
                             />
                             {doc.quadrants.length > 0 && (
                               <select
@@ -983,7 +986,7 @@ export function RadarCreator({
                                     quadrant: e.target.value,
                                   })
                                 }
-                                className="w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
+                                className="w-full rounded-lg bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)]"
                               >
                                 {doc.quadrants.map((q) => (
                                   <option key={q.id} value={q.id}>

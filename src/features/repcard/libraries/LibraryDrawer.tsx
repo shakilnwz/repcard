@@ -205,7 +205,7 @@ export function LibraryDrawer({
                 >
                   <span>Due Queue</span>
                   <span
-                    className={`px-1.5 py-0.2 text-[10px] rounded-full font-extrabold ${
+                    className={`px-1.5 py-0.2 text-[10px] rounded-full font-bold ${
                       mode === 'due'
                         ? 'bg-[var(--bg-card)] text-[var(--fg-card)]'
                         : 'bg-[var(--fg-card)] text-[var(--bg-card)]'

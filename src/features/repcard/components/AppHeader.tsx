@@ -20,7 +20,7 @@ export function AppHeader({ onOpenSidebar, isSyncing, view, onToggleView }: AppH
   return (
     <header className="flex items-center justify-between pt-1 pb-3">
       {/* Big Title, No Subtitle, No Left Logo */}
-      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--fg-app)] select-none">
+      <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--fg-app)] select-none">
         RepCard
       </h1>
 

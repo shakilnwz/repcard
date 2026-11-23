@@ -1,8 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from 'react'
 import { RepCardView } from '@/features/repcard/RepCardView'
 import { BottomNavPill } from '@/shared/components/BottomNavPill'
 import { SwUpdateToast } from '@/shared/components/SwUpdateToast'
 import { useStartupCoordinator } from '@/shared/hooks/useStartupCoordinator'
+import { applyColorMode } from '@/shared/lib/theme'
 import { useAppStore } from '@/shared/store/useAppStore'
 
 const KnowledgebaseShell = lazy(() => import('@/features/vault/KnowledgebaseShell'))
@@ -10,7 +11,12 @@ const KnowledgebaseShell = lazy(() => import('@/features/vault/KnowledgebaseShel
 export function App() {
   useStartupCoordinator()
 
+  const colorMode = useAppStore((s) => s.colorMode)
   const stageView = useAppStore((s) => s.stageView)
+
+  useLayoutEffect(() => {
+    applyColorMode(colorMode)
+  }, [colorMode])
   const setStageView = useAppStore((s) => s.setStageView)
   const commandPaletteOpen = useAppStore((s) => s.commandPaletteOpen)
   const settingsOpen = useAppStore((s) => s.settingsOpen)

@@ -7,7 +7,7 @@ import {
   type SimulationLinkDatum,
   type SimulationNodeDatum,
 } from 'd3-force';
-import { Maximize2, Network, RotateCcw } from 'lucide-react';
+import { Maximize2, Network, RotateCcw } from '@/shared/ui/MaterialIcons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   extractLocalGraph,
@@ -35,16 +35,16 @@ interface SimLink extends SimulationLinkDatum<SimNode> {
 }
 
 const FOLDER_COLORS: Record<string, string> = {
-  roadmaps: '#39FF88',
-  ai_enginnering: '#7CFFB2',
+  roadmaps: '#a7ff83',
+  ai_enginnering: '#75b35c',
   iot: '#00C86F',
   cpp: '#64DFDF',
   laravel: '#A8C5FF',
-  '(root)': '#C6D2EC',
+  '(root)': '#ffffff',
 };
 
 function colorForFolder(folder: string): string {
-  return FOLDER_COLORS[folder] ?? '#39FF88';
+  return FOLDER_COLORS[folder] ?? '#a7ff83';
 }
 
 export function GraphView({
@@ -170,7 +170,7 @@ export function GraphView({
 
   if (vaultSource === 'preview') {
     return (
-      <div className="rounded-lg border border-dashed border-[var(--border-subtle)] p-4 text-center text-xs text-[var(--text-muted)]">
+      <div className="rounded-2xl bg-[var(--bg-surface)] p-4 text-center text-xs text-[var(--text-muted)] shadow-sm">
         Connect your GitHub repository or Local Folder to render the interactive wikilink graph.
       </div>
     );
@@ -178,11 +178,14 @@ export function GraphView({
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] ${
+      className={`flex flex-col overflow-hidden rounded-2xl bg-[var(--bg-canvas)] shadow-md ${
         compact ? '' : 'h-full min-h-[520px]'
       }`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-xs">
+      <div
+        style={{ boxShadow: 'var(--header-shadow)' }}
+        className="relative z-10 flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-surface)] px-3.5 py-2 text-xs"
+      >
         <div className="flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
           <Network className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
           <span>
@@ -197,7 +200,7 @@ export function GraphView({
               aria-label="Filter graph folder"
               value={selectedFolder}
               onChange={(e) => setSelectedFolder(e.target.value)}
-              className="rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-0.5 text-[11px] text-[var(--text-primary)]"
+              className="rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] text-[var(--text-primary)] shadow-xs focus:outline-none"
             >
               <option value="all">All Folders</option>
               {folders.map((f) => (
@@ -288,7 +291,7 @@ export function GraphView({
                     y1={link.y1}
                     x2={link.x2}
                     y2={link.y2}
-                    stroke="#4C6399"
+                    stroke="#75b35c"
                     strokeWidth={active ? 1.4 : 0.8}
                     strokeOpacity={active ? 0.55 : 0.15}
                   />
@@ -319,8 +322,8 @@ export function GraphView({
                     <circle
                       r={isCenter ? radius + 2 : radius}
                       fill={colorForFolder(node.topFolder)}
-                      stroke={isCenter || isHovered ? '#39FF88' : '#0B132B'}
-                      strokeWidth={isCenter || isHovered ? 2 : 1}
+                      stroke={isCenter || isHovered ? '#a7ff83' : '#071a52'}
+                      strokeWidth={isCenter || isHovered ? 2 : 1.5}
                     />
                     {(!compact || isCenter || isHovered) && (
                       <text

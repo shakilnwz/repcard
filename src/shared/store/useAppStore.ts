@@ -3,6 +3,8 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 import type { OutboxEditRecord } from '@/shared/db/vaultDb';
 import { DEFAULT_IGNORE_PATTERNS } from '@/features/vault/lib/ignore';
 import type { HeadingItem } from '@/features/editor/lib/markdownPipeline';
+import { COLOR_MODES, type ColorPaletteMode } from '@/features/repcard/lib/colorModes';
+import { readInitialColorMode } from '@/shared/lib/theme';
 import type { BacklinkItem } from '@/shared/lib/wikilinks';
 import type {
   AuthMode,
@@ -11,7 +13,6 @@ import type {
   RepoConfig,
   SyncProgress,
   SyncState,
-  ThemeMode,
   VaultFileEntry,
   VaultSource,
 } from '@/features/vault/types/vault';
@@ -102,7 +103,7 @@ function pushNavEntry(
 
 export interface AppState {
   // Persisted UI preferences & non-secret metadata
-  theme: ThemeMode;
+  colorMode: ColorPaletteMode;
   vimMode: boolean;
   sidebarOpen: boolean;
   inspectorOpen: boolean;
@@ -154,7 +155,8 @@ export interface AppState {
   pinnedFiles: string[];
 
   // Actions
-  setTheme: (theme: ThemeMode) => void;
+  setColorMode: (colorMode: ColorPaletteMode) => void;
+  cycleColorMode: () => void;
   setVimMode: (enabled: boolean) => void;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
@@ -209,7 +211,7 @@ export interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      theme: 'dark',
+      colorMode: readInitialColorMode(),
       vimMode: true,
       sidebarOpen: true,
       inspectorOpen: true,
@@ -261,7 +263,12 @@ export const useAppStore = create<AppState>()(
       recentFiles: [],
       pinnedFiles: [],
 
-      setTheme: (theme) => set({ theme }),
+      setColorMode: (colorMode) => set({ colorMode }),
+      cycleColorMode: () =>
+        set((s) => ({
+          colorMode:
+            COLOR_MODES[(COLOR_MODES.indexOf(s.colorMode) + 1) % COLOR_MODES.length],
+        })),
       setVimMode: (vimMode) => set({ vimMode }),
       setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -378,7 +385,6 @@ export const useAppStore = create<AppState>()(
       name: 'genforge-kb-ui-v1',
       storage: createJSONStorage(() => safeStorage),
       partialize: (state) => ({
-        theme: state.theme,
         vimMode: state.vimMode,
         sidebarOpen: state.sidebarOpen,
         inspectorOpen: state.inspectorOpen,

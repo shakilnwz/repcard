@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, FileCode2, Link2, ListTree, Network, Shield } from 'lucide-react';
+import { ChevronDown, ChevronRight, FileCode2, Link2, ListTree, Network, Shield } from '@/shared/ui/MaterialIcons';
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { formatTimestamp } from '@/shared/lib/format';
 import { scrollToHeadingSlug } from '@/shared/lib/scroll';
@@ -53,7 +53,7 @@ export function RightInspector({ entries }: RightInspectorProps) {
           <span>File Properties</span>
         </div>
         {selectedEntry ? (
-          <dl className="mt-2.5 space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 text-xs">
+          <dl className="mt-2.5 space-y-2 rounded-2xl bg-[var(--bg-canvas)] p-3.5 text-xs shadow-xs">
             <div className="flex justify-between gap-2">
               <dt className="text-[var(--text-muted)]">Folder</dt>
               <dd className="truncate font-mono text-[var(--text-primary)]">{folder}</dd>
@@ -98,7 +98,7 @@ export function RightInspector({ entries }: RightInspectorProps) {
             </div>
           </dl>
         ) : (
-          <p className="mt-2 rounded-lg border border-dashed border-[var(--border-subtle)] p-3 text-xs text-[var(--text-muted)]">
+          <p className="mt-2 rounded-2xl bg-[var(--bg-canvas)] p-3.5 text-xs text-[var(--text-muted)] shadow-xs">
             Select any note, roadmap, or canvas from the vault tree to inspect metadata.
           </p>
         )}
@@ -109,7 +109,7 @@ export function RightInspector({ entries }: RightInspectorProps) {
           <ListTree className="h-3.5 w-3.5 text-[var(--accent-secondary)]" />
           <span>Document Outline ({activeHeadings.length})</span>
         </div>
-        <div className="mt-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-2.5 text-xs">
+        <div className="mt-2 rounded-2xl bg-[var(--bg-canvas)] p-3 text-xs shadow-xs">
           {activeHeadings.length > 0 ? (
             <ul className="max-h-56 space-y-1 overflow-y-auto">
               {activeHeadings.map((h) => (
@@ -145,7 +145,7 @@ export function RightInspector({ entries }: RightInspectorProps) {
           <Link2 className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
           <span>Backlinks ({activeBacklinks.length})</span>
         </div>
-        <div className="mt-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-2.5 text-xs">
+        <div className="mt-2 rounded-2xl bg-[var(--bg-canvas)] p-3 text-xs shadow-xs">
           {activeBacklinks.length > 0 ? (
             <ul className="max-h-44 space-y-1 overflow-y-auto">
               {activeBacklinks.map((bl) => (
@@ -199,7 +199,7 @@ export function RightInspector({ entries }: RightInspectorProps) {
             </button>
           </div>
           {localGraphOpen && (
-            <div className="mt-2 h-56 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+            <div className="mt-2 h-56 overflow-hidden rounded-2xl bg-[var(--bg-canvas)] shadow-xs">
               <Suspense
                 fallback={
                   <div className="flex h-full items-center justify-center text-[11px] text-[var(--text-muted)]">
@@ -224,7 +224,7 @@ export function RightInspector({ entries }: RightInspectorProps) {
           <Shield className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
           <span>Workspace Policy</span>
         </div>
-        <div className="mt-2 space-y-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 text-xs text-[var(--text-secondary)]">
+        <div className="mt-2 space-y-1.5 rounded-2xl bg-[var(--bg-canvas)] p-3.5 text-xs text-[var(--text-secondary)] shadow-xs">
           <div>
             Repo:{' '}
             <span className="font-mono text-[var(--text-primary)]">

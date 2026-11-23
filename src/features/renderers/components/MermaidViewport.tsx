@@ -6,9 +6,8 @@ import {
   RotateCcw,
   ZoomIn,
   ZoomOut,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { useEffect, useId, useRef, useState } from 'react';
-import { useResolvedTheme } from '@/shared/lib/theme';
 
 interface MermaidViewportProps {
   code: string;
@@ -42,10 +41,9 @@ function parseSvgDimensions(svgHtml: string): { w: number; h: number } | null {
 function renderMermaidQueued(
   renderId: string,
   code: string,
-  theme: 'dark' | 'light',
 ): Promise<string> {
   const run = async (): Promise<string> => {
-    const cacheKey = `${hashCodeString(code)}:${theme}`;
+    const cacheKey = `${hashCodeString(code)}:dark`;
     const cached = svgRenderCache.get(cacheKey);
     if (cached) return cached;
 
@@ -57,26 +55,17 @@ function renderMermaidQueued(
     mermaid.initialize({
       startOnLoad: false,
       securityLevel: 'strict',
-      theme: theme === 'dark' ? 'dark' : 'default',
-      themeVariables:
-        theme === 'dark'
-          ? {
-              darkMode: true,
-              background: '#0B132B',
-              primaryColor: '#121D3D',
-              primaryTextColor: '#F2F6FF',
-              primaryBorderColor: '#39FF88',
-              lineColor: '#39FF88',
-              secondaryColor: '#1A2852',
-              tertiaryColor: '#0B132B',
-            }
-          : {
-              background: '#FFFFFF',
-              primaryColor: '#F3F6FC',
-              primaryTextColor: '#0B132B',
-              primaryBorderColor: '#007A3D',
-              lineColor: '#0B132B',
-            },
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#000000',
+        primaryColor: '#071a52',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#a7ff83',
+        lineColor: '#a7ff83',
+        secondaryColor: '#041036',
+        tertiaryColor: '#000000',
+      },
       flowchart: {
         htmlLabels: true,
         useMaxWidth: false,
@@ -102,7 +91,6 @@ function renderMermaidQueued(
 }
 
 export function MermaidViewport({ code, compact = false }: MermaidViewportProps) {
-  const theme = useResolvedTheme();
   const rawReactId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const containerRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -117,7 +105,7 @@ export function MermaidViewport({ code, compact = false }: MermaidViewportProps)
     () => typeof IntersectionObserver === 'undefined',
   );
   const [svgHtml, setSvgHtml] = useState<string | null>(() =>
-    svgRenderCache.get(`${hashCodeString(code)}:${theme}`) ?? null,
+    svgRenderCache.get(`${hashCodeString(code)}:dark`) ?? null,
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
@@ -148,7 +136,7 @@ export function MermaidViewport({ code, compact = false }: MermaidViewportProps)
 
   useEffect(() => {
     if (!inViewport) return;
-    const cacheKey = `${hashCodeString(code)}:${theme}`;
+    const cacheKey = `${hashCodeString(code)}:dark`;
     const hit = svgRenderCache.get(cacheKey);
     if (hit) {
       setSvgHtml(hit);
@@ -160,7 +148,7 @@ export function MermaidViewport({ code, compact = false }: MermaidViewportProps)
     setErrorMsg(null);
     const uniqueId = `mmd-${rawReactId}-${Date.now().toString(36)}`;
 
-    void renderMermaidQueued(uniqueId, code, theme)
+    void renderMermaidQueued(uniqueId, code)
       .then((cleanSvg) => {
         if (!cancelled) {
           setSvgHtml(cleanSvg);
@@ -177,7 +165,7 @@ export function MermaidViewport({ code, compact = false }: MermaidViewportProps)
     return () => {
       cancelled = true;
     };
-  }, [code, theme, inViewport, rawReactId]);
+  }, [code, inViewport, rawReactId]);
 
   const handleReset = () => {
     setScale(1);
@@ -248,11 +236,14 @@ export function MermaidViewport({ code, compact = false }: MermaidViewportProps)
   const card = (
     <div
       ref={containerRef}
-      className={`my-3 flex flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] ${
+      className={`my-3 flex flex-col overflow-hidden rounded-2xl bg-[var(--bg-canvas)] shadow-md ${
         fullscreen ? 'h-full w-full' : ''
       }`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs">
+      <div
+        style={{ boxShadow: 'var(--header-shadow)' }}
+        className="relative z-10 flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-surface)] px-3.5 py-2 text-xs"
+      >
         <span className="font-semibold text-[var(--accent-secondary)]">
           Mermaid Flowchart
         </span>
@@ -324,7 +315,7 @@ export function MermaidViewport({ code, compact = false }: MermaidViewportProps)
 
       {errorMsg ? (
         <div className="space-y-2 p-3 text-xs">
-          <div className="rounded border border-rose-500/40 bg-rose-500/10 p-2 text-rose-300">
+          <div className="rounded-xl bg-rose-500/15 p-2.5 text-rose-300 shadow-xs">
             Mermaid syntax error: {errorMsg}
           </div>
           <pre className="max-h-48 overflow-auto rounded bg-[var(--bg-surface)] p-2 font-mono text-[11px] text-[var(--text-secondary)]">
@@ -371,7 +362,7 @@ export function MermaidViewport({ code, compact = false }: MermaidViewportProps)
         role="dialog"
         aria-modal="true"
         aria-label="Fullscreen Mermaid Flowchart"
-        className="fixed inset-0 z-50 flex flex-col bg-[#0B132B]/92 p-4 backdrop-blur-xs"
+        className="fixed inset-0 z-50 flex flex-col bg-black/85 p-4 backdrop-blur-xs"
       >
         {card}
       </div>

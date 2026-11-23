@@ -12,7 +12,7 @@ import {
   PinOff,
   Radar,
   Sparkles,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import {
   Component,
   lazy,
@@ -116,7 +116,7 @@ class RendererErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-xs text-rose-300">
+        <div className="rounded-2xl bg-rose-500/15 p-4 text-xs text-rose-300 shadow-xs">
           <div className="flex items-center gap-2 font-semibold">
             <AlertTriangle className="h-4 w-4" />
             <span>Unable to render document</span>
@@ -409,7 +409,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             <button
               type="button"
               onClick={() => setStageView('document')}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>{selectedEntry ? 'Back to Document' : 'Workspace Overview'}</span>
@@ -424,7 +424,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           <RendererErrorBoundary resetKey="global-graph">
             <Suspense
               fallback={
-                <div className="flex h-full items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs text-[var(--text-muted)]">
+                <div className="flex h-full items-center justify-center rounded-2xl bg-[var(--bg-surface)] text-xs text-[var(--text-muted)] shadow-sm">
                   Building vault force graph...
                 </div>
               }
@@ -445,7 +445,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             <button
               type="button"
               onClick={() => setStageView('document')}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>{selectedEntry ? 'Back to Document' : 'Workspace Overview'}</span>
@@ -460,7 +460,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           <RendererErrorBoundary resetKey="radar-workspace">
             <Suspense
               fallback={
-                <div className="flex h-full items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs text-[var(--text-muted)]">
+                <div className="flex h-full items-center justify-center rounded-2xl bg-[var(--bg-surface)] text-xs text-[var(--text-muted)] shadow-sm">
                   Loading Interactive Radar Engine...
                 </div>
               }
@@ -505,7 +505,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             disabled={!canGoBack}
             aria-label="Navigate back"
             title="Back ([)"
-            className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)] disabled:opacity-40"
+            className="rounded-xl bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-40"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </button>
@@ -515,14 +515,14 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             disabled={!canGoForward}
             aria-label="Navigate forward"
             title="Forward (])"
-            className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)] disabled:opacity-40"
+            className="rounded-xl bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-40"
           >
             <ArrowRight className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"
             onClick={() => setActivePath(null)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             <span>Workspace Overview</span>
           </button>
@@ -575,14 +575,14 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             <div
               role="group"
               aria-label="Radar JSON view mode"
-              className="inline-flex rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-0.5 text-[11px]"
+              className="inline-flex rounded-xl bg-[var(--bg-surface)] p-0.5 text-[11px] shadow-xs"
             >
               <button
                 type="button"
                 onClick={() => setJsonViewerTab('radar')}
-                className={`rounded px-2 py-0.5 font-semibold ${
+                className={`rounded-lg px-2.5 py-0.5 font-bold ${
                   jsonViewerTab === 'radar'
-                    ? 'bg-[var(--accent-primary)] text-[var(--accent-on-primary)]'
+                    ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
                     : 'text-[var(--text-secondary)]'
                 }`}
               >
@@ -591,9 +591,9 @@ export function DocumentStage({ entries }: DocumentStageProps) {
               <button
                 type="button"
                 onClick={() => setJsonViewerTab('raw')}
-                className={`rounded px-2 py-0.5 font-medium ${
+                className={`rounded-lg px-2.5 py-0.5 font-medium ${
                   jsonViewerTab === 'raw'
-                    ? 'bg-[var(--accent-primary)] font-semibold text-[var(--accent-on-primary)]'
+                    ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                     : 'text-[var(--text-secondary)]'
                 }`}
               >
@@ -607,18 +607,18 @@ export function DocumentStage({ entries }: DocumentStageProps) {
       {isCanvasLive ? (
         <div className="min-h-0 flex-1">
           {contentLoading ? (
-            <div className="flex h-full items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs text-[var(--text-secondary)]">
+            <div className="flex h-full items-center justify-center rounded-2xl bg-[var(--bg-surface)] text-xs text-[var(--text-secondary)] shadow-sm">
               Loading canvas board...
             </div>
           ) : contentError ? (
-            <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-xs text-rose-300">
+            <div className="rounded-2xl bg-rose-500/15 p-4 text-xs text-rose-300 shadow-xs">
               {contentError}
             </div>
           ) : textContent !== null ? (
             <RendererErrorBoundary resetKey={selectedEntry.path}>
               <Suspense
                 fallback={
-                  <div className="flex h-full items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs text-[var(--text-muted)]">
+                  <div className="flex h-full items-center justify-center rounded-2xl bg-[var(--bg-surface)] text-xs text-[var(--text-muted)] shadow-sm">
                     Initializing interactive Canvas Engine...
                   </div>
                 }
@@ -641,7 +641,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           <RendererErrorBoundary resetKey={`radar-${selectedEntry.path}`}>
             <Suspense
               fallback={
-                <div className="flex h-full items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs text-[var(--text-muted)]">
+                <div className="flex h-full items-center justify-center rounded-2xl bg-[var(--bg-surface)] text-xs text-[var(--text-muted)] shadow-sm">
                   Initializing Interactive Radar Engine...
                 </div>
               }
@@ -663,8 +663,8 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           </RendererErrorBoundary>
         </div>
       ) : (
-        <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 shadow-sm sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
+        <div className="mt-4 rounded-3xl bg-[var(--bg-surface)] p-5 shadow-md sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
             <div className="min-w-0">
               <h1 className="break-all text-xl font-bold text-[var(--text-primary)] sm:text-2xl">
                 {selectedEntry.name}
@@ -681,10 +681,10 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                   onClick={() => void togglePinnedFile(selectedEntry.path)}
                   aria-pressed={isPinned}
                   title={isPinned ? 'Unpin note' : 'Pin note to Dashboard'}
-                  className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-medium shadow-xs transition-colors ${
                     isPinned
-                      ? 'border-amber-500/50 bg-amber-500/15 text-amber-300'
-                      : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      ? 'bg-amber-500/20 text-amber-300'
+                      : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   {isPinned ? (
@@ -700,15 +700,15 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                 <div
                   role="group"
                   aria-label="Editor view mode"
-                  className="inline-flex rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-0.5 text-xs"
+                  className="inline-flex rounded-xl bg-[var(--bg-canvas)] p-0.5 text-xs shadow-xs"
                 >
                   <button
                     type="button"
                     onClick={() => setEditorMode('read')}
                     aria-pressed={editorMode === 'read'}
-                    className={`inline-flex items-center gap-1 rounded px-2 py-1 font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-medium transition-colors ${
                       editorMode === 'read'
-                        ? 'bg-[var(--accent-primary)] text-[var(--accent-on-primary)]'
+                        ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -719,9 +719,9 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                     type="button"
                     onClick={() => setEditorMode('edit')}
                     aria-pressed={editorMode === 'edit'}
-                    className={`inline-flex items-center gap-1 rounded px-2 py-1 font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-medium transition-colors ${
                       editorMode === 'edit'
-                        ? 'bg-[var(--accent-primary)] text-[var(--accent-on-primary)]'
+                        ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -732,9 +732,9 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                     type="button"
                     onClick={() => setEditorMode('split')}
                     aria-pressed={editorMode === 'split'}
-                    className={`hidden sm:inline-flex items-center gap-1 rounded px-2 py-1 font-medium transition-colors ${
+                    className={`hidden sm:inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-medium transition-colors ${
                       editorMode === 'split'
-                        ? 'bg-[var(--accent-primary)] text-[var(--accent-on-primary)]'
+                        ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -747,7 +747,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
               <button
                 type="button"
                 onClick={() => setOnboardingOpen(true)}
-                className="rounded-md bg-[var(--accent-primary)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-on-primary)] hover:opacity-90"
+                className="key-depth rounded-xl bg-[var(--button-primary-bg)] px-3.5 py-1.5 text-xs font-bold text-[var(--button-primary-fg)] hover:opacity-90"
               >
                 {vaultSource === 'local-fs'
                   ? 'Local Folder Settings'
@@ -759,7 +759,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           </div>
 
           {vaultSource === 'preview' ? (
-            <div className="mt-5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4">
+            <div className="mt-5 rounded-2xl bg-[var(--bg-canvas)] p-4 shadow-xs">
               <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--accent-secondary)] uppercase">
                 <Sparkles className="h-4 w-4" />
                 <span>Sample Vault Preview</span>
@@ -771,19 +771,19 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           ) : selectedEntry.isBinary ? (
             <div className="mt-5 space-y-4">
               {contentLoading && (
-                <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-secondary)]">
+                <div className="rounded-2xl bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-secondary)] shadow-xs">
                   Loading binary asset...
                 </div>
               )}
 
               {contentError && (
-                <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-xs text-rose-300">
+                <div className="rounded-2xl bg-rose-500/15 p-4 text-xs text-rose-300 shadow-xs">
                   {contentError}
                 </div>
               )}
 
               {!binaryState && !contentLoading && (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[var(--bg-canvas)] p-4 shadow-xs">
                   <div className="text-xs text-[var(--text-secondary)]">
                     <p className="font-semibold text-[var(--text-primary)]">
                       Lazy On-Demand Binary Asset
@@ -796,7 +796,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                   <button
                     type="button"
                     onClick={() => void handleLoadBinaryOnDemand()}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent-primary)] px-3.5 py-2 text-xs font-semibold text-[var(--accent-on-primary)] hover:opacity-90"
+                    className="key-depth inline-flex items-center gap-1.5 rounded-xl bg-[var(--button-primary-bg)] px-3.5 py-2 text-xs font-bold text-[var(--button-primary-fg)] hover:opacity-90"
                   >
                     <Download className="h-3.5 w-3.5" />
                     <span>Fetch & Cache Offline</span>
@@ -808,7 +808,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                 <RendererErrorBoundary resetKey={selectedEntry.path}>
                   <Suspense
                     fallback={
-                      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-muted)]">
+                      <div className="rounded-2xl bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-muted)] shadow-xs">
                         Initializing viewer...
                       </div>
                     }
@@ -829,7 +829,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                         fromCache={binaryState.fromCache}
                       />
                     ) : (
-                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[var(--bg-canvas)] p-4 text-xs shadow-xs">
                         <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent-primary)]">
                           <HardDrive className="h-3.5 w-3.5" />
                           <span>
@@ -843,7 +843,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                         <a
                           href={binaryState.url}
                           download={selectedEntry.name}
-                          className="inline-flex items-center gap-1 rounded bg-[var(--accent-primary)] px-2.5 py-1 font-semibold text-[var(--accent-on-primary)]"
+                          className="inline-flex items-center gap-1 rounded-xl bg-[var(--button-primary-bg)] px-3 py-1 font-bold text-[var(--button-primary-fg)]"
                         >
                           <Download className="h-3 w-3" />
                           <span>Download</span>
@@ -857,13 +857,13 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           ) : (
             <div className="mt-5 space-y-2">
               {contentLoading && (
-                <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-secondary)]">
+                <div className="rounded-2xl bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-secondary)] shadow-xs">
                   Loading document...
                 </div>
               )}
 
               {contentError && (
-                <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-xs text-rose-300">
+                <div className="rounded-2xl bg-rose-500/15 p-4 text-xs text-rose-300 shadow-xs">
                   {contentError}
                 </div>
               )}
@@ -872,7 +872,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                 <RendererErrorBoundary resetKey={selectedEntry.path}>
                   <Suspense
                     fallback={
-                      <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-muted)]">
+                      <div className="rounded-2xl bg-[var(--bg-canvas)] p-4 text-xs text-[var(--text-muted)] shadow-xs">
                         Initializing rich renderer...
                       </div>
                     }
@@ -899,7 +899,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                             onSave={handleSaveEditorContent}
                             saving={savingEdit}
                           />
-                          <div className="max-h-[70vh] overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4">
+                          <div className="max-h-[70vh] overflow-y-auto rounded-2xl bg-[var(--bg-canvas)] p-4 shadow-sm">
                             <MarkdownViewer
                               markdown={draftContent ?? textContent}
                               filePath={selectedEntry.path}

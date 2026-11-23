@@ -1,74 +1,46 @@
-import { useEffect, useState } from 'react';
-import { useAppStore } from '@/shared/store/useAppStore';
-import type { ThemeMode } from '@/features/vault/types/vault';
+import {
+  COLOR_MODES,
+  type ColorPaletteMode,
+} from '@/features/repcard/lib/colorModes';
+import {
+  getColorModePreference,
+  saveColorModePreference,
+} from '@/features/repcard/lib/storage';
 
-export function resolveTheme(mode: ThemeMode): 'dark' | 'light' {
-  if (mode === 'system') {
-    if (
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function'
-    ) {
-      return window.matchMedia('(prefers-color-scheme: light)').matches
-        ? 'light'
-        : 'dark';
-    }
-    return 'dark';
-  }
-  return mode;
+export const COLOR_MODE_LABELS: Record<ColorPaletteMode, string> = {
+  default: 'Lime Hero (Black)',
+  'navy-canvas': 'Lime Hero (Navy)',
+  'black-navy-card': 'Navy Hero (Black)',
+};
+
+export function readInitialColorMode(): ColorPaletteMode {
+  const stored = getColorModePreference();
+  return COLOR_MODES.find((mode) => mode === stored) ?? 'default';
 }
 
-export function useResolvedTheme(): 'dark' | 'light' {
-  const mode = useAppStore((s) => s.theme);
-  const [resolved, setResolved] = useState<'dark' | 'light'>(() =>
-    resolveTheme(mode),
-  );
-
-  useEffect(() => {
-    setResolved(resolveTheme(mode));
-    if (
-      mode === 'system' &&
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function'
-    ) {
-      const mql = window.matchMedia('(prefers-color-scheme: light)');
-      const onChange = () => setResolved(resolveTheme('system'));
-      mql.addEventListener('change', onChange);
-      return () => mql.removeEventListener('change', onChange);
-    }
-    return undefined;
-  }, [mode]);
-
-  return resolved;
-}
-
-export function applyTheme(mode: ThemeMode): () => void {
+export function applyColorMode(mode: ColorPaletteMode): void {
   if (typeof document === 'undefined') {
-    return () => {};
+    return;
   }
 
-  const updateDom = () => {
-    const resolved = resolveTheme(mode);
-    const root = document.documentElement;
-    root.dataset.theme = resolved;
-    root.classList.toggle('dark', resolved === 'dark');
-
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-      meta.setAttribute('content', resolved === 'dark' ? '#0B132B' : '#F3F6FC');
-    }
-  };
-
-  updateDom();
-
-  if (
-    mode === 'system' &&
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function'
-  ) {
-    const mql = window.matchMedia('(prefers-color-scheme: light)');
-    mql.addEventListener('change', updateDom);
-    return () => mql.removeEventListener('change', updateDom);
+  const root = document.documentElement;
+  root.removeAttribute('data-theme');
+  if (mode === 'default') {
+    root.removeAttribute('data-color-mode');
+  } else {
+    root.setAttribute('data-color-mode', mode);
   }
 
-  return () => {};
+  const canvas = getComputedStyle(root).getPropertyValue('--bg-app').trim();
+  const fallback = mode === 'navy-canvas' ? '#071a52' : '#000000';
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', canvas || fallback);
+
+  saveColorModePreference(mode);
+}
+
+/** Knowledgebase views render exclusively on RepCard's dark palette modes. */
+export function useResolvedTheme(): 'dark' {
+  return 'dark';
 }

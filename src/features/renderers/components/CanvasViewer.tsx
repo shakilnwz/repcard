@@ -4,12 +4,12 @@ import {
   ExternalLink,
   FileText,
   LocateFixed,
-  Map as MapIcon,
+  MapIcon,
   Maximize2,
   Search,
   ZoomIn,
   ZoomOut,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MarkdownViewer } from '@/features/renderers/components/MarkdownViewer';
 import {
@@ -23,7 +23,6 @@ import {
   resolveEdgeStroke,
   type CanvasNode,
 } from '@/features/renderers/lib/canvasLayout';
-import { useResolvedTheme } from '@/shared/lib/theme';
 import { getUserStateValue, setUserStateValue } from '@/features/vault/lib/vaultService';
 import { resolveWikilink } from '@/shared/lib/wikilinks';
 import { useAppStore } from '@/shared/store/useAppStore';
@@ -70,7 +69,6 @@ export function CanvasViewer({
 }: CanvasViewerProps) {
   const pendingCanvasNodeId = useAppStore((s) => s.pendingCanvasNodeId);
   const setPendingCanvasNodeId = useAppStore((s) => s.setPendingCanvasNodeId);
-  const theme = useResolvedTheme();
   const stageRef = useRef<HTMLDivElement | null>(null);
   const findInputRef = useRef<HTMLInputElement | null>(null);
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
@@ -372,7 +370,7 @@ export function CanvasViewer({
     .filter(({ node }) => isNodeInViewport(node, viewRect));
 
   const edgeColors = Array.from(
-    new Set(doc.edges.map((e) => resolveEdgeStroke(e.color, theme))),
+    new Set(doc.edges.map((e) => resolveEdgeStroke(e.color, 'dark'))),
   );
 
   // Minimap coordinate mapping
@@ -405,15 +403,7 @@ export function CanvasViewer({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
       aria-label={`Canvas board ${filePath}`}
-      className="relative h-full min-h-[520px] w-full touch-none select-none overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] cursor-grab active:cursor-grabbing"
-      style={{
-        backgroundImage:
-          theme === 'dark'
-            ? 'radial-gradient(rgba(148,163,184,0.16) 1px, transparent 1px)'
-            : 'radial-gradient(rgba(71,85,105,0.16) 1px, transparent 1px)',
-        backgroundSize: `${Math.max(14, 24 * viewport.scale)}px ${Math.max(14, 24 * viewport.scale)}px`,
-        backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-      }}
+      className="relative h-full min-h-[520px] w-full touch-none select-none overflow-hidden rounded-2xl bg-[var(--bg-canvas)] shadow-md cursor-grab active:cursor-grabbing"
     >
       {/* GPU-accelerated World Layer */}
       <div
@@ -454,7 +444,7 @@ export function CanvasViewer({
               if (!fromNode || !toNode) return null;
 
               const geom = computeEdgeGeometry(edge, fromNode, toNode);
-              const stroke = resolveEdgeStroke(edge.color, theme);
+              const stroke = resolveEdgeStroke(edge.color, 'dark');
               const markerIdx = edgeColors.indexOf(stroke);
               const markerUrl = `url(#canvas-arrow-${markerIdx})`;
 
@@ -476,14 +466,14 @@ export function CanvasViewer({
                         width={edge.label.length * 8 + 20}
                         height={24}
                         rx={12}
-                        fill={theme === 'dark' ? '#121D3D' : '#FFFFFF'}
+                        fill="#071a52"
                         stroke={stroke}
                         strokeWidth={1.2}
                       />
                       <text
                         textAnchor="middle"
                         dominantBaseline="central"
-                        fill={theme === 'dark' ? '#F2F6FF' : '#0B132B'}
+                        fill="#ffffff"
                         fontSize={12}
                         fontWeight={600}
                       >
@@ -499,7 +489,7 @@ export function CanvasViewer({
 
         {/* Nodes rendered in exact JSON array z-index order */}
         {visibleNodes.map(({ node, index }) => {
-          const colors = resolveCanvasColor(node.color, theme);
+          const colors = resolveCanvasColor(node.color, 'dark');
           const styleAttrs = node.styleAttributes ?? {};
           const divider = isDividerNode(node);
           const decoCircle = isDecorativeCircle(node);
@@ -554,10 +544,7 @@ export function CanvasViewer({
                   height: node.height,
                   borderRadius,
                   border: `2px dashed ${colors.stroke}`,
-                  backgroundColor:
-                    theme === 'dark'
-                      ? 'rgba(11, 19, 43, 0.45)'
-                      : 'rgba(243, 246, 252, 0.65)',
+                  backgroundColor: 'rgba(7, 26, 82, 0.45)',
                   zIndex: index,
                 }}
                 className={`p-3 ${isMatched ? 'ring-4 ring-[var(--accent-primary)]' : ''}`}
@@ -600,9 +587,7 @@ export function CanvasViewer({
                 backgroundColor: invisibleBorder
                   ? 'transparent'
                   : decoCircle
-                    ? theme === 'dark'
-                      ? `${colors.stroke}14`
-                      : `${colors.stroke}0f`
+                    ? `${colors.stroke}14`
                     : colors.fill,
                 color: colors.text,
                 textAlign,
@@ -670,7 +655,7 @@ export function CanvasViewer({
       {findOpen && (
         <div
           data-canvas-interactive="true"
-          className="absolute top-3 left-3 z-30 flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 px-2.5 py-1.5 text-xs shadow-lg backdrop-blur-xs"
+          className="absolute top-3 left-3 z-30 flex items-center gap-1.5 rounded-2xl bg-[var(--bg-surface)]/95 px-3 py-1.5 text-xs shadow-lg backdrop-blur-xs"
         >
           <Search className="h-3.5 w-3.5 text-[var(--text-muted)]" />
           <input
@@ -722,7 +707,7 @@ export function CanvasViewer({
       )}
 
       {/* HUD Stats Badge */}
-      <div className="pointer-events-none absolute top-3 right-3 z-20 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)]/90 px-2.5 py-1 text-[11px] font-medium tabular-nums text-[var(--text-secondary)] shadow-xs backdrop-blur-xs">
+      <div className="pointer-events-none absolute top-3 right-3 z-20 rounded-full bg-[var(--bg-surface)]/90 px-3 py-1 text-[11px] font-medium tabular-nums text-[var(--text-secondary)] shadow-md backdrop-blur-xs">
         {doc.nodes.length} nodes · {doc.edges.length} edges
         {isLowDetail ? ' · LOD Overview' : ''}
       </div>
@@ -730,7 +715,7 @@ export function CanvasViewer({
       {/* Bottom-Left Controls HUD */}
       <div
         data-canvas-interactive="true"
-        className="absolute bottom-3 left-3 z-20 flex flex-wrap items-center gap-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-1 text-xs shadow-lg backdrop-blur-xs"
+        className="absolute bottom-3 left-3 z-20 flex flex-wrap items-center gap-1 rounded-2xl bg-[var(--bg-surface)]/95 p-1.5 text-xs shadow-lg backdrop-blur-xs"
       >
         <button
           type="button"
@@ -806,7 +791,7 @@ export function CanvasViewer({
       {minimapOpen && doc.nodes.length > 0 && (
         <div
           data-canvas-interactive="true"
-          className="absolute right-3 bottom-3 z-20 hidden overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 p-1 shadow-lg backdrop-blur-xs sm:block"
+          className="absolute right-3 bottom-3 z-20 hidden overflow-hidden rounded-2xl bg-[var(--bg-surface)]/95 p-1.5 shadow-lg backdrop-blur-xs sm:block"
         >
           <svg
             width={miniW}
@@ -826,7 +811,7 @@ export function CanvasViewer({
                 fill={
                   n.type === 'group'
                     ? 'rgba(148,163,184,0.18)'
-                    : resolveEdgeStroke(n.color, theme)
+                    : resolveEdgeStroke(n.color, 'dark')
                 }
                 fillOpacity={n.type === 'group' ? 0.3 : 0.65}
               />
@@ -842,12 +827,8 @@ export function CanvasViewer({
                 8,
                 (stageSize.height / viewport.scale) * miniScale,
               )}
-              fill={
-                theme === 'dark'
-                  ? 'rgba(57, 255, 136, 0.16)'
-                  : 'rgba(0, 122, 61, 0.14)'
-              }
-              stroke={theme === 'dark' ? '#39FF88' : '#007A3D'}
+              fill="rgba(167, 255, 131, 0.16)"
+              stroke="#a7ff83"
               strokeWidth={1.5}
             />
           </svg>

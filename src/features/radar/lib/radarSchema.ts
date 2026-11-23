@@ -8,7 +8,7 @@ import {
 } from '@/features/radar/types/radar';
 
 export const DEFAULT_STEP_COLORS = [
-  '#39FF88',
+  '#a7ff83',
   '#38BDF8',
   '#FACC15',
   '#FB7185',
@@ -44,7 +44,7 @@ const CANVAS_COLOR_MAP: Record<string, string> = {
   '1': '#FB7185',
   '2': '#FB923C',
   '3': '#FACC15',
-  '4': '#39FF88',
+  '4': '#a7ff83',
   '5': '#38BDF8',
   '6': '#A78BFA',
 };
@@ -529,7 +529,7 @@ export function convertCanvasToRadar(
 
   if (steps.length === 0) {
     steps.push(
-      { id: 'adopt', label: 'ADOPT', color: '#39FF88', description: DEFAULT_STEP_DESCRIPTIONS.adopt },
+      { id: 'adopt', label: 'ADOPT', color: '#a7ff83', description: DEFAULT_STEP_DESCRIPTIONS.adopt },
       { id: 'trial', label: 'TRIAL', color: '#38BDF8', description: DEFAULT_STEP_DESCRIPTIONS.trial },
       { id: 'assess', label: 'ASSESS', color: '#FACC15', description: DEFAULT_STEP_DESCRIPTIONS.assess },
       { id: 'hold', label: 'HOLD', color: '#FB7185', description: DEFAULT_STEP_DESCRIPTIONS.hold },

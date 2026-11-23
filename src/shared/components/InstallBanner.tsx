@@ -1,4 +1,4 @@
-import { Download, Share, X } from 'lucide-react';
+import { Download, Share, X } from '@/shared/ui/MaterialIcons';
 import { useEffect, useState } from 'react';
 import {
   isIosSafariStandalonePromptEligible,
@@ -38,16 +38,16 @@ export function InstallBanner() {
     };
 
     return (
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/10 px-4 py-2 text-xs">
+      <div className="flex items-center justify-between gap-3 bg-[var(--bg-elevated)] px-4 py-2 text-xs shadow-xs">
         <div className="flex items-center gap-2 text-[var(--text-primary)]">
           <Download className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
-          <span>Install GenForge KB as a standalone app for offline access.</span>
+          <span>Install RepCard as a standalone app for offline access.</span>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={triggerInstall}
-            className="rounded-md bg-[var(--accent-primary)] px-2.5 py-1 font-semibold text-[var(--accent-on-primary)] hover:opacity-90"
+            className="rounded-xl bg-[var(--button-primary-bg)] px-3 py-1 font-bold text-[var(--button-primary-fg)] hover:opacity-90"
           >
             Install App
           </button>
@@ -66,7 +66,7 @@ export function InstallBanner() {
 
   if (iosEligible && !dismissedIos) {
     return (
-      <div className="flex items-center justify-between gap-3 border-b border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/10 px-4 py-2 text-xs">
+      <div className="flex items-center justify-between gap-3 bg-[var(--bg-elevated)] px-4 py-2 text-xs shadow-xs">
         <div className="flex items-center gap-2 text-[var(--text-primary)]">
           <Share className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
           <span>

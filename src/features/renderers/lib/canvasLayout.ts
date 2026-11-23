@@ -89,13 +89,13 @@ export function resolveCanvasColor(
     return {
       stroke: hex,
       fill: theme === 'dark' ? `${hex}22` : `${hex}14`,
-      text: theme === 'dark' ? '#F2F6FF' : '#0B132B',
+      text: theme === 'dark' ? '#ffffff' : '#071a52',
     };
   }
 
   return theme === 'dark'
-    ? { stroke: '#223366', fill: 'rgba(18, 29, 61, 0.94)', text: '#F2F6FF' }
-    : { stroke: '#9FB0D4', fill: 'rgba(255, 255, 255, 0.96)', text: '#0B132B' };
+    ? { stroke: '#071a52', fill: 'rgba(7, 26, 82, 0.94)', text: '#ffffff' }
+    : { stroke: '#75b35c', fill: 'rgba(255, 255, 255, 0.96)', text: '#071a52' };
 }
 
 export function resolveEdgeStroke(
@@ -103,7 +103,7 @@ export function resolveEdgeStroke(
   theme: 'dark' | 'light',
 ): string {
   if (!color) {
-    return theme === 'dark' ? '#4C6399' : '#51628A';
+    return theme === 'dark' ? '#75b35c' : '#071a52';
   }
   return resolveCanvasColor(color, theme).stroke;
 }

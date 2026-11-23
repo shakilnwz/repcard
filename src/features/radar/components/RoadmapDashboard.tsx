@@ -7,7 +7,7 @@ import {
   Pin,
   RefreshCw,
   UploadCloud,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { useMemo } from 'react';
 import { syncNow } from '@/features/vault/lib/vaultService';
 import { useAppStore } from '@/shared/store/useAppStore';
@@ -54,7 +54,7 @@ function ProgressRing({
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="var(--border-subtle)"
+        stroke="var(--bg-elevated)"
         strokeWidth={strokeWidth}
       />
       <circle
@@ -149,7 +149,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
       {(outboxEdits.length > 0 || validPinned.length > 0 || validRecent.length > 0) && (
         <section className="grid gap-3 md:grid-cols-2">
           {outboxEdits.length > 0 && (
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-xs">
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-amber-500/15 p-4 text-xs shadow-sm">
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5 font-semibold text-amber-300">
                   {conflictCount > 0 ? (
@@ -171,7 +171,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                 <button
                   type="button"
                   onClick={() => setConflictModalOpen(true)}
-                  className="shrink-0 rounded-md bg-rose-500 px-3 py-1.5 font-semibold text-white hover:bg-rose-600"
+                  className="shrink-0 rounded-xl bg-rose-500 px-3 py-1.5 font-bold text-white hover:bg-rose-600"
                 >
                   Resolve
                 </button>
@@ -180,7 +180,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                   type="button"
                   disabled={syncState === 'syncing'}
                   onClick={() => void syncNow().catch(() => {})}
-                  className="inline-flex shrink-0 items-center gap-1 rounded-md bg-amber-400 px-3 py-1.5 font-semibold text-slate-950 hover:opacity-90 disabled:opacity-50"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-amber-400 px-3 py-1.5 font-bold text-[#071a52] hover:opacity-90 disabled:opacity-50"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                   <span>Push & Sync</span>
@@ -190,7 +190,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
           )}
 
           {(validPinned.length > 0 || validRecent.length > 0) && (
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-xs">
+            <div className="rounded-2xl bg-[var(--bg-surface)] p-4 text-xs shadow-sm">
               <div className="mb-2 flex items-center gap-1.5 font-semibold text-[var(--text-secondary)]">
                 {validPinned.length > 0 ? (
                   <Pin className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
@@ -209,7 +209,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                       key={filePath}
                       type="button"
                       onClick={() => navigateToPath(filePath)}
-                      className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50"
+                      className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] text-[var(--text-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
                       title={filePath}
                     >
                       {validPinned.includes(filePath) && (
@@ -236,7 +236,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
               </h2>
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1 text-xs">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--bg-surface)] px-3.5 py-1 text-xs shadow-xs">
               <CheckCircle2 className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
               <span className="font-semibold tabular-nums text-[var(--text-primary)]">
                 {aggregateDone} / {aggregateTotal} tasks ({pct}%)
@@ -254,7 +254,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
               return (
                 <div
                   key={track.key}
-                  className="flex items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5"
+                  className="flex items-center gap-3 rounded-2xl bg-[var(--bg-surface)] p-4 shadow-sm"
                 >
                   <div className="relative flex items-center justify-center">
                     <ProgressRing done={track.taskDone} total={track.taskTotal} />
@@ -275,7 +275,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                         <button
                           type="button"
                           onClick={() => navigateToPath(track.mdPath!)}
-                          className="rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-0.5 text-[11px] font-medium text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/50"
+                          className="rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
                         >
                           Open Guide
                         </button>
@@ -284,7 +284,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                         <button
                           type="button"
                           onClick={() => navigateToPath(track.canvasPath!)}
-                          className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-0.5 text-[11px] font-medium text-[var(--accent-secondary)] hover:border-[var(--accent-secondary)]/50"
+                          className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-secondary)] shadow-xs hover:bg-[var(--bg-hover)]"
                         >
                           <LayoutGrid className="h-2.5 w-2.5" />
                           <span>Canvas</span>

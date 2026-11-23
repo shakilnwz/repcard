@@ -35,7 +35,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'theme-init.js'],
       manifest: {
         name: 'RepCard',
         short_name: 'RepCard',
@@ -62,7 +62,14 @@ export default defineConfig({
       },
       workbox: {
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globPatterns: [
+          'index.html',
+          'theme-init.js',
+          '*.{svg,png}',
+          'assets/index-*.{js,css}',
+          'assets/rolldown-runtime-*.js',
+          'assets/workbox-window*.js',
+        ],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         cleanupOutdatedCaches: true,

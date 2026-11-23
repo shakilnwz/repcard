@@ -4,7 +4,6 @@ import { useLibraries } from '@/features/repcard/hooks/useLibraries'
 import { useCardProgress } from '@/features/repcard/hooks/useCardProgress'
 import { useKeyboardShortcuts } from '@/features/repcard/hooks/useKeyboardShortcuts'
 import { AppHeader, type StudyMode, type AppView } from '@/features/repcard/components/AppHeader'
-import { COLOR_MODES, type ColorPaletteMode } from '@/features/repcard/lib/colorModes'
 import type { CramFilter } from '@/features/repcard/components/FilterBar'
 import { CardSlider, type NeighborCard, type SlideDirection, type SwipeLabels } from '@/features/repcard/components/CardSlider'
 import { RatingBar } from '@/features/repcard/components/RatingBar'
@@ -16,12 +15,12 @@ import { STARTER_LIBRARY_ID } from '@/features/repcard/lib/starterDeck'
 import { CARD_SORT_ORDERS, sortCards, type CardSortOrder } from '@/features/repcard/lib/cardSort'
 import {
   getCardSortPreference,
-  getColorModePreference,
   getRatingButtonsPreference,
   saveCardSortPreference,
-  saveColorModePreference,
   saveRatingButtonsPreference,
 } from '@/features/repcard/lib/storage'
+import { applyColorMode } from '@/shared/lib/theme'
+import { useAppStore } from '@/shared/store/useAppStore'
 
 // One-word captions for the floating swipe arrows (a left swipe brings in the next card)
 const SWIPE_LABELS: Record<StudyMode, SwipeLabels> = {
@@ -77,34 +76,20 @@ export function RepCardView({ onDragActiveChange, shortcutsBlocked = false }: Re
   const [isFlipped, setIsFlipped] = useState(false)
   const [countTowardSrsInCram, setCountTowardSrsInCram] = useState(false)
   const [sessionNow, setSessionNow] = useState(() => Date.now())
-  const [colorMode, setColorMode] = useState<ColorPaletteMode>(() => {
-    const stored = getColorModePreference()
-    return COLOR_MODES.find((m) => m === stored) ?? 'default'
-  })
+  // Swiping is the default way to grade; the rating buttons are opt-in from the panel
+  const [showRatingButtons, setShowRatingButtons] = useState(getRatingButtonsPreference)
   const [cardSort, setCardSort] = useState<CardSortOrder>(() => {
     const stored = getCardSortPreference()
     return CARD_SORT_ORDERS.find((o) => o === stored) ?? 'newest'
   })
-  // Swiping is the default way to grade; the rating buttons are opt-in from the panel
-  const [showRatingButtons, setShowRatingButtons] = useState(getRatingButtonsPreference)
+
+  const colorMode = useAppStore((s) => s.colorMode)
+  const cycleColorMode = useAppStore((s) => s.cycleColorMode)
 
   // Apply (and remember) the color mode before paint, so a saved theme never flashes the default
   useLayoutEffect(() => {
-    const root = document.documentElement
-    if (colorMode === 'default') {
-      root.removeAttribute('data-color-mode')
-    } else {
-      root.setAttribute('data-color-mode', colorMode)
-    }
-    // Keep the browser / PWA status bar the same color as the canvas
-    const canvas = getComputedStyle(root).getPropertyValue('--bg-app').trim()
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', canvas || '#000000')
-    saveColorModePreference(colorMode)
+    applyColorMode(colorMode)
   }, [colorMode])
-
-  const cycleColorMode = useCallback(() => {
-    setColorMode((prev) => COLOR_MODES[(COLOR_MODES.indexOf(prev) + 1) % COLOR_MODES.length])
-  }, [])
 
   // Card id -> owning library id, built once per library change (was a full scan per lookup,
   // which made every deck filter O(n²)). The first library containing an id wins, as before.

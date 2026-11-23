@@ -1,5 +1,5 @@
-import { X } from 'lucide-react';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { X } from '@/shared/ui/MaterialIcons';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CommandPaletteModal } from '@/shared/components/CommandPaletteModal';
 import { InstallBanner } from '@/shared/components/InstallBanner';
 
@@ -15,7 +15,7 @@ import { Sidebar } from '@/features/vault/components/Sidebar';
 import { DocumentStage } from '@/features/vault/components/DocumentStage';
 import { TopBar } from '@/features/vault/components/TopBar';
 import { SAMPLE_VAULT_ENTRIES } from '@/features/vault/lib/sampleVault';
-import { applyTheme } from '@/shared/lib/theme';
+import { applyColorMode } from '@/shared/lib/theme';
 import {
   connectWithOAuthToken,
   hydrateVaultFromDb,
@@ -31,7 +31,7 @@ interface KnowledgebaseShellProps {
 const FOREGROUND_SYNC_STALE_MS = 30_000;
 
 export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
-  const theme = useAppStore((s) => s.theme);
+  const colorMode = useAppStore((s) => s.colorMode);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const inspectorOpen = useAppStore((s) => s.inspectorOpen);
   const vaultSource = useAppStore((s) => s.vaultSource);
@@ -57,9 +57,9 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
   const effectiveEntries =
     entries ?? (vaultSource === 'preview' ? SAMPLE_VAULT_ENTRIES : syncedEntries);
 
-  useEffect(() => {
-    return applyTheme(theme);
-  }, [theme]);
+  useLayoutEffect(() => {
+    applyColorMode(colorMode);
+  }, [colorMode]);
 
   // Hydrate offline database & handle GitHub OAuth callback fragment cleanly
   useEffect(() => {
@@ -228,7 +228,7 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
         {sidebarOpen && (
           <aside
             aria-label="Vault sidebar"
-            className="hidden h-full w-68 shrink-0 border-r border-[var(--border-subtle)] lg:block"
+            className="hidden h-full w-68 shrink-0 bg-[var(--bg-surface)] shadow-md lg:block"
           >
             <Sidebar entries={effectiveEntries} filterInputRef={desktopFilterRef} />
           </aside>
@@ -239,7 +239,7 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
         </main>
 
         {inspectorOpen && (
-          <div className="hidden h-full w-70 shrink-0 border-l border-[var(--border-subtle)] xl:block">
+          <div className="hidden h-full w-70 shrink-0 bg-[var(--bg-surface)] shadow-md xl:block">
             <RightInspector entries={effectiveEntries} />
           </div>
         )}
@@ -247,7 +247,7 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
         {mobileDrawerOpen && (
           <div className="fixed inset-0 z-40 flex lg:hidden">
             <div
-              className="fixed inset-0 bg-[#0B132B]/75"
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
               onClick={() => setMobileDrawerOpen(false)}
               aria-hidden="true"
             />
@@ -255,9 +255,12 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
               role="dialog"
               aria-modal="true"
               aria-label="Vault navigation drawer"
-              className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-2xl"
+              className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-[var(--bg-surface)] shadow-2xl"
             >
-              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-3 py-2.5">
+              <div
+                style={{ boxShadow: 'var(--header-shadow)' }}
+                className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2.5"
+              >
                 <span className="text-xs font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                   Vault Explorer
                 </span>
@@ -286,7 +289,7 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
         {mobileInspectorOpen && (
           <div className="fixed inset-0 z-40 flex justify-end xl:hidden">
             <div
-              className="fixed inset-0 bg-[#0B132B]/75"
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
               onClick={() => setMobileInspectorOpen(false)}
               aria-hidden="true"
             />
@@ -294,9 +297,12 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
               role="dialog"
               aria-modal="true"
               aria-label="Document inspector drawer"
-              className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col border-l border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-2xl"
+              className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-[var(--bg-surface)] shadow-2xl"
             >
-              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-3 py-2.5">
+              <div
+                style={{ boxShadow: 'var(--header-shadow)' }}
+                className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2.5"
+              >
                 <span className="text-xs font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
                   Document Inspector
                 </span>

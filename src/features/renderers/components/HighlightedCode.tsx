@@ -1,7 +1,6 @@
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy } from '@/shared/ui/MaterialIcons';
 import { useEffect, useState } from 'react';
 import { highlightCodeToHtml, normalizeCodeLanguage } from '@/features/editor/lib/shikiHighlighter';
-import { useResolvedTheme } from '@/shared/lib/theme';
 
 interface HighlightedCodeProps {
   code: string;
@@ -16,7 +15,6 @@ export function HighlightedCode({
   showLineNumbers = false,
   maxHeightClass = 'max-h-[32rem]',
 }: HighlightedCodeProps) {
-  const theme = useResolvedTheme();
   const normalizedLang = normalizeCodeLanguage(language);
   const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -26,7 +24,7 @@ export function HighlightedCode({
     setHighlightedHtml(null);
 
     void Promise.all([
-      highlightCodeToHtml(code, normalizedLang, theme),
+      highlightCodeToHtml(code, normalizedLang, 'dark'),
       import('dompurify'),
     ])
       .then(([rawHtml, dpMod]) => {
@@ -45,7 +43,7 @@ export function HighlightedCode({
     return () => {
       cancelled = true;
     };
-  }, [code, normalizedLang, theme]);
+  }, [code, normalizedLang]);
 
   const handleCopy = async () => {
     try {
@@ -60,8 +58,8 @@ export function HighlightedCode({
   const lines = showLineNumbers ? code.split('\n') : [];
 
   return (
-    <div className="my-3 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-xs">
-      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5">
+    <div className="my-3 overflow-hidden rounded-2xl bg-[var(--bg-canvas)] text-xs shadow-sm">
+      <div className="flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2 shadow-xs">
         <span className="font-mono text-[11px] font-medium uppercase text-[var(--accent-primary)]">
           {normalizedLang}
         </span>
@@ -89,7 +87,7 @@ export function HighlightedCode({
         {showLineNumbers && (
           <div
             aria-hidden="true"
-            className="select-none border-r border-[var(--border-subtle)] bg-[var(--bg-surface)]/40 px-2.5 py-3 text-right text-[11px] leading-relaxed tabular-nums text-[var(--text-muted)]"
+            className="select-none bg-[var(--bg-surface)]/45 px-2.5 py-3 text-right text-[11px] leading-relaxed tabular-nums text-[var(--text-muted)]"
           >
             {lines.map((_, idx) => (
               <div key={idx}>{idx + 1}</div>

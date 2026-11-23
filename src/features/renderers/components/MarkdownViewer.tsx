@@ -10,7 +10,7 @@ import {
   Info,
   Lightbulb,
   Tag,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import {
   Children,
   isValidElement,
@@ -59,50 +59,50 @@ const CALLOUT_STYLES: Record<
   { border: string; bg: string; titleColor: string; Icon: typeof Info }
 > = {
   warning: {
-    border: 'border-amber-500/50',
-    bg: 'bg-amber-500/10',
-    titleColor: 'text-amber-400',
+    border: 'border-l-amber-400',
+    bg: 'bg-amber-500/12',
+    titleColor: 'text-amber-300',
     Icon: AlertTriangle,
   },
   caution: {
-    border: 'border-rose-500/50',
-    bg: 'bg-rose-500/10',
-    titleColor: 'text-rose-400',
+    border: 'border-l-rose-400',
+    bg: 'bg-rose-500/12',
+    titleColor: 'text-rose-300',
     Icon: Flame,
   },
   danger: {
-    border: 'border-rose-500/50',
-    bg: 'bg-rose-500/10',
-    titleColor: 'text-rose-400',
+    border: 'border-l-rose-400',
+    bg: 'bg-rose-500/12',
+    titleColor: 'text-rose-300',
     Icon: Flame,
   },
   important: {
-    border: 'border-[var(--accent-primary)]/50',
-    bg: 'bg-[var(--bg-hover)]',
+    border: 'border-l-[var(--accent-primary)]',
+    bg: 'bg-[var(--bg-surface)]',
     titleColor: 'text-[var(--accent-primary)]',
     Icon: Info,
   },
   tip: {
-    border: 'border-[var(--accent-primary)]/50',
-    bg: 'bg-[var(--bg-hover)]',
+    border: 'border-l-[var(--accent-primary)]',
+    bg: 'bg-[var(--bg-surface)]',
     titleColor: 'text-[var(--accent-primary)]',
     Icon: Lightbulb,
   },
   success: {
-    border: 'border-[var(--accent-primary)]/50',
-    bg: 'bg-[var(--bg-hover)]',
+    border: 'border-l-[var(--accent-primary)]',
+    bg: 'bg-[var(--bg-surface)]',
     titleColor: 'text-[var(--accent-primary)]',
     Icon: Lightbulb,
   },
   question: {
-    border: 'border-[var(--accent-primary)]/50',
-    bg: 'bg-[var(--bg-hover)]',
+    border: 'border-l-[var(--accent-primary)]',
+    bg: 'bg-[var(--bg-surface)]',
     titleColor: 'text-[var(--accent-primary)]',
     Icon: HelpCircle,
   },
   note: {
-    border: 'border-[var(--accent-primary)]/50',
-    bg: 'bg-[var(--bg-hover)]',
+    border: 'border-l-[var(--accent-primary)]',
+    bg: 'bg-[var(--bg-surface)]',
     titleColor: 'text-[var(--accent-primary)]',
     Icon: BookOpen,
   },
@@ -127,7 +127,7 @@ function CalloutBlock({
   return (
     <blockquote
       data-callout={type}
-      className={`my-4 rounded-lg border border-l-4 ${style.border} ${style.bg} p-3.5 text-sm not-italic`}
+      className={`my-4 rounded-2xl border-l-4 ${style.border} ${style.bg} p-4 text-sm not-italic shadow-sm`}
     >
       <div className="flex items-center justify-between gap-2">
         <button
@@ -206,7 +206,7 @@ function WikilinkEmbed({
     return (
       <span
         title={`Unresolved embed: ${target}`}
-        className="inline-flex items-center gap-1 rounded border border-dashed border-[var(--border-subtle)] px-2 py-0.5 text-xs italic text-[var(--text-muted)]"
+        className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-surface)] px-2.5 py-0.5 text-xs italic text-[var(--text-muted)]"
       >
         Missing embed: {alias || target}
       </span>
@@ -219,22 +219,22 @@ function WikilinkEmbed({
         <button
           type="button"
           onClick={() => onNavigate?.(resolved)}
-          className="my-2 inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1 text-xs text-[var(--accent-primary)] hover:underline"
+          className="my-2 inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--accent-primary)] shadow-xs hover:underline"
         >
           Open embedded image: {alias || resolved}
         </button>
       );
     }
     return imageUrl ? (
-      <figure className="my-3 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-2">
+      <figure className="my-3 overflow-hidden rounded-2xl bg-[var(--bg-surface)] p-2 shadow-sm">
         <img
           src={imageUrl}
           alt={alias || resolved}
-          className="mx-auto max-h-96 rounded object-contain"
+          className="mx-auto max-h-96 rounded-xl object-contain"
         />
       </figure>
     ) : (
-      <span className="inline-block rounded bg-[var(--bg-elevated)] px-2 py-1 text-xs text-[var(--text-muted)]">
+      <span className="inline-block rounded-lg bg-[var(--bg-elevated)] px-2.5 py-1 text-xs text-[var(--text-muted)]">
         Loading embed {alias || target}...
       </span>
     );
@@ -244,7 +244,7 @@ function WikilinkEmbed({
     <button
       type="button"
       onClick={() => onNavigate?.(resolved)}
-      className="my-1 inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1 text-xs font-medium text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/50"
+      className="my-1 inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--accent-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
     >
       Embedded: {alias || resolved}
     </button>
@@ -322,7 +322,7 @@ export function MarkdownViewer({
         );
       }
       return (
-        <blockquote className="my-4 border-l-4 border-[var(--border-subtle)] pl-4 italic text-[var(--text-secondary)]">
+        <blockquote className="my-4 border-l-4 border-[var(--accent-primary)]/40 pl-4 italic text-[var(--text-secondary)]">
           {props.children}
         </blockquote>
       );
@@ -347,14 +347,14 @@ export function MarkdownViewer({
         return <HighlightedCode code={codeStr} language={lang} />;
       }
       return (
-        <pre className="my-3 overflow-x-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 font-mono text-xs">
+        <pre className="my-3 overflow-x-auto rounded-2xl bg-[var(--bg-surface)] p-3.5 font-mono text-xs shadow-sm">
           {props.children}
         </pre>
       );
     },
     table(props) {
       return (
-        <div className="my-4 overflow-x-auto rounded-lg border border-[var(--border-subtle)]">
+        <div className="my-4 overflow-x-auto rounded-2xl bg-[var(--bg-surface)]/40 shadow-xs">
           <table className="w-full border-collapse text-left text-xs sm:text-sm">
             {props.children}
           </table>
@@ -513,7 +513,7 @@ export function MarkdownViewer({
   return (
     <div className={compact ? 'text-xs' : 'space-y-4'}>
       {frontmatter.isExcalidraw && !compact && (
-        <div className="rounded-lg border border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] p-3 text-xs">
+        <div className="rounded-2xl bg-[var(--bg-surface)] p-3.5 text-xs shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent-primary)]">
               <FileWarning className="h-4 w-4" />
@@ -522,13 +522,13 @@ export function MarkdownViewer({
             <button
               type="button"
               onClick={() => setExcalidrawSourceOpen((o) => !o)}
-              className="rounded border border-[var(--accent-primary)]/40 px-2 py-0.5 text-[11px] text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/20"
+              className="rounded-lg bg-[var(--bg-elevated)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-primary)] hover:bg-[var(--bg-hover)]"
             >
               {excalidrawSourceOpen ? 'Hide Raw Scene' : 'Inspect Raw Source'}
             </button>
           </div>
           {excalidrawSourceOpen && (
-            <pre className="mt-2 max-h-60 overflow-auto rounded bg-[var(--bg-canvas)] p-2 font-mono text-[11px] text-[var(--text-secondary)]">
+            <pre className="mt-2 max-h-60 overflow-auto rounded-xl bg-[var(--bg-canvas)] p-2.5 font-mono text-[11px] text-[var(--text-secondary)]">
               {markdown}
             </pre>
           )}
@@ -536,11 +536,11 @@ export function MarkdownViewer({
       )}
 
       {hasProperties && (
-        <section className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-xs">
+        <section className="overflow-hidden rounded-2xl bg-[var(--bg-surface)] text-xs shadow-sm">
           <button
             type="button"
             onClick={() => setPropsOpen((o) => !o)}
-            className="flex w-full items-center justify-between px-3 py-2 text-left font-semibold tracking-wide text-[var(--text-secondary)] uppercase hover:bg-[var(--bg-hover)]"
+            className="flex w-full items-center justify-between px-3.5 py-2.5 text-left font-semibold tracking-wide text-[var(--text-secondary)] uppercase hover:bg-[var(--bg-hover)]"
           >
             <span>Properties</span>
             {propsOpen ? (
@@ -551,7 +551,7 @@ export function MarkdownViewer({
           </button>
 
           {propsOpen && (
-            <dl className="grid grid-cols-1 gap-2 border-t border-[var(--border-subtle)] px-3 py-2.5 sm:grid-cols-2">
+            <dl className="grid grid-cols-1 gap-2 bg-[var(--bg-elevated)]/45 px-3.5 py-3 sm:grid-cols-2">
               {frontmatter.title && (
                 <div>
                   <dt className="text-[11px] text-[var(--text-muted)]">Title</dt>
@@ -590,7 +590,7 @@ export function MarkdownViewer({
                           setSidebarOpen(true);
                           setTreeFilter(tag);
                         }}
-                        className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/10 px-2 py-0.5 text-[11px] font-medium text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/20"
+                        className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-elevated)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent-primary)] hover:bg-[var(--bg-hover)]"
                       >
                         <Tag className="h-2.5 w-2.5" />
                         <span>{tag}</span>

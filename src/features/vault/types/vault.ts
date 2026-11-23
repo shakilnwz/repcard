@@ -51,8 +51,6 @@ export interface RepoConfig {
   branch: string;
 }
 
-export type ThemeMode = 'dark' | 'light' | 'system';
-
 export interface AuthSession {
   user: string;
   avatarUrl?: string;

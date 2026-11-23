@@ -33,7 +33,7 @@ export const AI_RADAR_PRESET: RadarDocument = {
     {
       id: 'adopt',
       label: 'ADOPT',
-      color: '#39FF88',
+      color: '#a7ff83',
       description: 'Proven; use it by default',
     },
     {
@@ -439,7 +439,7 @@ export const STARTER_RADAR_TEMPLATE: RadarDocument = {
   type: RADAR_DOCUMENT_TYPE,
   schemaVersion: 1,
   title: 'Custom Tech Radar',
-  subtitle: 'Draft radar created in GenForge Radar Studio',
+  subtitle: 'Draft radar created in RepCard Radar Studio',
   quadrants: [
     { id: 'languages-frameworks', name: 'Languages & Frameworks' },
     { id: 'tools', name: 'Tools & DevEx' },
@@ -447,7 +447,7 @@ export const STARTER_RADAR_TEMPLATE: RadarDocument = {
     { id: 'techniques', name: 'Techniques' },
   ],
   steps: [
-    { id: 'adopt', label: 'ADOPT', color: '#39FF88', description: 'Proven; use by default' },
+    { id: 'adopt', label: 'ADOPT', color: '#a7ff83', description: 'Proven; use by default' },
     { id: 'trial', label: 'TRIAL', color: '#38BDF8', description: 'Worth trying on real work' },
     { id: 'assess', label: 'ASSESS', color: '#FACC15', description: 'Explore and prototype' },
     { id: 'hold', label: 'HOLD', color: '#FB7185', description: 'Proceed with caution' },

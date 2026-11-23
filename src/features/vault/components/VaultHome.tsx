@@ -8,7 +8,7 @@ import {
   Radar,
   RefreshCw,
   ShieldCheck,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { useMemo } from 'react';
 import { RoadmapDashboard } from '@/features/radar/components/RoadmapDashboard';
 import { countVaultFiles } from '@/features/vault/lib/tree';
@@ -89,10 +89,10 @@ export function VaultHome({ entries }: VaultHomeProps) {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6 lg:p-8">
-      <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 shadow-sm sm:p-6">
+      <section className="rounded-3xl bg-[var(--bg-surface)] p-5 shadow-md sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/10 px-3 py-1 text-xs font-medium text-[var(--accent-primary)]">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[var(--bg-elevated)] px-3 py-1 text-xs font-medium text-[var(--accent-primary)] shadow-xs">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>
                 {vaultSource === 'github'
@@ -103,11 +103,11 @@ export function VaultHome({ entries }: VaultHomeProps) {
               </span>
             </div>
             <h1 className="mt-3 text-2xl font-bold tracking-tight text-[var(--text-primary)] sm:text-3xl">
-              GenForge Lab Knowledgebase
+              RepCard Knowledgebase
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
               Cross-device workspace for{' '}
-              <code className="rounded bg-[var(--bg-canvas)] px-1.5 py-0.5 text-xs text-[var(--accent-primary)]">
+              <code className="rounded-lg bg-[var(--bg-canvas)] px-1.5 py-0.5 text-xs text-[var(--accent-primary)]">
                 {repoConfig.owner}/{repoConfig.repo}
               </code>
               . Built for direct Obsidian vault parity across roadmaps, Markdown notes, Mermaid flowcharts, and JSON Canvas boards.
@@ -124,7 +124,7 @@ export function VaultHome({ entries }: VaultHomeProps) {
             <button
               type="button"
               onClick={() => setStageView('radar')}
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] px-3.5 py-2 text-xs font-semibold text-[var(--accent-primary)] transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-2xl bg-[var(--bg-hover)] px-3.5 py-2 text-xs font-semibold text-[var(--accent-primary)] shadow-xs transition-opacity hover:opacity-90"
             >
               <Radar className="h-3.5 w-3.5" />
               <span>Radar & Studio</span>
@@ -135,7 +135,7 @@ export function VaultHome({ entries }: VaultHomeProps) {
                 type="button"
                 onClick={() => void syncNow().catch(() => {})}
                 disabled={syncState === 'syncing'}
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3.5 py-2 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-2xl bg-[var(--bg-canvas)] px-3.5 py-2 text-xs font-semibold text-[var(--text-primary)] shadow-xs hover:bg-[var(--bg-hover)] disabled:opacity-50"
               >
                 <RefreshCw
                   className={`h-3.5 w-3.5 ${syncState === 'syncing' ? 'animate-spin text-[var(--accent-primary)]' : ''}`}
@@ -147,7 +147,7 @@ export function VaultHome({ entries }: VaultHomeProps) {
             <button
               type="button"
               onClick={() => setOnboardingOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent-primary)] px-4 py-2 text-sm font-semibold text-[var(--accent-on-primary)] transition-opacity hover:opacity-90"
+              className="key-depth inline-flex items-center gap-2 rounded-2xl bg-[var(--button-primary-bg)] px-4 py-2 text-sm font-bold text-[var(--button-primary-fg)] transition-opacity hover:opacity-90"
             >
               <GitBranch className="h-4 w-4" />
               <span>
@@ -162,20 +162,20 @@ export function VaultHome({ entries }: VaultHomeProps) {
         </div>
 
         {syncProgress && (
-          <div className="mt-4 rounded-lg border border-[var(--accent-primary)]/30 bg-[var(--accent-primary)]/10 px-3 py-2 text-xs text-[var(--accent-primary)]">
+          <div className="mt-4 rounded-2xl bg-[var(--bg-hover)] px-3.5 py-2 text-xs text-[var(--accent-primary)] shadow-xs">
             Syncing {syncProgress.phase} ({syncProgress.done}/{syncProgress.total})
             {syncProgress.currentPath ? ` — ${syncProgress.currentPath}` : ''}
           </div>
         )}
 
         {syncError && (
-          <div className="mt-4 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+          <div className="mt-4 rounded-2xl bg-rose-500/15 px-3.5 py-2 text-xs text-rose-300 shadow-xs">
             {syncError}
           </div>
         )}
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+          <div className="rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
             <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
               <FolderTree className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
               <span>Visible Vault Files</span>
@@ -185,7 +185,7 @@ export function VaultHome({ entries }: VaultHomeProps) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+          <div className="rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
             <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
               <Compass className="h-3.5 w-3.5 text-[var(--accent-highlight)]" />
               <span>Roadmaps Tracked</span>
@@ -195,7 +195,7 @@ export function VaultHome({ entries }: VaultHomeProps) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+          <div className="rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
             <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
               <LayoutGrid className="h-3.5 w-3.5 text-[var(--accent-secondary)]" />
               <span>Canvas Boards</span>
@@ -205,7 +205,7 @@ export function VaultHome({ entries }: VaultHomeProps) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+          <div className="rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
             <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
               <Layers className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
               <span>Ignored Paths</span>
@@ -229,7 +229,7 @@ export function VaultHome({ entries }: VaultHomeProps) {
               key={item.path}
               type="button"
               onClick={() => openFeatured(item.path)}
-              className="flex items-start justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-left transition-colors hover:border-[var(--accent-primary)]/60 hover:bg-[var(--bg-hover)]"
+              className="flex items-start justify-between gap-3 rounded-2xl bg-[var(--bg-surface)] p-4 text-left shadow-sm transition-colors hover:bg-[var(--bg-hover)]"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">

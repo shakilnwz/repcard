@@ -1,4 +1,4 @@
-import { Eye, EyeOff, FilePlus2, GitBranch, Lock, Network, Radar, Search, X } from 'lucide-react';
+import { Eye, EyeOff, FilePlus2, GitBranch, Lock, Network, Radar, Search, X } from '@/shared/ui/MaterialIcons';
 import { useMemo, useState, type RefObject } from 'react';
 import { VaultTree } from '@/features/vault/components/VaultTree';
 import { buildVaultTree, countVaultFiles } from '@/features/vault/lib/tree';
@@ -74,7 +74,10 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
 
   return (
     <div className="flex h-full flex-col bg-[var(--bg-surface)]">
-      <div className="border-b border-[var(--border-subtle)] p-3">
+      <div
+        style={{ boxShadow: 'var(--header-shadow)' }}
+        className="relative z-10 bg-[var(--bg-surface)] p-3"
+      >
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-[var(--accent-primary)] uppercase">
@@ -94,7 +97,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
         </div>
 
         <div className="relative mt-3">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
           <input
             ref={filterInputRef}
             type="search"
@@ -102,7 +105,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
             onChange={(e) => setTreeFilter(e.target.value)}
             placeholder="Filter vault files..."
             aria-label="Filter vault files"
-            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] py-1.5 pr-7 pl-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-primary)] focus:outline-none"
+            className="w-full rounded-xl bg-[var(--bg-canvas)] py-1.5 pr-7 pl-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
           />
           {treeFilter && (
             <button
@@ -128,9 +131,9 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
         />
       </div>
 
-      <div className="space-y-2 border-t border-[var(--border-subtle)] p-3">
+      <div className="space-y-2 bg-[var(--bg-surface)] p-3 shadow-md">
         {newNoteOpen && (
-          <form onSubmit={(e) => void handleCreateNote(e)} className="space-y-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-2">
+          <form onSubmit={(e) => void handleCreateNote(e)} className="space-y-1.5 rounded-2xl bg-[var(--bg-canvas)] p-2.5 shadow-xs">
             <input
               type="text"
               value={newNotePath}
@@ -138,7 +141,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
               placeholder="folder/new-note.md"
               aria-label="New note path"
               autoFocus
-              className="w-full rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-primary)] focus:outline-none"
+              className="w-full rounded-xl bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
             />
             {newNoteError && (
               <p className="text-[11px] text-rose-400">{newNoteError}</p>
@@ -150,14 +153,14 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
                   setNewNoteOpen(false);
                   setNewNoteError(null);
                 }}
-                className="rounded px-2 py-1 text-[11px] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+                className="rounded-lg px-2 py-1 text-[11px] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={creatingNote || !newNotePath.trim()}
-                className="rounded bg-[var(--accent-primary)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent-on-primary)] disabled:opacity-50"
+                className="rounded-lg bg-[var(--button-primary-bg)] px-2.5 py-1 text-[11px] font-bold text-[var(--button-primary-fg)] disabled:opacity-50"
               >
                 {creatingNote ? 'Creating...' : 'Create'}
               </button>
@@ -173,7 +176,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
                 setNewNoteOpen((o) => !o);
                 setNewNoteError(null);
               }}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
             >
               <FilePlus2 className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
               <span>New Note</span>
@@ -185,10 +188,10 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
               setStageView(stageView === 'graph' ? 'document' : 'graph');
             }}
             aria-pressed={stageView === 'graph'}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1.5 text-xs font-medium shadow-xs transition-colors ${
               stageView === 'graph'
-                ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'
-                : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
+                : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
             }`}
           >
             <Network className="h-3.5 w-3.5" />
@@ -200,10 +203,10 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
               setStageView(stageView === 'radar' ? 'document' : 'radar');
             }}
             aria-pressed={stageView === 'radar'}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1.5 text-xs font-medium shadow-xs transition-colors ${
               stageView === 'radar'
-                ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'
-                : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
+                : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
             }`}
           >
             <Radar className="h-3.5 w-3.5" />
@@ -215,7 +218,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
           type="button"
           onClick={() => setShowHiddenFiles(!showHiddenFiles)}
           aria-pressed={showHiddenFiles}
-          className="flex w-full items-center justify-between rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+          className="flex w-full items-center justify-between rounded-xl bg-[var(--bg-canvas)] px-3 py-2 text-xs text-[var(--text-secondary)] shadow-xs transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
           <span className="flex items-center gap-2">
             {showHiddenFiles ? (
@@ -225,7 +228,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
             )}
             <span>{showHiddenFiles ? 'Showing hidden files' : 'Show hidden files'}</span>
           </span>
-          <span className="rounded bg-[var(--bg-elevated)] px-1.5 py-0.5 text-[10px] tabular-nums text-[var(--text-muted)]">
+          <span className="rounded-lg bg-[var(--bg-elevated)] px-1.5 py-0.5 text-[10px] tabular-nums text-[var(--text-muted)]">
             {counts.hidden}
           </span>
         </button>
@@ -233,7 +236,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
         <button
           type="button"
           onClick={() => setOnboardingOpen(true)}
-          className="w-full rounded-md bg-[var(--accent-primary)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-on-primary)] transition-opacity hover:opacity-90"
+          className="key-depth w-full rounded-xl bg-[var(--button-primary-bg)] px-3 py-2 text-xs font-bold text-[var(--button-primary-fg)] transition-opacity hover:opacity-90"
         >
           {authSession ? `Connected: @${authSession.user}` : 'Connect Repository'}
         </button>

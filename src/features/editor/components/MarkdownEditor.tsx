@@ -20,8 +20,7 @@ import {
 import { markdown } from '@codemirror/lang-markdown';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { vim } from '@replit/codemirror-vim';
-import { Save, Undo2, Redo2, CheckSquare, Link2, Heading2, Code, Bold } from 'lucide-react';
-import { useResolvedTheme } from '@/shared/lib/theme';
+import { Save, Undo2, Redo2, CheckSquare, Link2, Heading2, Code, Bold } from '@/shared/ui/MaterialIcons';
 
 export interface MarkdownEditorProps {
   filePath: string;
@@ -34,68 +33,36 @@ export interface MarkdownEditorProps {
   readOnly?: boolean;
 }
 
-const lightEditorTheme = EditorView.theme(
-  {
-    '&': {
-      backgroundColor: '#FFFFFF',
-      color: '#0B132B',
-      fontSize: '14px',
-      height: '100%',
-    },
-    '.cm-content': {
-      caretColor: '#007A3D',
-      fontFamily:
-        'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      padding: '12px 0',
-    },
-    '.cm-gutters': {
-      backgroundColor: '#F3F6FC',
-      color: '#51628A',
-      borderRight: '1px solid #C8D4EB',
-    },
-    '.cm-activeLine': {
-      backgroundColor: 'rgba(11, 19, 43, 0.05)',
-    },
-    '.cm-activeLineGutter': {
-      backgroundColor: '#E6ECF8',
-    },
-    '.cm-scroller': {
-      overflow: 'auto',
-    },
-  },
-  { dark: false },
-);
-
 const darkLayoutOverride = EditorView.theme(
   {
     '&': {
-      backgroundColor: '#0B132B',
-      color: '#F2F6FF',
+      backgroundColor: 'var(--bg-canvas)',
+      color: '#ffffff',
       fontSize: '14px',
       height: '100%',
     },
     '.cm-content': {
-      caretColor: '#39FF88',
+      caretColor: '#a7ff83',
       fontFamily:
         'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
       padding: '12px 0',
     },
     '.cm-cursor, .cm-dropCursor': {
-      borderLeftColor: '#39FF88',
+      borderLeftColor: '#a7ff83',
     },
     '.cm-gutters': {
-      backgroundColor: '#0E1735',
-      color: '#8496BE',
-      borderRight: '1px solid #223366',
+      backgroundColor: 'var(--bg-surface)',
+      color: 'rgba(255, 255, 255, 0.55)',
+      borderRight: 'none',
     },
     '.cm-activeLine': {
-      backgroundColor: 'rgba(57, 255, 136, 0.07)',
+      backgroundColor: 'rgba(167, 255, 131, 0.08)',
     },
     '.cm-activeLineGutter': {
-      backgroundColor: '#121D3D',
+      backgroundColor: 'var(--bg-elevated)',
     },
     '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection': {
-      backgroundColor: 'rgba(57, 255, 136, 0.22)',
+      backgroundColor: 'rgba(167, 255, 131, 0.22)',
     },
     '.cm-scroller': {
       overflow: 'auto',
@@ -114,7 +81,6 @@ export function MarkdownEditor({
   saving = false,
   readOnly = false,
 }: MarkdownEditorProps) {
-  const resolvedTheme = useResolvedTheme();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const themeCompRef = useRef(new Compartment());
@@ -149,8 +115,7 @@ export function MarkdownEditor({
     lastEmittedRef.current = initialContent;
     setDirty(false);
 
-    const themeExt: Extension =
-      resolvedTheme === 'dark' ? [oneDark, darkLayoutOverride] : lightEditorTheme;
+    const themeExt: Extension = [oneDark, darkLayoutOverride];
 
     const state = EditorState.create({
       doc: initialContent,
@@ -195,17 +160,6 @@ export function MarkdownEditor({
     // Re-create only when switching files; dynamic props reconfigure via Compartments below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filePath]);
-
-  // Reconfigure theme dynamically without losing cursor or history.
-  useEffect(() => {
-    const view = viewRef.current;
-    if (!view) return;
-    const themeExt: Extension =
-      resolvedTheme === 'dark' ? [oneDark, darkLayoutOverride] : lightEditorTheme;
-    view.dispatch({
-      effects: themeCompRef.current.reconfigure(themeExt),
-    });
-  }, [resolvedTheme]);
 
   // Reconfigure Vim extension dynamically.
   useEffect(() => {
@@ -280,11 +234,14 @@ export function MarkdownEditor({
 
   return (
     <div
-      className="flex flex-col h-full min-h-[380px] rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
+      className="flex flex-col h-full min-h-[380px] rounded-2xl bg-[var(--bg-canvas)] shadow-md overflow-hidden"
       data-testid="markdown-editor"
     >
       {/* Editor Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+      <div
+        style={{ boxShadow: 'var(--header-shadow)' }}
+        className="relative z-10 flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-[var(--bg-surface)]"
+      >
         <div className="flex items-center gap-1 flex-wrap">
           <button
             type="button"
@@ -333,7 +290,7 @@ export function MarkdownEditor({
           >
             <Code className="w-3.5 h-3.5" />
           </button>
-          <span className="mx-1 h-4 w-px bg-[var(--border-subtle)]" aria-hidden="true" />
+          <span className="mx-1 h-4 w-px bg-[var(--fg-app)]/15" aria-hidden="true" />
           <button
             type="button"
             onClick={handleUndo}
@@ -361,17 +318,17 @@ export function MarkdownEditor({
             type="button"
             onClick={() => onToggleVim(!vimMode)}
             aria-pressed={vimMode}
-            className={`px-2 py-1 text-[11px] font-semibold rounded-md border transition-colors ${
+            className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors ${
               vimMode
-                ? 'border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] text-[var(--accent-primary)]'
-                : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-muted)]'
+                ? 'bg-[var(--bg-hover)] text-[var(--accent-primary)]'
+                : 'bg-[var(--bg-canvas)] text-[var(--text-muted)] shadow-xs'
             }`}
           >
             Vim {vimMode ? 'On' : 'Off'}
           </button>
 
           {dirty && (
-            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200">
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
               Unsaved
             </span>
           )}
@@ -380,7 +337,7 @@ export function MarkdownEditor({
             type="button"
             onClick={() => void triggerSave()}
             disabled={readOnly || saving}
-            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-[var(--accent-primary)] hover:opacity-90 disabled:opacity-50 text-[var(--accent-on-primary)] transition-opacity"
+            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg bg-[var(--button-primary-bg)] hover:opacity-90 disabled:opacity-50 text-[var(--button-primary-fg)] shadow-xs transition-opacity"
           >
             <Save className="w-3.5 h-3.5" />
             {saving ? 'Saving...' : 'Save'}

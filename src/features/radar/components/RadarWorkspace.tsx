@@ -4,13 +4,13 @@ import {
   FolderInput,
   Pencil,
   Plus,
-  Radar as RadarIcon,
+  RadarIcon,
   Search,
   Sparkles,
   Trash2,
   Upload,
   X,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import {
   useCallback,
   useEffect,
@@ -529,11 +529,11 @@ export function RadarWorkspace({
         if (!embedded) void handleDrop(e);
       }}
       className={`flex h-full min-h-0 flex-col gap-3 ${
-        dragOver ? 'ring-2 ring-[var(--accent-primary)] rounded-xl' : ''
+        dragOver ? 'ring-2 ring-[var(--accent-primary)] rounded-2xl' : ''
       }`}
     >
       {/* Top Picker & Studio Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs shadow-sm">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5 font-bold text-[var(--text-primary)]">
             <RadarIcon className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
@@ -552,7 +552,7 @@ export function RadarWorkspace({
                 aria-label="Select radar JSON dataset"
                 value={activeSource.id}
                 onChange={(e) => setActiveId(e.target.value)}
-                className="max-w-[230px] rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-xs font-medium text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                className="max-w-[230px] rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 text-xs font-medium text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
               >
                 {allSources.map((src) => (
                   <option key={src.id} value={src.id}>
@@ -580,7 +580,7 @@ export function RadarWorkspace({
                   }}
                   title="Delete saved local radar"
                   aria-label="Delete saved local radar"
-                  className="rounded p-1 text-[var(--text-muted)] hover:text-rose-400"
+                  className="rounded-lg p-1.5 text-[var(--text-muted)] hover:text-rose-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -603,7 +603,7 @@ export function RadarWorkspace({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+                className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
               >
                 <Upload className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
                 <span>Pick .json</span>
@@ -619,7 +619,7 @@ export function RadarWorkspace({
                       ) ?? canvasOptions[0];
                     void handleImportCanvas(preferred.path);
                   }}
-                  className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+                  className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                 >
                   <FolderInput className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
                   <span className="hidden sm:inline">Import .canvas</span>
@@ -633,7 +633,7 @@ export function RadarWorkspace({
                   setCreatorPath(undefined);
                   setCreatorEditingId(null);
                 }}
-                className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+                className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
               >
                 <Plus className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
                 <span>Create New</span>
@@ -650,7 +650,7 @@ export function RadarWorkspace({
                 activeSource.source === 'local' ? activeSource.id : null,
               );
             }}
-            className="inline-flex items-center gap-1 rounded-md bg-[var(--accent-primary)] px-3 py-1.5 font-semibold text-[var(--accent-on-primary)] hover:opacity-90"
+            className="key-depth inline-flex items-center gap-1 rounded-xl bg-[var(--button-primary-bg)] px-3.5 py-1.5 font-bold text-[var(--button-primary-fg)] hover:opacity-90"
           >
             <Pencil className="h-3.5 w-3.5" />
             <span>Edit in Studio</span>
@@ -659,7 +659,7 @@ export function RadarWorkspace({
       </div>
 
       {notice && (
-        <div className="flex items-center justify-between rounded-lg border border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] px-3 py-1.5 text-xs text-[var(--accent-primary)]">
+        <div className="flex items-center justify-between rounded-2xl bg-[var(--bg-hover)] px-3.5 py-2 text-xs text-[var(--accent-primary)] shadow-xs">
           <span className="flex items-center gap-1.5">
             <FileJson className="h-3.5 w-3.5" />
             {notice}
@@ -677,7 +677,7 @@ export function RadarWorkspace({
       {errorBanner && (
         <div
           role="alert"
-          className="flex items-center justify-between rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs text-rose-300"
+          className="flex items-center justify-between rounded-2xl bg-rose-500/15 px-3.5 py-2 text-xs text-rose-300 shadow-xs"
         >
           <span>{errorBanner}</span>
           <button
@@ -691,23 +691,23 @@ export function RadarWorkspace({
       )}
 
       {/* Search & Step Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs shadow-sm">
         <div className="relative min-w-[190px] flex-1 max-w-sm">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
           <input
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter blips, tags, descriptions..."
             aria-label="Filter radar blips"
-            className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] py-1 pr-7 pl-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-primary)] focus:outline-none"
+            className="w-full rounded-xl bg-[var(--bg-canvas)] py-1.5 pr-7 pl-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
               aria-label="Clear radar filter"
-              className="absolute top-1/2 right-2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              className="absolute top-1/2 right-2.5 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -725,11 +725,10 @@ export function RadarWorkspace({
                 onClick={() => handleToggleStepPill(step.id)}
                 title={step.description || step.label}
                 style={{
-                  borderColor: active ? step.color : 'var(--border-subtle)',
                   color: active ? step.color : 'var(--text-muted)',
-                  backgroundColor: active ? `${step.color}18` : 'transparent',
+                  backgroundColor: active ? `${step.color}22` : 'var(--bg-canvas)',
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold tracking-wide uppercase transition-all"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase shadow-xs transition-all"
               >
                 <span
                   className="h-2 w-2 rounded-full"
@@ -745,7 +744,7 @@ export function RadarWorkspace({
             <button
               type="button"
               onClick={() => setActiveTag(null)}
-              className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] px-2 py-0.5 text-[11px] font-medium text-[var(--accent-primary)]"
+              className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-hover)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent-primary)]"
             >
               <span>#{activeTag}</span>
               <X className="h-3 w-3" />
@@ -798,20 +797,23 @@ export function RadarWorkspace({
         </div>
 
         {/* Synchronized Directory & Item Detail Panel */}
-        <aside className="flex min-h-[340px] flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] lg:col-span-4">
-          <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-3 py-2 text-xs">
+        <aside className="flex min-h-[340px] flex-col overflow-hidden rounded-2xl bg-[var(--bg-surface)] shadow-md lg:col-span-4">
+          <div
+            style={{ boxShadow: 'var(--header-shadow)' }}
+            className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs"
+          >
             <span className="font-semibold text-[var(--text-primary)]">
               Directory ({directoryBlips.length})
             </span>
 
             {activeDoc.quadrants.length > 0 && (
-              <div className="inline-flex rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-0.5 text-[11px]">
+              <div className="inline-flex rounded-xl bg-[var(--bg-canvas)] p-0.5 text-[11px] shadow-xs">
                 <button
                   type="button"
                   onClick={() => setGroupBy('step')}
-                  className={`rounded px-2 py-0.5 font-medium ${
+                  className={`rounded-lg px-2.5 py-0.5 font-medium ${
                     groupBy === 'step'
-                      ? 'bg-[var(--accent-primary)] font-semibold text-[var(--accent-on-primary)]'
+                      ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                       : 'text-[var(--text-secondary)]'
                   }`}
                 >
@@ -820,9 +822,9 @@ export function RadarWorkspace({
                 <button
                   type="button"
                   onClick={() => setGroupBy('quadrant')}
-                  className={`rounded px-2 py-0.5 font-medium ${
+                  className={`rounded-lg px-2.5 py-0.5 font-medium ${
                     groupBy === 'quadrant'
-                      ? 'bg-[var(--accent-primary)] font-semibold text-[var(--accent-on-primary)]'
+                      ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                       : 'text-[var(--text-secondary)]'
                   }`}
                 >
@@ -862,9 +864,9 @@ export function RadarWorkspace({
                               onMouseEnter={() => setHoveredItemId(blip.item.id)}
                               onMouseLeave={() => setHoveredItemId(null)}
                               onClick={() => setSelectedItemId(blip.item.id)}
-                              className={`flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left transition-colors ${
+                              className={`flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-left transition-colors ${
                                 active
-                                  ? 'bg-[var(--bg-hover)] font-semibold text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/40'
+                                  ? 'bg-[var(--bg-elevated)] font-semibold text-[var(--accent-primary)] shadow-xs'
                                   : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
                               }`}
                             >
@@ -919,9 +921,9 @@ export function RadarWorkspace({
                               onMouseEnter={() => setHoveredItemId(blip.item.id)}
                               onMouseLeave={() => setHoveredItemId(null)}
                               onClick={() => setSelectedItemId(blip.item.id)}
-                              className={`flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left transition-colors ${
+                              className={`flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-left transition-colors ${
                                 active
-                                  ? 'bg-[var(--bg-hover)] font-semibold text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/40'
+                                  ? 'bg-[var(--bg-elevated)] font-semibold text-[var(--accent-primary)] shadow-xs'
                                   : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
                               }`}
                             >
@@ -958,7 +960,7 @@ export function RadarWorkspace({
           {selectedBlip ? (
             <div
               data-testid="radar-detail-card"
-              className="space-y-2 border-t border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 text-xs"
+              className="space-y-2 bg-[var(--bg-canvas)] p-3.5 text-xs shadow-sm"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -1019,7 +1021,7 @@ export function RadarWorkspace({
                         e.target.value,
                       )
                     }
-                    className="rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-0.5 text-[11px] font-semibold text-[var(--text-primary)]"
+                    className="rounded-lg bg-[var(--bg-surface)] px-2.5 py-1 text-[11px] font-semibold text-[var(--text-primary)] shadow-xs focus:outline-none"
                   >
                     {activeDoc.steps.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -1037,7 +1039,7 @@ export function RadarWorkspace({
                       key={t}
                       type="button"
                       onClick={() => setActiveTag(t === activeTag ? null : t)}
-                      className="rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-1.5 py-0.5 text-[10px] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--accent-primary)]"
+                      className="rounded-lg bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--accent-primary)]"
                     >
                       #{t}
                     </button>
@@ -1049,7 +1051,7 @@ export function RadarWorkspace({
                 <button
                   type="button"
                   onClick={() => handleOpenLink(selectedBlip.item.link!)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent-primary)] hover:opacity-90"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-hover)] px-3 py-1.5 text-[11px] font-semibold text-[var(--accent-primary)] hover:opacity-90"
                 >
                   <ExternalLink className="h-3 w-3" />
                   <span>Open {selectedBlip.item.link}</span>
@@ -1057,7 +1059,7 @@ export function RadarWorkspace({
               )}
             </div>
           ) : (
-            <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2 text-[11px] text-[var(--text-muted)]">
+            <div className="bg-[var(--bg-canvas)] px-3.5 py-2.5 text-[11px] text-[var(--text-muted)]">
               <span className="inline-flex items-center gap-1">
                 <Sparkles className="h-3 w-3 text-[var(--accent-primary)]" />
                 <span>

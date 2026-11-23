@@ -1,4 +1,4 @@
-import { Code2 } from 'lucide-react';
+import { Code2 } from '@/shared/ui/MaterialIcons';
 import { HighlightedCode } from '@/features/renderers/components/HighlightedCode';
 import { formatBytes } from '@/shared/lib/format';
 import { languageFromPath } from '@/features/editor/lib/shikiHighlighter';
@@ -15,7 +15,7 @@ export function CodeViewer({ code, filePath, size }: CodeViewerProps) {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2 text-xs text-[var(--text-secondary)]">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs text-[var(--text-secondary)] shadow-sm">
         <div className="flex items-center gap-2">
           <Code2 className="h-4 w-4 text-[var(--accent-secondary)]" />
           <span className="font-mono font-semibold text-[var(--text-primary)]">

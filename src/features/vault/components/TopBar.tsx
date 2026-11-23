@@ -5,23 +5,21 @@ import {
   Home,
   Lock,
   Menu,
-  Monitor,
-  Moon,
   Network,
+  Palette,
   PanelRight,
   Radar,
   RefreshCw,
   Search,
   Settings,
   ShieldCheck,
-  Sun,
   UploadCloud,
   WifiOff,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { formatTimestamp } from '@/shared/lib/format';
+import { COLOR_MODE_LABELS } from '@/shared/lib/theme';
 import { syncNow } from '@/features/vault/lib/vaultService';
 import { useAppStore } from '@/shared/store/useAppStore';
-import type { ThemeMode } from '@/features/vault/types/vault';
 
 interface TopBarProps {
   onOpenMobileDrawer: () => void;
@@ -29,31 +27,12 @@ interface TopBarProps {
   onToggleInspector?: () => void;
 }
 
-const THEME_LABELS: Record<ThemeMode, string> = {
-  dark: 'Dark',
-  light: 'Light',
-  system: 'System',
-};
-
-const NEXT_THEME: Record<ThemeMode, ThemeMode> = {
-  dark: 'light',
-  light: 'system',
-  system: 'dark',
-};
-
-function ThemeIcon({ mode }: { mode: ThemeMode }) {
-  if (mode === 'light') return <Sun className="h-4 w-4 text-[var(--accent-primary)]" />;
-  if (mode === 'system')
-    return <Monitor className="h-4 w-4 text-[var(--accent-secondary)]" />;
-  return <Moon className="h-4 w-4 text-[var(--accent-primary)]" />;
-}
-
 export function TopBar({
   onOpenMobileDrawer,
   onFocusSearch,
   onToggleInspector,
 }: TopBarProps) {
-  const theme = useAppStore((s) => s.theme);
+  const colorMode = useAppStore((s) => s.colorMode);
   const activePath = useAppStore((s) => s.activePath);
   const authSession = useAppStore((s) => s.authSession);
   const inspectorOpen = useAppStore((s) => s.inspectorOpen);
@@ -68,7 +47,7 @@ export function TopBar({
   const outboxEdits = useAppStore((s) => s.outboxEdits);
   const stageView = useAppStore((s) => s.stageView);
 
-  const setTheme = useAppStore((s) => s.setTheme);
+  const cycleColorMode = useAppStore((s) => s.cycleColorMode);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
   const toggleInspector = useAppStore((s) => s.toggleInspector);
   const setActivePath = useAppStore((s) => s.setActivePath);
@@ -90,13 +69,16 @@ export function TopBar({
     .join(' · ');
 
   return (
-    <header className="pt-safe flex h-13 shrink-0 items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3">
+    <header
+      style={{ boxShadow: 'var(--header-shadow)' }}
+      className="pt-safe relative z-20 flex h-13 shrink-0 items-center justify-between gap-2 bg-[var(--bg-surface)] px-3"
+    >
       <div className="flex min-w-0 items-center gap-2">
         <button
           type="button"
           onClick={onOpenMobileDrawer}
           aria-label="Open vault navigation"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] lg:hidden"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] lg:hidden"
         >
           <Menu className="h-4 w-4" />
         </button>
@@ -106,7 +88,7 @@ export function TopBar({
           onClick={toggleSidebar}
           aria-label="Toggle sidebar"
           title="Toggle sidebar (Ctrl/Cmd+\)"
-          className="hidden h-8 w-8 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] lg:inline-flex"
+          className="hidden h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] lg:inline-flex"
         >
           <Menu className="h-4 w-4" />
         </button>
@@ -115,10 +97,10 @@ export function TopBar({
           <button
             type="button"
             onClick={() => setActivePath(null)}
-            className="flex items-center gap-1.5 rounded px-1.5 py-0.5 font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+            className="flex items-center gap-1.5 rounded-xl px-2 py-1 font-bold text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
           >
             <Home className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
-            <span className="hidden sm:inline">GenForge KB</span>
+            <span className="hidden sm:inline">RepCard</span>
           </button>
 
           {pathSegments.map((seg, idx) => {
@@ -145,7 +127,7 @@ export function TopBar({
         {!isOnline && (
           <span
             title="Network offline — cached notes & assets stay readable"
-            className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-300"
+            className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-medium text-amber-300"
           >
             <WifiOff className="h-3 w-3" />
             <span className="hidden sm:inline">Offline</span>
@@ -156,11 +138,11 @@ export function TopBar({
           type="button"
           onClick={onFocusSearch}
           aria-label="Open global search"
-          className="inline-flex h-8 items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 sm:px-2.5 py-1 text-xs text-[var(--text-muted)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+          className="inline-flex h-8 items-center gap-2 rounded-xl bg-[var(--bg-canvas)] px-2 sm:px-2.5 py-1 text-xs text-[var(--text-muted)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
           <Search className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Search</span>
-          <kbd className="hidden sm:inline rounded bg-[var(--bg-elevated)] px-1 text-[10px]">⌘K</kbd>
+          <kbd className="hidden sm:inline rounded-md bg-[var(--bg-elevated)] px-1 text-[10px]">⌘K</kbd>
         </button>
 
         {outboxEdits.length > 0 && (
@@ -174,10 +156,10 @@ export function TopBar({
               }
             }}
             data-testid="outbox-status-badge"
-            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold shadow-xs ${
               conflictCount > 0
-                ? 'border-rose-500/50 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25'
-                : 'border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20'
+                ? 'bg-rose-500/20 text-rose-300 hover:bg-rose-500/30'
+                : 'bg-amber-500/15 text-amber-300 hover:bg-amber-500/25'
             }`}
           >
             {conflictCount > 0 ? (
@@ -199,9 +181,9 @@ export function TopBar({
           aria-label="Toggle graph view"
           aria-pressed={stageView === 'graph'}
           title="Knowledge Graph View"
-          className={`inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
+          className={`inline-flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
             stageView === 'graph'
-              ? 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'
+              ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
               : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
           }`}
         >
@@ -214,9 +196,9 @@ export function TopBar({
           aria-label="Toggle radar chart view"
           aria-pressed={stageView === 'radar'}
           title="Interactive Radar & Studio"
-          className={`inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
+          className={`inline-flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
             stageView === 'radar'
-              ? 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'
+              ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
               : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
           }`}
         >
@@ -228,7 +210,7 @@ export function TopBar({
             type="button"
             onClick={() => setOnboardingOpen(true)}
             aria-label="Unlock vault passphrase"
-            className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/20"
+            className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/25"
           >
             <Lock className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Unlock Vault</span>
@@ -241,7 +223,7 @@ export function TopBar({
               disabled={syncState === 'syncing' || (!isOnline && vaultSource === 'github')}
               aria-label="Sync now"
               title={syncTooltip}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 text-xs font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)] disabled:opacity-50"
+              className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50"
             >
               <RefreshCw
                 className={`h-3.5 w-3.5 ${syncState === 'syncing' ? 'animate-spin text-[var(--accent-primary)]' : ''}`}
@@ -256,12 +238,12 @@ export function TopBar({
         <button
           type="button"
           onClick={() => setOnboardingOpen(true)}
-          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium shadow-xs transition-colors ${
             vaultSource === 'local-fs'
-              ? 'border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] text-[var(--accent-primary)]'
+              ? 'bg-[var(--bg-hover)] text-[var(--accent-primary)]'
               : authSession
-                ? 'border-[var(--accent-primary)]/40 bg-[var(--bg-hover)] text-[var(--accent-primary)]'
-                : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50'
+                ? 'bg-[var(--bg-hover)] text-[var(--accent-primary)]'
+                : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
           }`}
         >
           {vaultSource === 'local-fs' ? (
@@ -280,13 +262,13 @@ export function TopBar({
 
         <button
           type="button"
-          onClick={() => setTheme(NEXT_THEME[theme])}
-          aria-label={`Switch theme (current: ${THEME_LABELS[theme]})`}
-          title={`Theme: ${THEME_LABELS[theme]} (click to switch)`}
-          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 text-xs text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
+          onClick={cycleColorMode}
+          aria-label={`Switch theme (current: ${COLOR_MODE_LABELS[colorMode]})`}
+          title={`Palette: ${COLOR_MODE_LABELS[colorMode]} (click to cycle)`}
+          className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2.5 text-xs text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
-          <ThemeIcon mode={theme} />
-          <span className="hidden xl:inline">{THEME_LABELS[theme]}</span>
+          <Palette className="h-4 w-4 text-[var(--accent-primary)]" />
+          <span className="hidden xl:inline">{COLOR_MODE_LABELS[colorMode]}</span>
         </button>
 
         <button
@@ -295,7 +277,7 @@ export function TopBar({
           aria-label="Toggle inspector"
           aria-pressed={inspectorOpen}
           title="Toggle inspector (Ctrl/Cmd+Shift+\)"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
           <PanelRight className="h-4 w-4" />
         </button>
@@ -305,7 +287,7 @@ export function TopBar({
           onClick={() => setSettingsOpen(true)}
           aria-label="Open settings"
           title="Settings (Ctrl/Cmd+,)"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
           <Settings className="h-4 w-4" />
         </button>

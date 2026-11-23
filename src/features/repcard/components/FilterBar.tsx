@@ -49,7 +49,7 @@ export function FilterBar({ currentFilter, onFilterChange, counts }: FilterBarPr
               {f.icon}
               <span>{f.label}</span>
               <span
-                className={`px-1.5 py-0.2 text-[10px] rounded-full font-extrabold ${
+                className={`px-1.5 py-0.2 text-[10px] rounded-full font-bold ${
                   active
                     ? 'bg-[var(--bg-card)] text-[var(--fg-card)]'
                     : 'bg-[var(--fg-card)] text-[var(--bg-card)]'

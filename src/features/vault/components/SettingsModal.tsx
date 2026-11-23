@@ -3,16 +3,16 @@ import {
   Database,
   Download,
   Lock,
-  Monitor,
-  Moon,
+  Palette,
   RotateCcw,
   ShieldAlert,
-  Sun,
   Trash2,
   Unlock,
   X,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import { useEffect, useState } from 'react';
+import { COLOR_MODES } from '@/features/repcard/lib/colorModes';
+import { COLOR_MODE_LABELS } from '@/shared/lib/theme';
 import { formatBytes, formatTimestamp } from '@/shared/lib/format';
 import { DEFAULT_IGNORE_PATTERNS } from '@/features/vault/lib/ignore';
 import { isStandaloneMode } from '@/shared/lib/pwa';
@@ -27,11 +27,11 @@ import {
   requestVaultPersistence,
 } from '@/features/vault/lib/vaultService';
 import { useAppStore } from '@/shared/store/useAppStore';
-import type { AuthMode, StorageStats, SyncProgress, ThemeMode } from '@/features/vault/types/vault';
+import type { AuthMode, StorageStats, SyncProgress } from '@/features/vault/types/vault';
 
 export function SettingsModal() {
   const open = useAppStore((s) => s.settingsOpen);
-  const theme = useAppStore((s) => s.theme);
+  const colorMode = useAppStore((s) => s.colorMode);
   const vimMode = useAppStore((s) => s.vimMode);
   const showHiddenFiles = useAppStore((s) => s.showHiddenFiles);
   const ignorePatterns = useAppStore((s) => s.ignorePatterns);
@@ -48,7 +48,7 @@ export function SettingsModal() {
 
   const setSettingsOpen = useAppStore((s) => s.setSettingsOpen);
   const setOnboardingOpen = useAppStore((s) => s.setOnboardingOpen);
-  const setTheme = useAppStore((s) => s.setTheme);
+  const setColorMode = useAppStore((s) => s.setColorMode);
   const setVimMode = useAppStore((s) => s.setVimMode);
   const setShowHiddenFiles = useAppStore((s) => s.setShowHiddenFiles);
   const setIgnorePatterns = useAppStore((s) => s.setIgnorePatterns);
@@ -172,10 +172,13 @@ export function SettingsModal() {
       role="dialog"
       aria-modal="true"
       aria-label="Application Settings"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B132B]/80 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
     >
-      <div className="flex max-h-[90vh] w-full max-w-xl flex-col rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
+      <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-[var(--bg-surface)] shadow-2xl">
+        <div
+          style={{ boxShadow: 'var(--header-shadow)' }}
+          className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-5 py-4"
+        >
           <h2 className="text-base font-bold text-[var(--text-primary)]">
             Workspace Settings
           </h2>
@@ -183,7 +186,7 @@ export function SettingsModal() {
             type="button"
             onClick={() => setSettingsOpen(false)}
             aria-label="Close settings"
-            className="rounded-md p-1 text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            className="rounded-xl p-1.5 text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -194,23 +197,21 @@ export function SettingsModal() {
             <h3 className="font-semibold tracking-wide text-[var(--text-muted)] uppercase">
               Appearance
             </h3>
-            <div className="grid grid-cols-3 gap-2">
-              {(['dark', 'light', 'system'] as ThemeMode[]).map((mode) => (
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {COLOR_MODES.map((mode) => (
                 <button
                   key={mode}
                   type="button"
-                  onClick={() => setTheme(mode)}
-                  aria-pressed={theme === mode}
-                  className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 font-medium capitalize transition-colors ${
-                    theme === mode
-                      ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'
-                      : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  onClick={() => setColorMode(mode)}
+                  aria-pressed={colorMode === mode}
+                  className={`flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[11px] font-bold transition-all shadow-xs ${
+                    colorMode === mode
+                      ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
+                      : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                   }`}
                 >
-                  {mode === 'dark' && <Moon className="h-3.5 w-3.5" />}
-                  {mode === 'light' && <Sun className="h-3.5 w-3.5" />}
-                  {mode === 'system' && <Monitor className="h-3.5 w-3.5" />}
-                  <span>{mode}</span>
+                  <Palette className="h-3.5 w-3.5 shrink-0" />
+                  <span>{COLOR_MODE_LABELS[mode]}</span>
                 </button>
               ))}
             </div>
@@ -227,7 +228,7 @@ export function SettingsModal() {
                   type="text"
                   value={owner}
                   onChange={(e) => setOwner(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 text-[var(--text-primary)]"
+                  className="w-full rounded-xl bg-[var(--bg-canvas)] px-3 py-2 text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                 />
               </label>
               <label className="block">
@@ -236,7 +237,7 @@ export function SettingsModal() {
                   type="text"
                   value={repo}
                   onChange={(e) => setRepo(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 text-[var(--text-primary)]"
+                  className="w-full rounded-xl bg-[var(--bg-canvas)] px-3 py-2 text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                 />
               </label>
               <label className="block">
@@ -245,12 +246,12 @@ export function SettingsModal() {
                   type="text"
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
-                  className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1.5 text-[var(--text-primary)]"
+                  className="w-full rounded-xl bg-[var(--bg-canvas)] px-3 py-2 text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                 />
               </label>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
               <div className="space-y-1">
                 <span className="block font-medium text-[var(--text-primary)]">
                   Auth Strategy & Sync Status
@@ -276,7 +277,7 @@ export function SettingsModal() {
                   aria-label="Auth mode"
                   value={authMode}
                   onChange={(e) => setAuthMode(e.target.value as AuthMode)}
-                  className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-1 text-[var(--text-primary)]"
+                  className="rounded-xl bg-[var(--bg-surface)] px-2.5 py-1.5 text-[var(--text-primary)] shadow-xs focus:outline-none"
                 >
                   <option value="github-oauth">GitHub OAuth (Free)</option>
                   <option value="pat">Fine-Grained PAT</option>
@@ -286,13 +287,13 @@ export function SettingsModal() {
             </div>
 
             {vaultSource === 'github' && (
-              <div className="space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+              <div className="space-y-2 rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 font-medium text-[var(--text-primary)]">
                     <Lock className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
                     Passphrase Encryption (AES-GCM)
                   </span>
-                  <span className="rounded bg-[var(--bg-elevated)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)]">
+                  <span className="rounded-lg bg-[var(--bg-elevated)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)]">
                     {hasPassphraseLock
                       ? vaultLocked
                         ? 'Locked'
@@ -310,7 +311,7 @@ export function SettingsModal() {
                           setSettingsOpen(false);
                           setOnboardingOpen(true);
                         }}
-                        className="inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-amber-300 hover:bg-amber-500/20"
+                        className="inline-flex items-center gap-1 rounded-xl bg-amber-500/15 px-3 py-1.5 font-semibold text-amber-300 hover:bg-amber-500/25"
                       >
                         <Unlock className="h-3 w-3" /> Unlock Vault
                       </button>
@@ -319,14 +320,14 @@ export function SettingsModal() {
                         <button
                           type="button"
                           onClick={() => lockVaultNow()}
-                          className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] px-2.5 py-1 text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+                          className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-elevated)] px-3 py-1.5 text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                         >
                           <Lock className="h-3 w-3" /> Lock Now
                         </button>
                         <button
                           type="button"
                           onClick={() => void handleDisablePassphrase()}
-                          className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] px-2.5 py-1 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                          className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-elevated)] px-3 py-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                         >
                           Remove Passphrase
                         </button>
@@ -341,12 +342,12 @@ export function SettingsModal() {
                         value={newPassphrase}
                         onChange={(e) => setNewPassphrase(e.target.value)}
                         placeholder="Set local passphrase to encrypt token..."
-                        className="min-w-0 flex-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1 text-[var(--text-primary)]"
+                        className="min-w-0 flex-1 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
                       />
                       <button
                         type="button"
                         onClick={() => void handleEnablePassphrase()}
-                        className="rounded border border-[var(--accent-primary)]/40 bg-[var(--accent-primary)]/15 px-2.5 py-1 font-medium text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/25"
+                        className="rounded-xl bg-[var(--bg-hover)] px-3 py-1.5 font-semibold text-[var(--accent-primary)] hover:opacity-90"
                       >
                         Encrypt Token
                       </button>
@@ -363,7 +364,7 @@ export function SettingsModal() {
               <span>Offline Storage Manager</span>
             </h3>
 
-            <div className="space-y-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3">
+            <div className="space-y-3 rounded-2xl bg-[var(--bg-canvas)] p-3.5 shadow-xs">
               {storageStats ? (
                 <dl className="grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-3">
                   <div>
@@ -426,7 +427,7 @@ export function SettingsModal() {
               )}
 
               {storageNotice && (
-                <div className="rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-[11px] text-[var(--text-secondary)]">
+                <div className="rounded-xl bg-[var(--bg-surface)] px-3 py-2 text-[11px] text-[var(--text-secondary)] shadow-xs">
                   {storageNotice}
                 </div>
               )}
@@ -436,7 +437,7 @@ export function SettingsModal() {
                   type="button"
                   onClick={() => void handleDownloadAllBinaries()}
                   disabled={vaultSource === 'preview' || Boolean(binaryProgress)}
-                  className="inline-flex items-center gap-1.5 rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-primary)] shadow-xs hover:bg-[var(--bg-hover)] disabled:opacity-50"
                 >
                   <Download className="h-3 w-3 text-[var(--accent-primary)]" />
                   <span>Download All Binaries Offline</span>
@@ -445,7 +446,7 @@ export function SettingsModal() {
                 <button
                   type="button"
                   onClick={() => void handleClearBinaries()}
-                  className="inline-flex items-center gap-1.5 rounded border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)] shadow-xs hover:text-[var(--text-primary)]"
                 >
                   <Trash2 className="h-3 w-3" />
                   <span>Clear Binary Cache</span>
@@ -455,7 +456,7 @@ export function SettingsModal() {
                   <button
                     type="button"
                     onClick={() => setConfirmWipe(true)}
-                    className="inline-flex items-center gap-1.5 rounded border border-rose-500/40 bg-rose-500/10 px-2.5 py-1 text-[11px] font-medium text-rose-400 hover:bg-rose-500/20"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500/15 px-3 py-1.5 text-[11px] font-medium text-rose-300 hover:bg-rose-500/25"
                   >
                     <ShieldAlert className="h-3 w-3" />
                     <span>Forget Token & Wipe Local Cache</span>
@@ -465,14 +466,14 @@ export function SettingsModal() {
                     <button
                       type="button"
                       onClick={() => void handleForgetAndWipe()}
-                      className="rounded bg-rose-500 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-rose-600"
+                      className="rounded-xl bg-rose-500 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-rose-600"
                     >
                       Confirm Wipe Everything
                     </button>
                     <button
                       type="button"
                       onClick={() => setConfirmWipe(false)}
-                      className="rounded border border-[var(--border-subtle)] px-2 py-1 text-[11px] text-[var(--text-muted)]"
+                      className="rounded-xl bg-[var(--bg-surface)] px-2.5 py-1.5 text-[11px] text-[var(--text-muted)]"
                     >
                       Cancel
                     </button>
@@ -487,7 +488,7 @@ export function SettingsModal() {
               Editor & Vault Tree
             </h3>
 
-            <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5">
+            <label className="flex cursor-pointer items-center justify-between rounded-2xl bg-[var(--bg-canvas)] px-3.5 py-3 shadow-xs">
               <span>
                 <span className="block font-medium text-[var(--text-primary)]">
                   Vim Mode in Editor
@@ -504,7 +505,7 @@ export function SettingsModal() {
               />
             </label>
 
-            <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5">
+            <label className="flex cursor-pointer items-center justify-between rounded-2xl bg-[var(--bg-canvas)] px-3.5 py-3 shadow-xs">
               <span>
                 <span className="block font-medium text-[var(--text-primary)]">
                   Show hidden & ignored files
@@ -539,23 +540,23 @@ export function SettingsModal() {
                 rows={4}
                 value={patternsText}
                 onChange={(e) => setPatternsText(e.target.value)}
-                className="w-full rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-2 font-mono text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-primary)] focus:outline-none"
+                className="w-full rounded-xl bg-[var(--bg-canvas)] p-2.5 font-mono text-[11px] text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
               />
             </div>
           </section>
 
-          <section className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 text-[11px] text-[var(--text-muted)]">
+          <section className="rounded-2xl bg-[var(--bg-canvas)] p-3.5 text-[11px] text-[var(--text-muted)] shadow-xs">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-[var(--text-secondary)]">
                 PWA Runtime Mode
               </span>
-              <span className="rounded bg-[var(--bg-elevated)] px-2 py-0.5 text-[var(--accent-primary)]">
+              <span className="rounded-lg bg-[var(--bg-elevated)] px-2.5 py-0.5 text-[var(--accent-primary)]">
                 {standalone ? 'Installed Standalone' : 'Browser Tab'}
               </span>
             </div>
           </section>
 
-          <div className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-3">
+          <div className="flex items-center justify-between pt-3">
             <span className="text-[var(--accent-success)]">
               {savedNotice && (
                 <span className="inline-flex items-center gap-1">
@@ -567,13 +568,13 @@ export function SettingsModal() {
               <button
                 type="button"
                 onClick={() => setSettingsOpen(false)}
-                className="rounded-md border border-[var(--border-subtle)] px-3 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+                className="rounded-xl bg-[var(--bg-canvas)] px-3.5 py-2 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
               >
                 Close
               </button>
               <button
                 type="submit"
-                className="rounded-md bg-[var(--accent-primary)] px-4 py-1.5 font-semibold text-[var(--accent-on-primary)] hover:opacity-90"
+                className="key-depth rounded-xl bg-[var(--button-primary-bg)] px-4 py-2 font-bold text-[var(--button-primary-fg)] hover:opacity-90"
               >
                 Save Changes
               </button>

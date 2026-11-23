@@ -1,6 +1,6 @@
 import {
   Download,
-  Image as ImageIcon,
+  ImageIcon,
   Maximize2,
   Minimize2,
   Move,
@@ -8,7 +8,7 @@ import {
   Tag,
   ZoomIn,
   ZoomOut,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import {
   useCallback,
   useEffect,
@@ -29,7 +29,6 @@ import {
   type PlacedBlip,
   type RadarLayout,
 } from '@/features/radar/lib/radarLayout';
-import { useResolvedTheme } from '@/shared/lib/theme';
 import type { RadarDocument, RadarLabelMode } from '@/features/radar/types/radar';
 
 export interface RadarChartProps {
@@ -91,7 +90,6 @@ export function RadarChart({
   onToggleStepFilter,
   onMoveItem,
 }: RadarChartProps) {
-  const theme = useResolvedTheme();
   const stageRef = useRef<HTMLDivElement | null>(null);
   const [stageSize, setStageSize] = useState({ width: 760, height: 620 });
   const [zoom, setZoom] = useState(1);
@@ -354,12 +352,11 @@ export function RadarChart({
   };
 
   const buildStandaloneSvgString = useCallback(() => {
-    const isDark = theme === 'dark';
-    const bg = isDark ? '#0B132B' : '#F3F6FC';
-    const surface = isDark ? '#121D3D' : '#FFFFFF';
-    const textMain = isDark ? '#F2F6FF' : '#0B132B';
-    const textMuted = isDark ? '#8496BE' : '#51628A';
-    const divider = isDark ? '#223366' : '#C8D4EB';
+    const bg = '#000000';
+    const surface = '#071a52';
+    const textMain = '#ffffff';
+    const textMuted = '#a7ff83';
+    const divider = '#071a52';
 
     const ringMarkup = [...layout.rings]
       .reverse()
@@ -386,7 +383,7 @@ export function RadarChart({
       .map((s) => {
         const q = s.quadrant!;
         const anchor = s.align === 'right' ? 'end' : s.align === 'center' ? 'middle' : 'start';
-        return `<text x="${s.anchorX}" y="${s.anchorY}" fill="${textMain}" font-family="Inter, sans-serif" font-size="14" font-weight="700" text-anchor="${anchor}">${escapeXml(q.name)}</text>`;
+        return `<text x="${s.anchorX}" y="${s.anchorY}" fill="${textMain}" font-family="Google Sans, sans-serif" font-size="14" font-weight="700" text-anchor="${anchor}">${escapeXml(q.name)}</text>`;
       })
       .join('\n');
 
@@ -399,8 +396,8 @@ export function RadarChart({
         return `
       <g transform="translate(${b.x.toFixed(1)}, ${b.y.toFixed(1)})">
         <circle r="9" fill="${b.step.color}" stroke="${surface}" stroke-width="1.8" />
-        <text y="3" text-anchor="middle" fill="${isDark ? '#0B132B' : '#FFFFFF'}" font-family="Inter, sans-serif" font-size="8.5" font-weight="700">${b.number}</text>
-        <text x="12" y="3.5" fill="${textMain}" font-family="Inter, sans-serif" font-size="9.5" font-weight="500">${escapeXml(short)}</text>
+        <text y="3" text-anchor="middle" fill="#071a52" font-family="Google Sans, sans-serif" font-size="8.5" font-weight="700">${b.number}</text>
+        <text x="12" y="3.5" fill="${textMain}" font-family="Google Sans, sans-serif" font-size="9.5" font-weight="500">${escapeXml(short)}</text>
       </g>
     `;
       })
@@ -409,14 +406,14 @@ export function RadarChart({
     return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-520 -520 1040 1040" width="1200" height="1200">
   <rect x="-520" y="-520" width="1040" height="1040" fill="${bg}" />
-  <text x="0" y="-475" text-anchor="middle" fill="${textMain}" font-family="Inter, sans-serif" font-size="22" font-weight="700">${escapeXml(doc.title)}</text>
-  ${doc.subtitle ? `<text x="0" y="-453" text-anchor="middle" fill="${textMuted}" font-family="Inter, sans-serif" font-size="12">${escapeXml(doc.subtitle)}</text>` : ''}
+  <text x="0" y="-475" text-anchor="middle" fill="${textMain}" font-family="Google Sans, sans-serif" font-size="22" font-weight="700">${escapeXml(doc.title)}</text>
+  ${doc.subtitle ? `<text x="0" y="-453" text-anchor="middle" fill="${textMuted}" font-family="Google Sans, sans-serif" font-size="12">${escapeXml(doc.subtitle)}</text>` : ''}
   ${ringMarkup}
   ${sectorLines}
   ${quadHeaders}
   ${blipMarkup}
 </svg>`;
-  }, [doc.title, doc.subtitle, layout.rings, layout.sectors, visibleBlips, theme]);
+  }, [doc.title, doc.subtitle, layout.rings, layout.sectors, visibleBlips]);
 
   const handleExportSvg = () => {
     const svg = buildStandaloneSvgString();
@@ -493,9 +490,9 @@ export function RadarChart({
     return raw;
   }, [layout.rings, layout.sectors, focusedQuadrantIndex, proj, stageSize.width, stageSize.height]);
 
-  const dividerColor = theme === 'dark' ? '#223366' : '#C8D4EB';
-  const surfaceBg = theme === 'dark' ? '#0B132B' : '#FFFFFF';
-  const textOnAccent = theme === 'dark' ? '#0B132B' : '#FFFFFF';
+  const dividerColor = '#071a52';
+  const surfaceBg = '#000000';
+  const textOnAccent = '#071a52';
 
   const dragTargetStep = draggingBlip
     ? layout.rings.find((r) => r.step.id === draggingBlip.targetStepId)?.step
@@ -506,22 +503,25 @@ export function RadarChart({
 
   const chartSurface = (
     <div
-      className={`flex h-full flex-col overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] ${
+      className={`flex h-full flex-col overflow-hidden rounded-2xl bg-[var(--bg-surface)] shadow-md ${
         fullscreen ? '' : 'min-h-[460px]'
       }`}
     >
       {/* Chart Controls Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 text-xs">
+      <div
+        style={{ boxShadow: 'var(--header-shadow)' }}
+        className="relative z-10 flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-surface)] px-3.5 py-2 text-xs"
+      >
         <div className="flex flex-wrap items-center gap-1">
           {layout.sectors.length > 1 && (
             <>
               <button
                 type="button"
                 onClick={() => onFocusQuadrant(null)}
-                className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${
+                className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                   focusedQuadrantIndex === null
-                    ? 'bg-[var(--accent-primary)] text-[var(--accent-on-primary)]'
-                    : 'border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
+                    : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 All Quadrants
@@ -534,10 +534,10 @@ export function RadarChart({
                     key={sec.quadrant.id}
                     type="button"
                     onClick={() => onFocusQuadrant(active ? null : sec.index)}
-                    className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+                    className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
                       active
-                        ? 'bg-[var(--accent-primary)] font-semibold text-[var(--accent-on-primary)]'
-                        : 'border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/40 hover:text-[var(--text-primary)]'
+                        ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
+                        : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     {sec.quadrant.name}
@@ -553,7 +553,7 @@ export function RadarChart({
             <div
               role="group"
               aria-label="Blip label density"
-              className="inline-flex items-center rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-0.5"
+              className="inline-flex items-center rounded-lg bg-[var(--bg-canvas)] p-0.5 shadow-xs"
             >
               {(
                 [
@@ -567,9 +567,9 @@ export function RadarChart({
                   type="button"
                   onClick={() => onChangeLabelMode(opt.id)}
                   aria-pressed={labelMode === opt.id}
-                  className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium transition-colors ${
                     labelMode === opt.id
-                      ? 'bg-[var(--accent-primary)] font-semibold text-[var(--accent-on-primary)]'
+                      ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
@@ -586,10 +586,10 @@ export function RadarChart({
               onClick={() => onToggleDragToRerate(!dragToRerate)}
               aria-pressed={dragToRerate}
               title="Drag any blip between rings or quadrants to re-rate it"
-              className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
                 dragToRerate
-                  ? 'border-[var(--accent-primary)] bg-[var(--bg-hover)] text-[var(--accent-primary)]'
-                  : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  ? 'bg-[var(--bg-hover)] font-semibold text-[var(--accent-primary)]'
+                  : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               <Move className="h-3 w-3" />
@@ -597,7 +597,7 @@ export function RadarChart({
             </button>
           )}
 
-          <div className="inline-flex items-center gap-0.5 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-1 py-0.5">
+          <div className="inline-flex items-center gap-0.5 rounded-lg bg-[var(--bg-canvas)] px-1 py-0.5 shadow-xs">
             <button
               type="button"
               onClick={() =>
@@ -640,7 +640,7 @@ export function RadarChart({
             type="button"
             onClick={handleExportSvg}
             title="Export vector SVG"
-            className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/40 hover:text-[var(--text-primary)]"
+            className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             <Download className="h-3 w-3" />
             <span className="hidden md:inline">SVG</span>
@@ -649,7 +649,7 @@ export function RadarChart({
             type="button"
             onClick={handleExportPng}
             title="Export PNG image"
-            className="inline-flex items-center gap-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/40 hover:text-[var(--text-primary)]"
+            className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             <ImageIcon className="h-3 w-3" />
             <span className="hidden md:inline">PNG</span>
@@ -660,10 +660,10 @@ export function RadarChart({
             aria-label={fullscreen ? 'Exit radar fullscreen' : 'Enter radar fullscreen'}
             aria-pressed={fullscreen}
             title={fullscreen ? 'Exit Fullscreen (Esc)' : 'Fullscreen View'}
-            className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+            className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
               fullscreen
-                ? 'border-[var(--accent-primary)] bg-[var(--bg-hover)] font-semibold text-[var(--accent-primary)]'
-                : 'border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/40 hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
+                : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
             }`}
           >
             {fullscreen ? (
@@ -709,26 +709,12 @@ export function RadarChart({
           }}
           aria-label={`Interactive radar chart: ${doc.title}`}
         >
-          <defs>
-            <radialGradient id="radar-glow" cx="50%" cy="50%" r="55%">
-              <stop
-                offset="0%"
-                stopColor={theme === 'dark' ? '#1A2852' : '#FFFFFF'}
-                stopOpacity="0.9"
-              />
-              <stop
-                offset="100%"
-                stopColor={theme === 'dark' ? '#0B132B' : '#F3F6FC'}
-                stopOpacity="0.2"
-              />
-            </radialGradient>
-          </defs>
-
           <circle
             cx={0}
             cy={0}
             r={RADAR_OUTER_RADIUS}
-            fill="url(#radar-glow)"
+            fill="#071a52"
+            fillOpacity={0.28}
           />
 
           {/* Concentric Step Rings (outer -> inner) */}
@@ -852,7 +838,7 @@ export function RadarChart({
                   <circle
                     r={radius + 4.5 * markerScaleFactor}
                     fill="none"
-                    stroke="#39FF88"
+                    stroke="#a7ff83"
                     strokeWidth={1.8 * markerScaleFactor}
                     strokeOpacity={0.9}
                   />
@@ -954,7 +940,7 @@ export function RadarChart({
                     type="button"
                     onClick={() => onFocusQuadrant(idx)}
                     title={`Focus ${sec.quadrant.name}`}
-                    className={`pointer-events-auto absolute ${pos} max-w-[44%] rounded-lg border border-[var(--border-subtle)]/80 bg-[var(--bg-surface)]/90 px-2.5 py-1.5 backdrop-blur-xs transition-colors hover:border-[var(--accent-primary)]/60`}
+                    className={`pointer-events-auto absolute ${pos} max-w-[44%] rounded-xl bg-[var(--bg-surface)]/92 px-3 py-1.5 shadow-sm backdrop-blur-xs transition-colors hover:bg-[var(--bg-hover)]`}
                   >
                     <div className="flex items-center gap-1.5 text-[12px] font-bold text-[var(--text-primary)]">
                       <span className="truncate">{sec.quadrant.name}</span>
@@ -972,7 +958,7 @@ export function RadarChart({
               })}
             </>
           ) : focusedQuadrantIndex !== null && layout.sectors[focusedQuadrantIndex]?.quadrant ? (
-            <div className="pointer-events-auto absolute top-3 left-3 flex items-center gap-2 rounded-lg border border-[var(--accent-primary)]/40 bg-[var(--bg-surface)]/95 px-3 py-1.5 shadow-sm backdrop-blur-xs">
+            <div className="pointer-events-auto absolute top-3 left-3 flex items-center gap-2 rounded-2xl bg-[var(--bg-surface)]/95 px-3 py-1.5 shadow-md backdrop-blur-xs">
               <div>
                 <div className="text-xs font-bold text-[var(--accent-primary)]">
                   {layout.sectors[focusedQuadrantIndex].quadrant!.name}
@@ -986,7 +972,7 @@ export function RadarChart({
               <button
                 type="button"
                 onClick={() => onFocusQuadrant(null)}
-                className="inline-flex items-center gap-1 rounded border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50"
+                className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
               >
                 <Maximize2 className="h-3 w-3" />
                 <span>Full Radar</span>
@@ -1004,7 +990,7 @@ export function RadarChart({
                   type="button"
                   onClick={() => onFocusQuadrant(sec.index)}
                   style={{ left: clampedX, top: clampedY }}
-                  className="pointer-events-auto absolute rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)]/90 px-2 py-1 text-[11px] font-bold text-[var(--text-primary)] backdrop-blur-xs hover:border-[var(--accent-primary)]/60"
+                  className="pointer-events-auto absolute rounded-xl bg-[var(--bg-surface)]/92 px-2.5 py-1 text-[11px] font-bold text-[var(--text-primary)] shadow-sm backdrop-blur-xs hover:bg-[var(--bg-hover)]"
                 >
                   {sec.quadrant.name}
                 </button>
@@ -1026,14 +1012,17 @@ export function RadarChart({
                   left: px,
                   top: py,
                   transform: 'translate(-50%, -50%)',
-                  borderColor: band.step.color,
                   color: band.step.color,
                 }}
-                className={`pointer-events-auto absolute rounded-full border bg-[var(--bg-canvas)]/90 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shadow-xs backdrop-blur-xs transition-opacity ${
+                className={`pointer-events-auto absolute inline-flex items-center gap-1 rounded-full bg-[var(--bg-surface)]/92 px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase shadow-sm backdrop-blur-xs transition-opacity ${
                   active ? 'opacity-95' : 'opacity-40'
                 }`}
               >
-                {band.step.label}
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: band.step.color }}
+                />
+                <span>{band.step.label}</span>
               </button>
             );
           })}
@@ -1059,17 +1048,21 @@ export function RadarChart({
                   top: lbl.boxY,
                   maxWidth: lbl.boxWidth,
                 }}
-                className={`pointer-events-auto absolute inline-flex h-[22px] items-center gap-1.5 rounded-full border px-2 text-[11px] leading-none font-medium shadow-xs backdrop-blur-xs transition-colors ${
+                className={`pointer-events-auto absolute inline-flex h-[22px] items-center gap-1.5 rounded-full px-2.5 text-[11px] leading-none font-medium shadow-sm backdrop-blur-xs transition-colors ${
                   isSelected || isHovered
-                    ? 'z-20 border-[var(--accent-primary)] bg-[var(--bg-elevated)] font-semibold text-[var(--text-primary)] ring-1 ring-[var(--accent-primary)]/40'
-                    : 'z-10 border-[var(--border-subtle)]/90 bg-[var(--bg-surface)]/92 text-[var(--text-primary)] hover:border-[var(--accent-primary)]/60'
+                    ? 'z-20 bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
+                    : 'z-10 bg-[var(--bg-surface)]/92 text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
                 }`}
               >
                 <span
                   className="h-2 w-2 shrink-0 rounded-full"
                   style={{ backgroundColor: lbl.color }}
                 />
-                <span className="shrink-0 font-mono text-[10px] text-[var(--text-muted)]">
+                <span
+                  className={`shrink-0 font-mono text-[10px] ${
+                    isSelected || isHovered ? 'opacity-80' : 'text-[var(--text-muted)]'
+                  }`}
+                >
                   {lbl.blipNumber}
                 </span>
                 <span className="truncate">{lbl.title}</span>
@@ -1086,7 +1079,7 @@ export function RadarChart({
                 top: hoveredScreenPos.top,
                 width: 248,
               }}
-              className="pointer-events-none absolute z-30 rounded-xl border border-[var(--accent-primary)]/50 bg-[var(--bg-surface)]/96 p-3 text-xs shadow-2xl backdrop-blur-md"
+              className="pointer-events-none absolute z-30 rounded-2xl bg-[var(--bg-surface)]/96 p-3.5 text-xs shadow-2xl backdrop-blur-md"
             >
               <div className="flex items-center justify-between gap-2">
                 <span
@@ -1129,7 +1122,7 @@ export function RadarChart({
 
           {/* Live Drag Re-Rate Status Pill */}
           {draggingBlip && dragTargetStep && (
-            <div className="absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-[var(--accent-primary)] bg-[var(--bg-surface)]/95 px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] shadow-lg">
+            <div className="absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full bg-[var(--bg-surface)]/95 px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] shadow-lg">
               Move <span className="text-[var(--accent-primary)]">{draggingBlip.blip.item.title}</span> →{' '}
               <span style={{ color: dragTargetStep.color }}>{dragTargetStep.label}</span>
               {dragTargetQuad ? ` · ${dragTargetQuad.name}` : ''}
@@ -1137,7 +1130,7 @@ export function RadarChart({
           )}
 
           {exportNotice && (
-            <div className="absolute top-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-[var(--accent-primary)]/50 bg-[var(--bg-surface)] px-3 py-1 text-[11px] font-semibold text-[var(--accent-primary)] shadow-md">
+            <div className="absolute top-3 left-1/2 z-30 -translate-x-1/2 rounded-full bg-[var(--button-primary-bg)] px-3 py-1 text-[11px] font-bold text-[var(--button-primary-fg)] shadow-md">
               {exportNotice}
             </div>
           )}
@@ -1145,7 +1138,7 @@ export function RadarChart({
       </div>
 
       {/* Movement Legend Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1.5 text-[11px] text-[var(--text-muted)]">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-surface)] px-3.5 py-2 text-[11px] text-[var(--text-muted)]">
         <div className="flex flex-wrap items-center gap-3">
           <span>● Steady</span>
           <span>◆ New</span>

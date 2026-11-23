@@ -5,25 +5,25 @@ import {
   FileType,
   Folder,
   FolderOpen,
-  Image as ImageIcon,
+  ImageIcon,
   LayoutGrid,
-} from 'lucide-react';
+} from '@/shared/ui/MaterialIcons';
 import type { FileKind, VaultTreeNode } from '@/features/vault/types/vault';
 
-function fileIcon(kind: FileKind) {
+function fileIcon(kind: FileKind, isActive = false) {
   switch (kind) {
     case 'markdown':
-      return <FileText className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />;
+      return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-current' : 'text-[var(--accent-primary)]'}`} />;
     case 'canvas':
-      return <LayoutGrid className="h-4 w-4 shrink-0 text-[var(--accent-secondary)]" />;
+      return <LayoutGrid className={`h-4 w-4 shrink-0 ${isActive ? 'text-current' : 'text-[var(--accent-secondary)]'}`} />;
     case 'pdf':
-      return <FileType className="h-4 w-4 shrink-0 text-[var(--text-secondary)]" />;
+      return <FileType className={`h-4 w-4 shrink-0 ${isActive ? 'text-current' : 'text-[var(--text-secondary)]'}`} />;
     case 'image':
-      return <ImageIcon className="h-4 w-4 shrink-0 text-[var(--accent-primary)]/80" />;
+      return <ImageIcon className={`h-4 w-4 shrink-0 ${isActive ? 'text-current' : 'text-[var(--accent-primary)]/80'}`} />;
     case 'code':
-      return <Code2 className="h-4 w-4 shrink-0 text-[var(--text-secondary)]" />;
+      return <Code2 className={`h-4 w-4 shrink-0 ${isActive ? 'text-current' : 'text-[var(--text-secondary)]'}`} />;
     default:
-      return <File className="h-4 w-4 shrink-0 text-[var(--text-muted)]" />;
+      return <File className={`h-4 w-4 shrink-0 ${isActive ? 'text-current' : 'text-[var(--text-muted)]'}`} />;
   }
 }
 
@@ -98,16 +98,16 @@ function TreeBranch({
               onClick={() => onSelectFile(node.path)}
               title={node.path}
               style={{ paddingLeft: `${depth * 12 + 8}px` }}
-              className={`flex w-full items-center gap-2 rounded-md py-1.5 pr-2 text-left text-sm transition-colors ${
+              className={`flex w-full items-center gap-2 rounded-xl py-1.5 pr-2 text-left text-sm transition-colors ${
                 isActive
-                  ? 'bg-[var(--bg-hover)] font-medium text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/40'
+                  ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)] shadow-xs'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {fileIcon(node.entry.kind)}
+              {fileIcon(node.entry.kind, isActive)}
               <span className="min-w-0 flex-1 truncate">{node.name}</span>
               {typeof node.entry.taskTotal === 'number' && node.entry.taskTotal > 0 && (
-                <span className="text-[11px] tabular-nums text-[var(--text-muted)]">
+                <span className={`text-[11px] tabular-nums ${isActive ? 'opacity-80' : 'text-[var(--text-muted)]'}`}>
                   {node.entry.taskDone ?? 0}/{node.entry.taskTotal}
                 </span>
               )}
@@ -122,7 +122,7 @@ function TreeBranch({
 export function VaultTree(props: VaultTreeProps) {
   if (props.nodes.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[var(--border-subtle)] p-4 text-center text-xs text-[var(--text-muted)]">
+      <div className="rounded-2xl bg-[var(--bg-canvas)] p-4 text-center text-xs text-[var(--text-muted)] shadow-xs">
         No matching vault files. Clear the filter or enable hidden files.
       </div>
     );
