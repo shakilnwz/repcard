@@ -44,6 +44,8 @@ interface CardSliderProps {
   slide: SlideDirection | null;
   /** The outgoing card has fully left: the parent should now swap in the card that slid in. */
   onSlideComplete: () => void;
+  /** Fires when a user pointer drag begins or ends (used by floating HUD controls to yield space). */
+  onDragActiveChange?: (dragging: boolean) => void;
 }
 
 /*
@@ -186,6 +188,7 @@ export function CardSlider({
   swipeLabels,
   slide,
   onSlideComplete,
+  onDragActiveChange,
 }: CardSliderProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const currentRef = useRef<HTMLDivElement>(null)
@@ -197,7 +200,28 @@ export function CardSlider({
   const gestureRef = useRef<Gesture | null>(null)
   const busyRef = useRef(false)
   const runIdRef = useRef(0)
+  const dragActiveRef = useRef(false)
+  const onDragActiveRef = useRef(onDragActiveChange)
   const completeSlide = useEffectEvent(onSlideComplete)
+
+  useLayoutEffect(() => {
+    onDragActiveRef.current = onDragActiveChange
+  }, [onDragActiveChange])
+
+  const setDragActive = (active: boolean) => {
+    if (dragActiveRef.current === active) return
+    dragActiveRef.current = active
+    onDragActiveRef.current?.(active)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (dragActiveRef.current) {
+        dragActiveRef.current = false
+        onDragActiveRef.current?.(false)
+      }
+    }
+  }, [])
 
   const getSlots = (): Slots => ({
     current: currentRef.current,
@@ -235,9 +259,11 @@ export function CardSlider({
       settle(slots)
       positionRef.current = { axis: 'x', at: 0 }
       busyRef.current = false
+      setDragActive(false)
       return
     }
 
+    setDragActive(false)
     gestureRef.current = null
     busyRef.current = true
     const runId = ++runIdRef.current
@@ -270,6 +296,7 @@ export function CardSlider({
   // starts, and the arrow being dragged toward grows with the drag (`pull`: 0 at rest, 1 at the
   // commit threshold), then fills once releasing would commit. Only changed values are written.
   const showGuide = (dir: keyof SwipeLabels | null, pull: number) => {
+    setDragActive(true)
     const guide = guideRef.current
     if (!guide) return
     if (guide.dataset.active !== 'true') guide.dataset.active = 'true'
@@ -282,6 +309,7 @@ export function CardSlider({
     })
   }
   const hideGuide = () => {
+    setDragActive(false)
     if (guideRef.current) guideRef.current.dataset.active = 'false'
   }
 

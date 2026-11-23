@@ -13,7 +13,6 @@ import { RightInspector } from '@/features/vault/components/RightInspector';
 import { SettingsModal } from '@/features/vault/components/SettingsModal';
 import { Sidebar } from '@/features/vault/components/Sidebar';
 import { DocumentStage } from '@/features/vault/components/DocumentStage';
-import { SwUpdateToast } from '@/shared/components/SwUpdateToast';
 import { TopBar } from '@/features/vault/components/TopBar';
 import { SAMPLE_VAULT_ENTRIES } from '@/features/vault/lib/sampleVault';
 import { applyTheme } from '@/shared/lib/theme';
@@ -143,7 +142,23 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
             target.isContentEditable),
       );
       const mod = e.metaKey || e.ctrlKey;
-      if (mod && e.key === '\\') {
+      const inCardsStage = useAppStore.getState().stageView === 'cards';
+      if (mod && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(true);
+      } else if (mod && e.key === ',') {
+        e.preventDefault();
+        setSettingsOpen(true);
+      } else if (e.key === 'Escape') {
+        setMobileDrawerOpen(false);
+        setMobileInspectorOpen(false);
+        setOnboardingOpen(false);
+        setSettingsOpen(false);
+        setCommandPaletteOpen(false);
+        setConflictModalOpen(false);
+      } else if (inCardsStage) {
+        return;
+      } else if (mod && e.key === '\\') {
         e.preventDefault();
         if (e.shiftKey) {
           if (window.innerWidth >= 1280) {
@@ -154,15 +169,9 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
         } else {
           toggleSidebar();
         }
-      } else if (mod && e.key === ',') {
-        e.preventDefault();
-        setSettingsOpen(true);
       } else if (mod && e.shiftKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         void syncNow().catch(() => {});
-      } else if (mod && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setCommandPaletteOpen(true);
       } else if (mod && !e.shiftKey && e.key.toLowerCase() === 'e') {
         const s = useAppStore.getState();
         const entry = (s.vaultSource === 'preview' ? SAMPLE_VAULT_ENTRIES : s.syncedEntries).find(
@@ -179,13 +188,6 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
       } else if (!mod && !e.altKey && !inEditable && e.key === ']') {
         e.preventDefault();
         navigateForward();
-      } else if (e.key === 'Escape') {
-        setMobileDrawerOpen(false);
-        setMobileInspectorOpen(false);
-        setOnboardingOpen(false);
-        setSettingsOpen(false);
-        setCommandPaletteOpen(false);
-        setConflictModalOpen(false);
       }
     };
 
@@ -207,7 +209,7 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
   };
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+    <div className="flex h-full flex-1 min-h-0 w-full flex-col overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)]">
       <TopBar
         onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
         onFocusSearch={handleFocusSearch}
@@ -232,7 +234,7 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
           </aside>
         )}
 
-        <main className="min-w-0 flex-1 overflow-y-auto">
+        <main className="min-w-0 flex-1 overflow-y-auto pb-24">
           <DocumentStage entries={effectiveEntries} />
         </main>
 
@@ -323,7 +325,6 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
           <ConflictModal />
         </Suspense>
       )}
-      <SwUpdateToast />
     </div>
   );
 }

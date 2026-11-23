@@ -13,7 +13,7 @@ export function SwUpdateToast() {
   if (!needRefresh && !offlineReady) return null;
 
   return (
-    <div className="fixed right-4 bottom-20 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-xs shadow-xl lg:bottom-4">
+    <div className="fixed right-4 bottom-20 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-xs shadow-xl">
       {needRefresh ? (
         <>
           <RefreshCw className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />

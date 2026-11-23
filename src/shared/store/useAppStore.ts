@@ -7,7 +7,6 @@ import type { BacklinkItem } from '@/shared/lib/wikilinks';
 import type {
   AuthMode,
   AuthSession,
-  MobileTab,
   RateLimitInfo,
   RepoConfig,
   SyncProgress,
@@ -18,7 +17,7 @@ import type {
 } from '@/features/vault/types/vault';
 
 export type EditorMode = 'read' | 'edit' | 'split';
-export type StageView = 'document' | 'graph' | 'radar';
+export type StageView = 'cards' | 'document' | 'graph' | 'radar';
 
 const fallbackMemoryStorage = new Map<string, string>();
 
@@ -107,7 +106,6 @@ export interface AppState {
   vimMode: boolean;
   sidebarOpen: boolean;
   inspectorOpen: boolean;
-  activeMobileTab: MobileTab;
   showHiddenFiles: boolean;
   ignorePatterns: string[];
   repoConfig: RepoConfig;
@@ -162,7 +160,6 @@ export interface AppState {
   toggleSidebar: () => void;
   setInspectorOpen: (open: boolean) => void;
   toggleInspector: () => void;
-  setActiveMobileTab: (tab: MobileTab) => void;
   setShowHiddenFiles: (show: boolean) => void;
   setIgnorePatterns: (patterns: string[]) => void;
   setRepoConfig: (config: RepoConfig) => void;
@@ -216,7 +213,6 @@ export const useAppStore = create<AppState>()(
       vimMode: true,
       sidebarOpen: true,
       inspectorOpen: true,
-      activeMobileTab: 'home',
       showHiddenFiles: false,
       ignorePatterns: DEFAULT_IGNORE_PATTERNS,
       repoConfig: {
@@ -258,7 +254,7 @@ export const useAppStore = create<AppState>()(
 
       outboxEdits: [],
       editorMode: 'read',
-      stageView: 'document',
+      stageView: 'cards',
       commandPaletteOpen: false,
       conflictModalOpen: false,
       pendingCanvasNodeId: null,
@@ -271,7 +267,6 @@ export const useAppStore = create<AppState>()(
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       setInspectorOpen: (inspectorOpen) => set({ inspectorOpen }),
       toggleInspector: () => set((s) => ({ inspectorOpen: !s.inspectorOpen })),
-      setActiveMobileTab: (activeMobileTab) => set({ activeMobileTab }),
       setShowHiddenFiles: (showHiddenFiles) => set({ showHiddenFiles }),
       setIgnorePatterns: (ignorePatterns) => set({ ignorePatterns }),
       setRepoConfig: (repoConfig) => set({ repoConfig }),

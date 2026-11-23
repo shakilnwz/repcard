@@ -91,3 +91,5 @@ export const Sort = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon na
 export const ArrowUpward = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="arrow_upward" {...props} />
 export const ArrowDownward = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="arrow_downward" {...props} />
 export const TouchApp = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="touch_app" {...props} />
+export const Hub = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="hub" {...props} />
+export const RadarIcon = (props: Omit<MaterialIconProps, 'name'>) => <MaterialIcon name="radar" {...props} />

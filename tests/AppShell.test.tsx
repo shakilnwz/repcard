@@ -14,7 +14,6 @@ function resetStore() {
     vimMode: true,
     sidebarOpen: true,
     inspectorOpen: true,
-    activeMobileTab: 'home',
     showHiddenFiles: false,
     ignorePatterns: DEFAULT_IGNORE_PATTERNS,
     repoConfig: {

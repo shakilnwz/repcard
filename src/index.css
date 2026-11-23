@@ -62,6 +62,22 @@ html {
   --button-primary-fg: var(--c-navy);
   --button-secondary-bg: var(--c-navy);
   --button-secondary-fg: var(--c-mint);
+
+  /* Knowledgebase semantic tokens aligned with RepCard's black/navy/mint dark palette */
+  --bg-canvas: var(--bg-app);
+  --bg-surface: var(--c-navy);
+  --bg-elevated: var(--c-navy-edge);
+  --bg-hover: rgba(167, 255, 131, 0.14);
+  --border-subtle: rgba(167, 255, 131, 0.22);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.86);
+  --text-muted: rgba(255, 255, 255, 0.65);
+  --accent-primary: var(--c-mint);
+  --accent-on-primary: var(--c-navy);
+  --accent-secondary: var(--c-mint);
+  --accent-highlight: var(--c-mint);
+  --accent-success: var(--c-mint);
+  --accent-danger: #f87171;
 }
 
 [data-color-mode="navy-canvas"] {
@@ -78,6 +94,9 @@ html {
   --button-primary-fg: var(--c-navy);
   --button-secondary-bg: var(--c-navy);
   --button-secondary-fg: var(--c-mint);
+  --bg-canvas: var(--bg-app);
+  --bg-surface: var(--c-navy-edge);
+  --bg-elevated: var(--c-black);
 }
 
 [data-color-mode="black-navy-card"] {
@@ -94,6 +113,149 @@ html {
   --button-primary-fg: var(--c-mint);
   --button-secondary-bg: #000000;
   --button-secondary-fg: var(--c-mint);
+  --bg-canvas: var(--bg-app);
+  --bg-surface: var(--c-navy);
+  --bg-elevated: var(--c-navy-edge);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Vault Markdown typography */
+.kb-prose {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.kb-prose-compact {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.kb-prose h1,
+.kb-prose h2,
+.kb-prose h3,
+.kb-prose h4 {
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  scroll-margin-top: 1rem;
+}
+
+.kb-prose h1 {
+  margin: 0 0 0.9rem;
+  font-size: 1.65rem;
+  line-height: 1.25;
+}
+
+.kb-prose-compact h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.kb-prose h2 {
+  margin: 1.6rem 0 0.65rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 1.25rem;
+}
+
+.kb-prose-compact h2 {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 0.92rem;
+}
+
+.kb-prose h3 {
+  margin: 1.2rem 0 0.45rem;
+  font-size: 1.05rem;
+}
+
+.kb-prose-compact h3 {
+  margin: 0.35rem 0 0.2rem;
+  font-size: 0.85rem;
+}
+
+.kb-prose p {
+  margin: 0.65rem 0;
+}
+
+.kb-prose-compact p {
+  margin: 0.25rem 0;
+}
+
+.kb-prose strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.kb-prose ul,
+.kb-prose ol {
+  margin: 0.55rem 0;
+  padding-left: 1.35rem;
+}
+
+.kb-prose ul {
+  list-style-type: disc;
+}
+
+.kb-prose ol {
+  list-style-type: decimal;
+}
+
+.kb-prose ul.contains-task-list {
+  list-style-type: none;
+  padding-left: 0.25rem;
+}
+
+.kb-prose li {
+  margin: 0.2rem 0;
+}
+
+.kb-prose hr {
+  margin: 1.4rem 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.kb-prose :not(pre) > code {
+  border-radius: 0.3rem;
+  background-color: var(--bg-elevated);
+  padding: 0.12rem 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85em;
+  color: var(--accent-primary);
+}
+
+.kb-prose th {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.kb-prose td {
+  padding: 0.45rem 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.kb-prose tr:hover td {
+  background-color: var(--bg-hover);
 }
 
 body {

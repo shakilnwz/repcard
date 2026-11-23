@@ -29,7 +29,12 @@ const SWIPE_LABELS: Record<StudyMode, SwipeLabels> = {
   cram: { up: 'Good', down: 'Shaky', left: 'Next', right: 'Prev' },
 }
 
-export function RepCardView() {
+export interface RepCardViewProps {
+  onDragActiveChange?: (dragging: boolean) => void;
+  shortcutsBlocked?: boolean;
+}
+
+export function RepCardView({ onDragActiveChange, shortcutsBlocked = false }: RepCardViewProps = {}) {
   const {
     libraries,
     activeCards,
@@ -341,13 +346,13 @@ export function RepCardView() {
     onSwipe: handleSwipe,
     onUndo: handleUndo,
     onBookmark: handleToggleBookmark,
-    enabled: Boolean(currentCard) && view === 'cards',
+    enabled: Boolean(currentCard) && view === 'cards' && !drawerOpen && !shortcutsBlocked,
   })
 
   const isSyncing = Object.values(syncingMap).some(Boolean)
 
   return (
-    <div className="h-dvh w-full bg-[var(--bg-app)] text-[var(--fg-app)] flex flex-col max-w-lg mx-auto safe-area-pad transition-colors duration-150 overflow-hidden">
+    <div className="h-full flex-1 min-h-0 w-full bg-[var(--bg-app)] text-[var(--fg-app)] flex flex-col max-w-lg mx-auto safe-area-pad pb-[calc(5.25rem+env(safe-area-inset-bottom))] transition-colors duration-150 overflow-hidden">
       {/* Top Header: Big Title & Sidebar Trigger */}
       <AppHeader
         onOpenSidebar={() => setDrawerOpen(true)}
@@ -388,6 +393,7 @@ export function RepCardView() {
                 swipeLabels={SWIPE_LABELS[mode]}
                 slide={slide}
                 onSlideComplete={handleSlideComplete}
+                onDragActiveChange={onDragActiveChange}
               />
             ) : (
               <div className="h-full flex items-center">

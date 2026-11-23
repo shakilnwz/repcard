@@ -53,8 +53,6 @@ export interface RepoConfig {
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 
-export type MobileTab = 'home' | 'files' | 'search' | 'sync' | 'settings';
-
 export interface AuthSession {
   user: string;
   avatarUrl?: string;

@@ -156,11 +156,11 @@ export function TopBar({
           type="button"
           onClick={onFocusSearch}
           aria-label="Open global search"
-          className="hidden items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1 text-xs text-[var(--text-muted)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)] sm:inline-flex"
+          className="inline-flex h-8 items-center gap-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 sm:px-2.5 py-1 text-xs text-[var(--text-muted)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]"
         >
           <Search className="h-3.5 w-3.5" />
-          <span>Search</span>
-          <kbd className="rounded bg-[var(--bg-elevated)] px-1 text-[10px]">⌘K</kbd>
+          <span className="hidden sm:inline">Search</span>
+          <kbd className="hidden sm:inline rounded bg-[var(--bg-elevated)] px-1 text-[10px]">⌘K</kbd>
         </button>
 
         {outboxEdits.length > 0 && (
