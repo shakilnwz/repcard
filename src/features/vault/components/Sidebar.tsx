@@ -105,7 +105,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
             onChange={(e) => setTreeFilter(e.target.value)}
             placeholder="Filter vault files..."
             aria-label="Filter vault files"
-            className="w-full rounded-xl bg-[var(--bg-canvas)] py-1.5 pr-7 pl-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+            className="w-full rounded-xl bg-[var(--bg-canvas)] py-1.5 pr-7 pl-8 text-base sm:text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
           />
           {treeFilter && (
             <button
@@ -131,7 +131,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
         />
       </div>
 
-      <div className="space-y-2 bg-[var(--bg-surface)] p-3 shadow-md">
+      <div className="space-y-2 bg-[var(--bg-surface)] px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-md lg:pb-3">
         {newNoteOpen && (
           <form onSubmit={(e) => void handleCreateNote(e)} className="space-y-1.5 rounded-2xl bg-[var(--bg-canvas)] p-2.5 shadow-xs">
             <input
@@ -141,7 +141,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
               placeholder="folder/new-note.md"
               aria-label="New note path"
               autoFocus
-              className="w-full rounded-xl bg-[var(--bg-surface)] px-2.5 py-1.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+              className="w-full rounded-xl bg-[var(--bg-surface)] px-2.5 py-1.5 text-base sm:text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
             />
             {newNoteError && (
               <p className="text-[11px] text-rose-400">{newNoteError}</p>
@@ -168,7 +168,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
           </form>
         )}
 
-        <div className="flex gap-1.5">
+        <div className={`${vaultSource === 'preview' ? 'hidden lg:flex' : 'flex'} gap-1.5`}>
           {vaultSource !== 'preview' && (
             <button
               type="button"
@@ -176,7 +176,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
                 setNewNoteOpen((o) => !o);
                 setNewNoteError(null);
               }}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2 py-2 lg:py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
             >
               <FilePlus2 className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
               <span>New Note</span>
@@ -188,7 +188,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
               setStageView(stageView === 'graph' ? 'document' : 'graph');
             }}
             aria-pressed={stageView === 'graph'}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1.5 text-xs font-medium shadow-xs transition-colors ${
+            className={`hidden lg:flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1.5 text-xs font-medium shadow-xs transition-colors ${
               stageView === 'graph'
                 ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                 : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
@@ -203,7 +203,7 @@ export function Sidebar({ entries, filterInputRef, onSelectFile }: SidebarProps)
               setStageView(stageView === 'radar' ? 'document' : 'radar');
             }}
             aria-pressed={stageView === 'radar'}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1.5 text-xs font-medium shadow-xs transition-colors ${
+            className={`hidden lg:flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2 py-1.5 text-xs font-medium shadow-xs transition-colors ${
               stageView === 'radar'
                 ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                 : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'

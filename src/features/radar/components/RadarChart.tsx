@@ -97,6 +97,15 @@ export function RadarChart({
   const [fullscreen, setFullscreen] = useState(false);
   const [exportNotice, setExportNotice] = useState<string | null>(null);
 
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>());
+  const pinchRef = useRef<{
+    dist: number;
+    midX: number;
+    midY: number;
+    zoom: number;
+    panX: number;
+    panY: number;
+  } | null>(null);
   const panDragRef = useRef<{
     startX: number;
     startY: number;
@@ -261,19 +270,67 @@ export function RadarChart({
   }, []);
 
   const handleStagePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
     if ((e.target as HTMLElement).closest('button, input, a')) return;
-    panDragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      origX: pan.x,
-      origY: pan.y,
-      moved: false,
-    };
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     e.currentTarget.setPointerCapture?.(e.pointerId);
+
+    if (pointersRef.current.size === 2) {
+      const pts = Array.from(pointersRef.current.values());
+      const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      const rect = e.currentTarget.getBoundingClientRect();
+      pinchRef.current = {
+        dist: Math.max(1, dist),
+        midX: (pts[0].x + pts[1].x) / 2 - rect.left,
+        midY: (pts[0].y + pts[1].y) / 2 - rect.top,
+        zoom,
+        panX: pan.x,
+        panY: pan.y,
+      };
+      panDragRef.current = null;
+      setDraggingBlip(null);
+      return;
+    }
+
+    if (pointersRef.current.size === 1) {
+      panDragRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        origX: pan.x,
+        origY: pan.y,
+        moved: false,
+      };
+    }
   };
 
   const handleStagePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (pointersRef.current.has(e.pointerId)) {
+      pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    if (pointersRef.current.size === 2 && pinchRef.current) {
+      const pts = Array.from(pointersRef.current.values());
+      const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      const nextZoom = Math.max(
+        0.65,
+        Math.min(3.5, Number((pinchRef.current.zoom * (dist / pinchRef.current.dist)).toFixed(2))),
+      );
+      const ratio = nextZoom / pinchRef.current.zoom;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const curMidX = (pts[0].x + pts[1].x) / 2 - rect.left;
+      const curMidY = (pts[0].y + pts[1].y) / 2 - rect.top;
+      const relX = pinchRef.current.midX - stageSize.width / 2;
+      const relY = pinchRef.current.midY - stageSize.height / 2;
+      const newRelX = curMidX - stageSize.width / 2;
+      const newRelY = curMidY - stageSize.height / 2;
+      setZoom(nextZoom);
+      setPan({
+        x: newRelX - (relX - pinchRef.current.panX) * ratio,
+        y: newRelY - (relY - pinchRef.current.panY) * ratio,
+      });
+      return;
+    }
+
     if (draggingBlip) {
       const { px, py } = clientToStage(e.clientX, e.clientY);
       const world = screenToWorld(px, py, proj);
@@ -306,6 +363,12 @@ export function RadarChart({
   };
 
   const handleStagePointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    pointersRef.current.delete(e.pointerId);
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    if (pointersRef.current.size < 2) {
+      pinchRef.current = null;
+    }
+
     if (draggingBlip) {
       const dropped = draggingBlip;
       setDraggingBlip(null);
@@ -326,7 +389,6 @@ export function RadarChart({
 
     const drag = panDragRef.current;
     panDragRef.current = null;
-    e.currentTarget.releasePointerCapture?.(e.pointerId);
     if (drag && !drag.moved && !(e.target as HTMLElement).closest('[data-radar-blip]')) {
       onSelectItem(null);
     }
@@ -501,24 +563,26 @@ export function RadarChart({
     ? doc.quadrants.find((q) => q.id === draggingBlip.targetQuadrantId)
     : null;
 
+  const compactStage = stageSize.width < 480;
+
   const chartSurface = (
     <div
-      className={`flex h-full flex-col overflow-hidden rounded-2xl bg-[var(--bg-surface)] shadow-md ${
-        fullscreen ? '' : 'min-h-[460px]'
+      className={`flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-[var(--bg-surface)] shadow-md ${
+        fullscreen ? '' : 'lg:min-h-[460px]'
       }`}
     >
       {/* Chart Controls Toolbar */}
       <div
         style={{ boxShadow: 'var(--header-shadow)' }}
-        className="relative z-10 flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-surface)] px-3.5 py-2 text-xs"
+        className="relative z-10 flex flex-wrap items-center justify-between gap-1.5 bg-[var(--bg-surface)] px-3 py-2 text-xs sm:gap-2 sm:px-3.5"
       >
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="no-scrollbar flex max-w-full flex-nowrap items-center gap-1 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0">
           {layout.sectors.length > 1 && (
             <>
               <button
                 type="button"
                 onClick={() => onFocusQuadrant(null)}
-                className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                className={`shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                   focusedQuadrantIndex === null
                     ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                     : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -534,7 +598,7 @@ export function RadarChart({
                     key={sec.quadrant.id}
                     type="button"
                     onClick={() => onFocusQuadrant(active ? null : sec.index)}
-                    className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                    className={`shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-colors ${
                       active
                         ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                         : 'bg-[var(--bg-canvas)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
@@ -597,7 +661,7 @@ export function RadarChart({
             </button>
           )}
 
-          <div className="inline-flex items-center gap-0.5 rounded-lg bg-[var(--bg-canvas)] px-1 py-0.5 shadow-xs">
+          <div className="hidden items-center gap-0.5 rounded-lg bg-[var(--bg-canvas)] px-1 py-0.5 shadow-xs sm:inline-flex">
             <button
               type="button"
               onClick={() =>
@@ -640,7 +704,7 @@ export function RadarChart({
             type="button"
             onClick={handleExportSvg}
             title="Export vector SVG"
-            className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            className="hidden items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] sm:inline-flex"
           >
             <Download className="h-3 w-3" />
             <span className="hidden md:inline">SVG</span>
@@ -649,7 +713,7 @@ export function RadarChart({
             type="button"
             onClick={handleExportPng}
             title="Export PNG image"
-            className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            className="hidden items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] sm:inline-flex"
           >
             <ImageIcon className="h-3 w-3" />
             <span className="hidden md:inline">PNG</span>
@@ -693,11 +757,13 @@ export function RadarChart({
         onPointerDown={handleStagePointerDown}
         onPointerMove={handleStagePointerMove}
         onPointerUp={handleStagePointerUp}
-        onPointerCancel={() => {
+        onPointerCancel={(e) => {
+          pointersRef.current.delete(e.pointerId);
+          if (pointersRef.current.size < 2) pinchRef.current = null;
           panDragRef.current = null;
           setDraggingBlip(null);
         }}
-        className="relative min-h-[420px] flex-1 touch-none select-none overflow-hidden bg-[var(--bg-canvas)] cursor-grab active:cursor-grabbing"
+        className="relative min-h-[280px] flex-1 touch-none select-none overflow-hidden bg-[var(--bg-canvas)] cursor-grab active:cursor-grabbing sm:min-h-[420px]"
       >
         {/* Vector Radar Rings & Blip Markers */}
         <svg
@@ -824,8 +890,12 @@ export function RadarChart({
                 data-radar-blip={blip.item.id}
                 transform={`translate(${bx}, ${by})`}
                 opacity={dimmed ? 0.18 : 1}
-                onMouseEnter={() => onHoverItem(blip.item.id)}
-                onMouseLeave={() => onHoverItem(null)}
+                onPointerEnter={(e) => {
+                  if (e.pointerType !== 'touch') onHoverItem(blip.item.id);
+                }}
+                onPointerLeave={(e) => {
+                  if (e.pointerType !== 'touch') onHoverItem(null);
+                }}
                 onPointerDown={(e) => handleBlipPointerDown(e, blip)}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -923,12 +993,20 @@ export function RadarChart({
           {/* Quadrant Corner Headers (always crisp & clickable) */}
           {layout.sectors.length === 4 && focusedQuadrantIndex === null ? (
             <>
-              {[
-                { idx: 0, pos: 'top-3 left-3 text-left' },
-                { idx: 1, pos: 'top-3 right-3 text-right' },
-                { idx: 2, pos: 'bottom-3 left-3 text-left' },
-                { idx: 3, pos: 'bottom-3 right-3 text-right' },
-              ].map(({ idx, pos }) => {
+              {(compactStage
+                ? [
+                    { idx: 0, pos: 'top-2 left-2 text-left' },
+                    { idx: 1, pos: 'top-2 right-2 text-right' },
+                    { idx: 2, pos: 'bottom-2 left-2 text-left' },
+                    { idx: 3, pos: 'bottom-2 right-2 text-right' },
+                  ]
+                : [
+                    { idx: 0, pos: 'top-3 left-3 text-left' },
+                    { idx: 1, pos: 'top-3 right-3 text-right' },
+                    { idx: 2, pos: 'bottom-3 left-3 text-left' },
+                    { idx: 3, pos: 'bottom-3 right-3 text-right' },
+                  ]
+              ).map(({ idx, pos }) => {
                 const sec = layout.sectors[idx];
                 if (!sec?.quadrant) return null;
                 const count = layout.blips.filter(
@@ -940,9 +1018,15 @@ export function RadarChart({
                     type="button"
                     onClick={() => onFocusQuadrant(idx)}
                     title={`Focus ${sec.quadrant.name}`}
-                    className={`pointer-events-auto absolute ${pos} max-w-[44%] rounded-xl bg-[var(--bg-surface)]/92 px-3 py-1.5 shadow-sm backdrop-blur-xs transition-colors hover:bg-[var(--bg-hover)]`}
+                    className={`pointer-events-auto absolute ${pos} max-w-[44%] rounded-xl bg-[var(--bg-surface)]/92 shadow-sm backdrop-blur-xs transition-colors hover:bg-[var(--bg-hover)] ${
+                      compactStage ? 'px-2 py-1' : 'px-3 py-1.5'
+                    }`}
                   >
-                    <div className="flex items-center gap-1.5 text-[12px] font-bold text-[var(--text-primary)]">
+                    <div
+                      className={`flex items-center gap-1.5 font-bold text-[var(--text-primary)] ${
+                        compactStage ? 'text-[10px]' : 'text-[12px]'
+                      }`}
+                    >
                       <span className="truncate">{sec.quadrant.name}</span>
                       <span className="rounded bg-[var(--bg-elevated)] px-1.5 py-0.2 text-[10px] font-semibold tabular-nums text-[var(--accent-primary)]">
                         {count}
@@ -1036,8 +1120,12 @@ export function RadarChart({
                 key={`lbl-${lbl.itemId}`}
                 type="button"
                 data-radar-label={lbl.itemId}
-                onMouseEnter={() => onHoverItem(lbl.itemId)}
-                onMouseLeave={() => onHoverItem(null)}
+                onPointerEnter={(e) => {
+                  if (e.pointerType !== 'touch') onHoverItem(lbl.itemId);
+                }}
+                onPointerLeave={(e) => {
+                  if (e.pointerType !== 'touch') onHoverItem(null);
+                }}
                 onClick={() => {
                   const found =
                     layout.blips.find((b) => b.item.id === lbl.itemId) ?? null;
@@ -1134,19 +1222,58 @@ export function RadarChart({
               {exportNotice}
             </div>
           )}
+
+          {/* Mobile Floating Liquid-Glass Zoom Controls */}
+          <div className="liquid-glass pointer-events-auto absolute right-2 bottom-2 z-20 flex items-center gap-0.5 rounded-full p-1 shadow-[var(--pill-shadow)] sm:hidden">
+            <button
+              type="button"
+              onClick={() =>
+                setZoom((z) => Math.min(3.5, Number((z + 0.25).toFixed(2))))
+              }
+              aria-label="Mobile zoom in radar"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--fg-app)] hover:bg-white/10"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setZoom((z) => Math.max(0.65, Number((z - 0.25).toFixed(2))))
+              }
+              aria-label="Mobile zoom out radar"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--fg-app)] hover:bg-white/10"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setZoom(1);
+                setPan({ x: 0, y: 0 });
+                onFocusQuadrant(null);
+              }}
+              aria-label="Reset radar zoom"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--fg-app)] hover:bg-white/10"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Movement Legend Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-surface)] px-3.5 py-2 text-[11px] text-[var(--text-muted)]">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-[var(--bg-surface)] px-3 py-1.5 text-[11px] text-[var(--text-muted)] sm:px-3.5 sm:py-2">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
           <span>● Steady</span>
           <span>◆ New</span>
           <span>▲ Moved In</span>
           <span>▼ Moved Out</span>
         </div>
-        <div>
-          {visibleBlips.length} of {layout.blips.length} blips shown · Click any quadrant to zoom
+        <div className="tabular-nums">
+          <span>
+            {visibleBlips.length}/{layout.blips.length} blips
+          </span>
+          <span className="hidden sm:inline"> · Click any quadrant to zoom</span>
         </div>
       </div>
     </div>
@@ -1159,7 +1286,7 @@ export function RadarChart({
         aria-modal="true"
         aria-label={`Fullscreen radar chart: ${doc.title}`}
         data-testid="radar-fullscreen-overlay"
-        className="fixed inset-0 z-50 flex flex-col bg-[var(--bg-canvas)] p-2 sm:p-3"
+        className="fixed inset-0 z-[60] flex flex-col bg-[var(--bg-canvas)] px-2 pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3"
       >
         {chartSurface}
       </div>,

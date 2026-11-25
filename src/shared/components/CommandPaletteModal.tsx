@@ -155,7 +155,7 @@ export function CommandPaletteModal() {
       role="dialog"
       aria-modal="true"
       aria-label="Command Palette & Global Search"
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[10vh] backdrop-blur-xs"
+      className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 px-3 pt-[max(3.5rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xs sm:p-4 sm:pt-[10vh]"
       onClick={(e) => {
         if (e.target === e.currentTarget) setCommandPaletteOpen(false);
       }}

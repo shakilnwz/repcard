@@ -77,7 +77,7 @@ export function App() {
           setIsCardDragging(false)
           setStageView(next)
         }}
-        hidden={stageView === 'cards' && isCardDragging}
+        hidden={(stageView === 'cards' && isCardDragging) || anyKbModalOpen}
       />
 
       <SwUpdateToast />

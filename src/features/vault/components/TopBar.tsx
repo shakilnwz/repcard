@@ -1,7 +1,9 @@
 import {
   AlertTriangle,
+  ArrowLeft,
   ChevronRight,
   FolderOpen,
+  FolderTree,
   Home,
   Lock,
   Menu,
@@ -59,6 +61,10 @@ export function TopBar({
   const conflictCount = outboxEdits.filter((e) => e.status === 'conflict').length;
 
   const pathSegments = activePath ? activePath.split('/') : [];
+  const activeFileName = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : null;
+  const mobileTitle =
+    stageView === 'graph' ? 'Graph' : stageView === 'radar' ? 'Radar' : 'Docs';
+  const showMobileInspector = stageView === 'document' && Boolean(activePath);
 
   const syncTooltip = [
     lastSyncedAt ? `Last synced: ${formatTimestamp(lastSyncedAt)}` : 'Not synced yet',
@@ -69,26 +75,38 @@ export function TopBar({
     .join(' · ');
 
   return (
-    <header
-      style={{ boxShadow: 'var(--header-shadow)' }}
-      className="pt-safe relative z-20 flex h-13 shrink-0 items-center justify-between gap-2 bg-[var(--bg-surface)] px-3"
-    >
-      <div className="flex min-w-0 items-center gap-2">
-        <button
-          type="button"
-          onClick={onOpenMobileDrawer}
-          aria-label="Open vault navigation"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] lg:hidden"
-        >
-          <Menu className="h-4 w-4" />
-        </button>
+    <header className="relative z-20 flex shrink-0 items-center justify-between gap-2 bg-[var(--bg-canvas)] px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 lg:h-13 lg:bg-[var(--bg-surface)] lg:px-3 lg:pt-[env(safe-area-inset-top,0px)] lg:pb-0 lg:shadow-[var(--header-shadow)]">
+      {/* Mobile Left: Cards-philosophy bold display header or compact back + filename */}
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 lg:hidden">
+        {stageView === 'document' && activeFileName ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setActivePath(null)}
+              aria-label="Back to docs overview"
+              className="-ml-2 inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-[var(--fg-app)] opacity-85 transition-all hover:opacity-100 active:scale-90"
+            >
+              <ArrowLeft className="h-6 w-6" />
+            </button>
+            <span className="min-w-0 truncate text-lg font-bold tracking-tight text-[var(--fg-app)] select-none">
+              {activeFileName}
+            </span>
+          </>
+        ) : (
+          <span className="text-3xl font-bold tracking-tight text-[var(--fg-app)] select-none">
+            {mobileTitle}
+          </span>
+        )}
+      </div>
 
+      {/* Desktop Left: Sidebar toggle + Breadcrumb */}
+      <div className="hidden min-w-0 items-center gap-2 lg:flex">
         <button
           type="button"
           onClick={toggleSidebar}
           aria-label="Toggle sidebar"
           title="Toggle sidebar (Ctrl/Cmd+\)"
-          className="hidden h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] lg:inline-flex"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
           <Menu className="h-4 w-4" />
         </button>
@@ -100,7 +118,7 @@ export function TopBar({
             className="flex items-center gap-1.5 rounded-xl px-2 py-1 font-bold text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
           >
             <Home className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
-            <span className="hidden sm:inline">RepCard</span>
+            <span>RepCard</span>
           </button>
 
           {pathSegments.map((seg, idx) => {
@@ -112,7 +130,7 @@ export function TopBar({
                   className={`truncate ${
                     isLast
                       ? 'font-medium text-[var(--text-primary)]'
-                      : 'hidden text-[var(--text-muted)] md:inline'
+                      : 'text-[var(--text-muted)]'
                   }`}
                 >
                   {seg}
@@ -123,27 +141,17 @@ export function TopBar({
         </nav>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5">
+      {/* Right Actions: single button per action so aria-labels remain unique */}
+      <div className="flex shrink-0 items-center gap-0.5 lg:gap-1.5">
         {!isOnline && (
           <span
             title="Network offline — cached notes & assets stay readable"
-            className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-medium text-amber-300"
+            className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-1 text-[11px] font-medium text-amber-300"
           >
             <WifiOff className="h-3 w-3" />
             <span className="hidden sm:inline">Offline</span>
           </span>
         )}
-
-        <button
-          type="button"
-          onClick={onFocusSearch}
-          aria-label="Open global search"
-          className="inline-flex h-8 items-center gap-2 rounded-xl bg-[var(--bg-canvas)] px-2 sm:px-2.5 py-1 text-xs text-[var(--text-muted)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-        >
-          <Search className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Search</span>
-          <kbd className="hidden sm:inline rounded-md bg-[var(--bg-elevated)] px-1 text-[10px]">⌘K</kbd>
-        </button>
 
         {outboxEdits.length > 0 && (
           <button
@@ -175,13 +183,46 @@ export function TopBar({
           </button>
         )}
 
+        {vaultLocked && (
+          <button
+            type="button"
+            onClick={() => setOnboardingOpen(true)}
+            aria-label="Unlock vault passphrase"
+            className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/25"
+          >
+            <Lock className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Unlock Vault</span>
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={onOpenMobileDrawer}
+          aria-label="Open vault navigation"
+          title="Vault Explorer"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-[var(--fg-app)] opacity-85 transition-all hover:opacity-100 active:scale-90 lg:hidden"
+        >
+          <FolderTree className="h-6 w-6" />
+        </button>
+
+        <button
+          type="button"
+          onClick={onFocusSearch}
+          aria-label="Open global search"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-[var(--fg-app)] opacity-85 transition-all hover:opacity-100 active:scale-90 lg:min-h-0 lg:min-w-0 lg:h-8 lg:gap-2 lg:bg-[var(--bg-canvas)] lg:px-2.5 lg:py-1 lg:text-xs lg:text-[var(--text-muted)] lg:opacity-100 lg:shadow-xs lg:hover:bg-[var(--bg-hover)] lg:hover:text-[var(--text-primary)] lg:active:scale-100"
+        >
+          <Search className="h-6 w-6 lg:h-3.5 lg:w-3.5" />
+          <span className="hidden lg:inline">Search</span>
+          <kbd className="hidden lg:inline rounded-md bg-[var(--bg-elevated)] px-1 text-[10px]">⌘K</kbd>
+        </button>
+
         <button
           type="button"
           onClick={() => setStageView(stageView === 'graph' ? 'document' : 'graph')}
           aria-label="Toggle graph view"
           aria-pressed={stageView === 'graph'}
           title="Knowledge Graph View"
-          className={`inline-flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
+          className={`hidden lg:inline-flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
             stageView === 'graph'
               ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
               : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
@@ -196,7 +237,7 @@ export function TopBar({
           aria-label="Toggle radar chart view"
           aria-pressed={stageView === 'radar'}
           title="Interactive Radar & Studio"
-          className={`inline-flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
+          className={`hidden lg:inline-flex h-8 w-8 items-center justify-center rounded-xl transition-colors ${
             stageView === 'radar'
               ? 'bg-[var(--button-primary-bg)] text-[var(--button-primary-fg)]'
               : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
@@ -205,40 +246,26 @@ export function TopBar({
           <Radar className="h-4 w-4" />
         </button>
 
-        {vaultLocked ? (
+        {!vaultLocked && vaultSource !== 'preview' && (
           <button
             type="button"
-            onClick={() => setOnboardingOpen(true)}
-            aria-label="Unlock vault passphrase"
-            className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-300 hover:bg-amber-500/25"
+            onClick={() => void syncNow().catch(() => {})}
+            disabled={syncState === 'syncing' || (!isOnline && vaultSource === 'github')}
+            aria-label="Sync now"
+            title={syncTooltip}
+            className="hidden lg:inline-flex h-8 items-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50"
           >
-            <Lock className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Unlock Vault</span>
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${syncState === 'syncing' ? 'animate-spin text-[var(--accent-primary)]' : ''}`}
+            />
+            <span>{syncState === 'syncing' ? 'Syncing' : 'Sync'}</span>
           </button>
-        ) : (
-          vaultSource !== 'preview' && (
-            <button
-              type="button"
-              onClick={() => void syncNow().catch(() => {})}
-              disabled={syncState === 'syncing' || (!isOnline && vaultSource === 'github')}
-              aria-label="Sync now"
-              title={syncTooltip}
-              className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-50"
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${syncState === 'syncing' ? 'animate-spin text-[var(--accent-primary)]' : ''}`}
-              />
-              <span className="hidden md:inline">
-                {syncState === 'syncing' ? 'Syncing' : 'Sync'}
-              </span>
-            </button>
-          )
         )}
 
         <button
           type="button"
           onClick={() => setOnboardingOpen(true)}
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium shadow-xs transition-colors ${
+          className={`hidden lg:inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium shadow-xs transition-colors ${
             vaultSource === 'local-fs'
               ? 'bg-[var(--bg-hover)] text-[var(--accent-primary)]'
               : authSession
@@ -251,7 +278,7 @@ export function TopBar({
           ) : (
             <ShieldCheck className="h-3.5 w-3.5" />
           )}
-          <span className="hidden md:inline">
+          <span>
             {vaultSource === 'local-fs'
               ? localFolderName || 'Local Folder'
               : authSession
@@ -265,7 +292,7 @@ export function TopBar({
           onClick={cycleColorMode}
           aria-label={`Switch theme (current: ${COLOR_MODE_LABELS[colorMode]})`}
           title={`Palette: ${COLOR_MODE_LABELS[colorMode]} (click to cycle)`}
-          className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2.5 text-xs text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+          className="hidden lg:inline-flex h-8 items-center gap-1.5 rounded-xl bg-[var(--bg-canvas)] px-2.5 text-xs text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
           <Palette className="h-4 w-4 text-[var(--accent-primary)]" />
           <span className="hidden xl:inline">{COLOR_MODE_LABELS[colorMode]}</span>
@@ -277,9 +304,11 @@ export function TopBar({
           aria-label="Toggle inspector"
           aria-pressed={inspectorOpen}
           title="Toggle inspector (Ctrl/Cmd+Shift+\)"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+          className={`${
+            showMobileInspector ? 'inline-flex' : 'hidden lg:inline-flex'
+          } min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-[var(--fg-app)] opacity-85 transition-all hover:opacity-100 active:scale-90 lg:min-h-0 lg:min-w-0 lg:h-8 lg:w-8 lg:text-[var(--text-secondary)] lg:opacity-100 lg:hover:bg-[var(--bg-hover)] lg:hover:text-[var(--text-primary)] lg:active:scale-100`}
         >
-          <PanelRight className="h-4 w-4" />
+          <PanelRight className="h-6 w-6 lg:h-4 lg:w-4" />
         </button>
 
         <button
@@ -287,9 +316,9 @@ export function TopBar({
           onClick={() => setSettingsOpen(true)}
           aria-label="Open settings"
           title="Settings (Ctrl/Cmd+,)"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-[var(--fg-app)] opacity-85 transition-all hover:opacity-100 active:scale-90 lg:min-h-0 lg:min-w-0 lg:h-8 lg:w-8 lg:text-[var(--text-secondary)] lg:opacity-100 lg:hover:bg-[var(--bg-hover)] lg:hover:text-[var(--text-primary)] lg:active:scale-100"
         >
-          <Settings className="h-4 w-4" />
+          <Settings className="h-6 w-6 lg:h-4 lg:w-4" />
         </button>
       </div>
     </header>

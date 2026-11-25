@@ -201,7 +201,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                   {validPinned.length > 0 ? 'Pinned & Recent Notes' : 'Recently Opened'}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="no-scrollbar flex flex-nowrap gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
                 {Array.from(new Set([...validPinned, ...validRecent]))
                   .slice(0, 6)
                   .map((filePath) => (
@@ -209,7 +209,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                       key={filePath}
                       type="button"
                       onClick={() => navigateToPath(filePath)}
-                      className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] text-[var(--text-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
+                      className="inline-flex min-h-[34px] shrink-0 items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] text-[var(--text-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
                       title={filePath}
                     >
                       {validPinned.includes(filePath) && (
@@ -231,7 +231,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Compass className="h-4 w-4 text-[var(--accent-primary)]" />
-              <h2 className="text-sm font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
+              <h2 className="text-xs font-bold tracking-wider text-[var(--fg-app)] opacity-80 uppercase">
                 Roadmap Progress Dashboard
               </h2>
             </div>
@@ -275,7 +275,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                         <button
                           type="button"
                           onClick={() => navigateToPath(track.mdPath!)}
-                          className="rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
+                          className="rounded-lg bg-[var(--bg-canvas)] px-3 py-1.5 text-[11px] font-medium text-[var(--accent-primary)] shadow-xs hover:bg-[var(--bg-hover)]"
                         >
                           Open Guide
                         </button>
@@ -284,7 +284,7 @@ export function RoadmapDashboard({ entries }: RoadmapDashboardProps) {
                         <button
                           type="button"
                           onClick={() => navigateToPath(track.canvasPath!)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] font-medium text-[var(--accent-secondary)] shadow-xs hover:bg-[var(--bg-hover)]"
+                          className="inline-flex items-center gap-1 rounded-lg bg-[var(--bg-canvas)] px-3 py-1.5 text-[11px] font-medium text-[var(--accent-secondary)] shadow-xs hover:bg-[var(--bg-hover)]"
                         >
                           <LayoutGrid className="h-2.5 w-2.5" />
                           <span>Canvas</span>

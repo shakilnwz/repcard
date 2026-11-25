@@ -319,4 +319,46 @@ describe('AppShell', () => {
     expect(within(creator).getAllByText('Rust').length).toBeGreaterThanOrEqual(1);
     expect(within(creator).getAllByText('Zig').length).toBeGreaterThanOrEqual(1);
   });
+
+  it('supports mobile Radar switcher + blip detail sheet and Graph preview onboarding CTA', async () => {
+    const user = userEvent.setup();
+    render(<KnowledgebaseShell />);
+
+    // Open Graph view in preview mode and click Connect Repository CTA
+    await user.click(screen.getByRole('button', { name: /toggle graph view/i }));
+    const mainStage = screen.getByRole('main');
+    expect(
+      await within(mainStage).findByText(/Connect Vault for Link Graph/i),
+    ).toBeInTheDocument();
+    await user.click(
+      within(mainStage).getByRole('button', { name: 'Connect Repository' }),
+    );
+    expect(
+      screen.getByRole('dialog', { name: 'Repository Connection & Setup' }),
+    ).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
+    // Switch to Radar view, toggle mobile Directory/Chart switcher, and select a blip
+    await user.click(screen.getByRole('button', { name: /toggle radar chart view/i }));
+    const workspace = await screen.findByTestId('radar-workspace');
+
+    const mobileSwitcher = within(workspace).getByRole('group', {
+      name: 'Radar mobile view',
+    });
+    const dirBtn = within(mobileSwitcher).getByRole('button', { name: /Directory/i });
+    const chartBtn = within(mobileSwitcher).getByRole('button', { name: /Radar Chart/i });
+    expect(chartBtn).toHaveAttribute('aria-pressed', 'true');
+
+    await user.click(dirBtn);
+    expect(dirBtn).toHaveAttribute('aria-pressed', 'true');
+
+    const directoryPanel = within(workspace).getByRole('complementary');
+    const promptBtn = within(directoryPanel).getByRole('button', {
+      name: /Prompt Engineering/i,
+    });
+    await user.click(promptBtn);
+
+    expect(within(workspace).getByTestId('radar-detail-card')).toBeInTheDocument();
+    expect(within(workspace).getByTestId('radar-mobile-detail-sheet')).toBeInTheDocument();
+  });
 });

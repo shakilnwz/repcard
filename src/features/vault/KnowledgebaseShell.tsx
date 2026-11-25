@@ -34,8 +34,10 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
   const colorMode = useAppStore((s) => s.colorMode);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const inspectorOpen = useAppStore((s) => s.inspectorOpen);
+  const stageView = useAppStore((s) => s.stageView);
   const vaultSource = useAppStore((s) => s.vaultSource);
   const syncedEntries = useAppStore((s) => s.syncedEntries);
+  const isViewportStage = stageView === 'graph' || stageView === 'radar';
 
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
   const toggleInspector = useAppStore((s) => s.toggleInspector);
@@ -234,8 +236,18 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
           </aside>
         )}
 
-        <main className="min-w-0 flex-1 overflow-y-auto pb-24">
-          <DocumentStage entries={effectiveEntries} />
+        <main
+          className={
+            isViewportStage
+              ? 'flex min-w-0 flex-1 flex-col overflow-hidden pb-[calc(5.25rem+env(safe-area-inset-bottom))] lg:pb-20'
+              : 'min-w-0 flex-1 overflow-y-auto'
+          }
+        >
+          <DocumentStage
+            entries={effectiveEntries}
+            onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
+            onOpenMobileInspector={() => setMobileInspectorOpen(true)}
+          />
         </main>
 
         {inspectorOpen && (
@@ -245,9 +257,10 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
         )}
 
         {mobileDrawerOpen && (
-          <div className="fixed inset-0 z-40 flex lg:hidden">
+          <div className="fixed inset-0 z-[60] flex lg:hidden">
             <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+              data-state="open"
+              className="drawer-overlay fixed inset-0 bg-black/60 backdrop-blur-xs"
               onClick={() => setMobileDrawerOpen(false)}
               aria-hidden="true"
             />
@@ -255,22 +268,23 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
               role="dialog"
               aria-modal="true"
               aria-label="Vault navigation drawer"
-              className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-[var(--bg-surface)] shadow-2xl"
+              data-state="open"
+              className="drawer-content-left relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-[var(--bg-app)] text-[var(--fg-app)] shadow-2xl"
             >
               <div
                 style={{ boxShadow: 'var(--header-shadow)' }}
-                className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2.5"
+                className="relative z-10 flex items-center justify-between bg-[var(--bg-card)] px-5 pt-[max(1.1rem,env(safe-area-inset-top))] pb-4 text-[var(--fg-card)]"
               >
-                <span className="text-xs font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
+                <span className="text-base font-bold tracking-tight">
                   Vault Explorer
                 </span>
                 <button
                   type="button"
                   onClick={() => setMobileDrawerOpen(false)}
                   aria-label="Close vault drawer"
-                  className="rounded p-1 text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl transition-opacity hover:opacity-80"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
               <div className="min-h-0 flex-1">
@@ -287,9 +301,10 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
         )}
 
         {mobileInspectorOpen && (
-          <div className="fixed inset-0 z-40 flex justify-end xl:hidden">
+          <div className="fixed inset-0 z-[60] flex justify-end xl:hidden">
             <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+              data-state="open"
+              className="drawer-overlay fixed inset-0 bg-black/60 backdrop-blur-xs"
               onClick={() => setMobileInspectorOpen(false)}
               aria-hidden="true"
             />
@@ -297,25 +312,26 @@ export function KnowledgebaseShell({ entries }: KnowledgebaseShellProps) {
               role="dialog"
               aria-modal="true"
               aria-label="Document inspector drawer"
-              className="relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-[var(--bg-surface)] shadow-2xl"
+              data-state="open"
+              className="drawer-content relative z-10 flex h-full w-80 max-w-[85vw] flex-col bg-[var(--bg-app)] text-[var(--fg-app)] shadow-2xl"
             >
               <div
                 style={{ boxShadow: 'var(--header-shadow)' }}
-                className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2.5"
+                className="relative z-10 flex items-center justify-between bg-[var(--bg-card)] px-5 pt-[max(1.1rem,env(safe-area-inset-top))] pb-4 text-[var(--fg-card)]"
               >
-                <span className="text-xs font-semibold tracking-wide text-[var(--text-secondary)] uppercase">
+                <span className="text-base font-bold tracking-tight">
                   Document Inspector
                 </span>
                 <button
                   type="button"
                   onClick={() => setMobileInspectorOpen(false)}
                   aria-label="Close inspector drawer"
-                  className="rounded p-1 text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl transition-opacity hover:opacity-80"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-              <div className="min-h-0 flex-1 overflow-y-auto">
+              <div className="min-h-0 flex-1 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
                 <RightInspector entries={effectiveEntries} />
               </div>
             </div>

@@ -45,7 +45,7 @@ export function RightInspector({ entries }: RightInspectorProps) {
   return (
     <aside
       aria-label="Document inspector"
-      className="flex h-full flex-col gap-4 overflow-y-auto bg-[var(--bg-surface)] p-4"
+      className="flex h-full flex-col gap-4 overflow-y-auto bg-[var(--bg-surface)] p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
       <div>
         <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-[var(--text-muted)] uppercase">

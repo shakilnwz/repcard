@@ -6,6 +6,7 @@ import {
   Download,
   Eye,
   HardDrive,
+  ListTree,
   Network,
   Pencil,
   Pin,
@@ -131,6 +132,8 @@ class RendererErrorBoundary extends Component<
 
 interface DocumentStageProps {
   entries: VaultFileEntry[];
+  onOpenMobileDrawer?: () => void;
+  onOpenMobileInspector?: () => void;
 }
 
 function phaseNoticeForKind(kind: VaultFileEntry['kind']): string {
@@ -150,7 +153,11 @@ function phaseNoticeForKind(kind: VaultFileEntry['kind']): string {
   }
 }
 
-export function DocumentStage({ entries }: DocumentStageProps) {
+export function DocumentStage({
+  entries,
+  onOpenMobileDrawer,
+  onOpenMobileInspector,
+}: DocumentStageProps) {
   const activePath = useAppStore((s) => s.activePath);
   const authSession = useAppStore((s) => s.authSession);
   const vaultSource = useAppStore((s) => s.vaultSource);
@@ -403,8 +410,8 @@ export function DocumentStage({ entries }: DocumentStageProps) {
 
   if (stageView === 'graph') {
     return (
-      <div className="flex h-full flex-col gap-3 p-3 sm:p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 px-3 pt-1 pb-2 sm:gap-3 sm:p-4">
+        <div className="hidden flex-wrap items-center justify-between gap-2 lg:flex">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -420,7 +427,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             </span>
           </div>
         </div>
-        <div className="min-h-[420px] flex-1">
+        <div className="min-h-0 flex-1">
           <RendererErrorBoundary resetKey="global-graph">
             <Suspense
               fallback={
@@ -439,8 +446,8 @@ export function DocumentStage({ entries }: DocumentStageProps) {
 
   if (stageView === 'radar') {
     return (
-      <div className="flex h-full flex-col gap-3 p-3 sm:p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 px-3 pt-1 pb-2 sm:gap-3 sm:p-4">
+        <div className="hidden flex-wrap items-center justify-between gap-2 lg:flex">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -456,7 +463,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             </span>
           </div>
         </div>
-        <div className="min-h-[460px] flex-1">
+        <div className="min-h-0 flex-1">
           <RendererErrorBoundary resetKey="radar-workspace">
             <Suspense
               fallback={
@@ -474,7 +481,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
   }
 
   if (!selectedEntry) {
-    return <VaultHome entries={entries} />;
+    return <VaultHome entries={entries} onOpenMobileDrawer={onOpenMobileDrawer} />;
   }
 
   const isCanvasLive =
@@ -491,10 +498,10 @@ export function DocumentStage({ entries }: DocumentStageProps) {
     <div
       className={
         isCanvasLive || isRadarLive
-          ? 'flex h-full flex-col gap-3 p-3 sm:p-4'
+          ? 'flex min-h-0 flex-1 flex-col gap-2 px-3 pt-1 pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:gap-3 sm:p-4'
           : isSplitLive
-            ? 'mx-auto max-w-6xl p-4 sm:p-6 lg:p-8'
-            : 'mx-auto max-w-4xl p-4 sm:p-6 lg:p-8'
+            ? 'mx-auto max-w-6xl px-3 pt-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-6 lg:p-8'
+            : 'mx-auto max-w-4xl px-3 pt-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-6 lg:p-8'
       }
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -505,7 +512,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             disabled={!canGoBack}
             aria-label="Navigate back"
             title="Back ([)"
-            className="rounded-xl bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-40"
+            className="inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-xl bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-40"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </button>
@@ -515,35 +522,35 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             disabled={!canGoForward}
             aria-label="Navigate forward"
             title="Forward (])"
-            className="rounded-xl bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-40"
+            className="inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-xl bg-[var(--bg-surface)] p-1.5 text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] disabled:opacity-40"
           >
             <ArrowRight className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"
             onClick={() => setActivePath(null)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
           >
             <span>Workspace Overview</span>
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-[var(--accent-primary)]/15 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-[var(--accent-primary)] uppercase">
+        <div className="no-scrollbar flex w-full flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:w-auto sm:flex-wrap sm:overflow-visible sm:pb-0">
+          <span className="shrink-0 rounded-full bg-[var(--accent-primary)]/15 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-[var(--accent-primary)] uppercase">
             {selectedEntry.kind}
           </span>
-          <span className="rounded-full bg-[var(--bg-elevated)] px-2.5 py-0.5 text-[11px] tabular-nums text-[var(--text-secondary)]">
+          <span className="shrink-0 rounded-full bg-[var(--bg-elevated)] px-2.5 py-0.5 text-[11px] tabular-nums text-[var(--text-secondary)]">
             {formatBytes(selectedEntry.size)}
           </span>
           {typeof selectedEntry.taskTotal === 'number' &&
             selectedEntry.taskTotal > 0 && (
-              <span className="rounded-full bg-[var(--bg-hover)] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[var(--accent-highlight)]">
+              <span className="shrink-0 rounded-full bg-[var(--bg-hover)] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[var(--accent-highlight)]">
                 {selectedEntry.taskDone ?? 0} / {selectedEntry.taskTotal} tasks
               </span>
             )}
           {vaultSource !== 'preview' && (
             <span
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+              className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
                 selectedEntry.isCached || textContent !== null
                   ? 'bg-[var(--bg-hover)] text-[var(--accent-primary)]'
                   : 'bg-amber-500/15 text-amber-300'
@@ -562,7 +569,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                   setConflictModalOpen(true);
                 }
               }}
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+              className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
                 activeOutbox.status === 'conflict'
                   ? 'bg-rose-500/20 text-rose-300 underline'
                   : 'bg-amber-500/20 text-amber-300'
@@ -575,7 +582,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             <div
               role="group"
               aria-label="Radar JSON view mode"
-              className="inline-flex rounded-xl bg-[var(--bg-surface)] p-0.5 text-[11px] shadow-xs"
+              className="inline-flex shrink-0 rounded-xl bg-[var(--bg-surface)] p-0.5 text-[11px] shadow-xs"
             >
               <button
                 type="button"
@@ -663,10 +670,10 @@ export function DocumentStage({ entries }: DocumentStageProps) {
           </RendererErrorBoundary>
         </div>
       ) : (
-        <div className="mt-4 rounded-3xl bg-[var(--bg-surface)] p-5 shadow-md sm:p-6">
+        <div className="mt-3 rounded-2xl bg-[var(--bg-surface)] p-4 shadow-md sm:mt-4 sm:rounded-3xl sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3 pb-4">
             <div className="min-w-0">
-              <h1 className="break-all text-xl font-bold text-[var(--text-primary)] sm:text-2xl">
+              <h1 className="break-words text-xl font-bold text-[var(--text-primary)] sm:text-2xl">
                 {selectedEntry.name}
               </h1>
               <p className="mt-1 break-all font-mono text-xs text-[var(--text-muted)]">
@@ -675,6 +682,17 @@ export function DocumentStage({ entries }: DocumentStageProps) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              {selectedEntry.kind === 'markdown' && onOpenMobileInspector && (
+                <button
+                  type="button"
+                  onClick={onOpenMobileInspector}
+                  className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] xl:hidden"
+                >
+                  <ListTree className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
+                  <span>Outline</span>
+                </button>
+              )}
+
               {vaultSource !== 'preview' && (
                 <button
                   type="button"
@@ -706,7 +724,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                     type="button"
                     onClick={() => setEditorMode('read')}
                     aria-pressed={editorMode === 'read'}
-                    className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-medium transition-colors ${
                       editorMode === 'read'
                         ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -719,7 +737,7 @@ export function DocumentStage({ entries }: DocumentStageProps) {
                     type="button"
                     onClick={() => setEditorMode('edit')}
                     aria-pressed={editorMode === 'edit'}
-                    className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-medium transition-colors ${
                       editorMode === 'edit'
                         ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)]'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'

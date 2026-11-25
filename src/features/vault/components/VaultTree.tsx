@@ -61,7 +61,7 @@ function TreeBranch({
                 type="button"
                 onClick={() => onToggleFolder(node.path)}
                 style={{ paddingLeft: `${depth * 12 + 8}px` }}
-                className="flex w-full items-center gap-2 rounded-md py-1.5 pr-2 text-left text-sm transition-colors hover:bg-[var(--bg-hover)]"
+                className="flex w-full items-center gap-2 rounded-md py-2.5 lg:py-1.5 pr-2 text-left text-sm transition-colors hover:bg-[var(--bg-hover)]"
               >
                 {isOpen ? (
                   <FolderOpen className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
@@ -98,7 +98,7 @@ function TreeBranch({
               onClick={() => onSelectFile(node.path)}
               title={node.path}
               style={{ paddingLeft: `${depth * 12 + 8}px` }}
-              className={`flex w-full items-center gap-2 rounded-xl py-1.5 pr-2 text-left text-sm transition-colors ${
+              className={`flex w-full items-center gap-2 rounded-xl py-2.5 lg:py-1.5 pr-2 text-left text-sm transition-colors ${
                 isActive
                   ? 'bg-[var(--button-primary-bg)] font-bold text-[var(--button-primary-fg)] shadow-xs'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'

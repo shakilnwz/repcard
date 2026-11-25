@@ -113,6 +113,7 @@ export function RadarWorkspace({
   const [notice, setNotice] = useState<string | null>(null);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'chart' | 'directory'>('chart');
 
   useEffect(() => {
     setEmbeddedDoc(initialDocument ?? null);
@@ -533,9 +534,9 @@ export function RadarWorkspace({
       }`}
     >
       {/* Top Picker & Studio Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs shadow-sm">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 font-bold text-[var(--text-primary)]">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-surface)] px-3 py-2 text-xs shadow-sm sm:px-3.5 sm:py-2.5">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <div className="hidden items-center gap-1.5 font-bold text-[var(--text-primary)] sm:flex">
             <RadarIcon className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
             <span className="truncate">{activeDoc.title}</span>
           </div>
@@ -546,13 +547,14 @@ export function RadarWorkspace({
             </span>
           )}
 
-          {!embedded && (
-            <div className="flex items-center gap-1.5">
+          {!embedded ? (
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:flex-initial">
+              <RadarIcon className="h-4 w-4 shrink-0 text-[var(--accent-primary)] sm:hidden" />
               <select
                 aria-label="Select radar JSON dataset"
                 value={activeSource.id}
                 onChange={(e) => setActiveId(e.target.value)}
-                className="max-w-[230px] rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 text-xs font-medium text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+                className="min-w-0 flex-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 text-sm font-medium text-[var(--text-primary)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] sm:max-w-[230px] sm:flex-initial sm:text-xs"
               >
                 {allSources.map((src) => (
                   <option key={src.id} value={src.id}>
@@ -586,10 +588,15 @@ export function RadarWorkspace({
                 </button>
               )}
             </div>
+          ) : (
+            <div className="flex items-center gap-1.5 font-bold text-[var(--text-primary)] sm:hidden">
+              <RadarIcon className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
+              <span className="truncate">{activeDoc.title}</span>
+            </div>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           {!embedded && (
             <>
               <input
@@ -603,10 +610,12 @@ export function RadarWorkspace({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                aria-label="Pick .json"
+                title="Pick .json or .canvas"
+                className="inline-flex min-h-[34px] items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] sm:px-3"
               >
                 <Upload className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
-                <span>Pick .json</span>
+                <span className="hidden sm:inline">Pick .json</span>
               </button>
 
               {canvasOptions.length > 0 && vaultSource !== 'preview' && (
@@ -619,7 +628,9 @@ export function RadarWorkspace({
                       ) ?? canvasOptions[0];
                     void handleImportCanvas(preferred.path);
                   }}
-                  className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                  aria-label="Import .canvas"
+                  title="Import .canvas"
+                  className="inline-flex min-h-[34px] items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] sm:px-3"
                 >
                   <FolderInput className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
                   <span className="hidden sm:inline">Import .canvas</span>
@@ -633,10 +644,12 @@ export function RadarWorkspace({
                   setCreatorPath(undefined);
                   setCreatorEditingId(null);
                 }}
-                className="inline-flex items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-3 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                aria-label="Create New"
+                title="Create New Radar"
+                className="inline-flex min-h-[34px] items-center gap-1 rounded-xl bg-[var(--bg-canvas)] px-2.5 py-1.5 font-medium text-[var(--text-secondary)] shadow-xs hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] sm:px-3"
               >
                 <Plus className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
-                <span>Create New</span>
+                <span className="hidden sm:inline">Create New</span>
               </button>
             </>
           )}
@@ -650,10 +663,12 @@ export function RadarWorkspace({
                 activeSource.source === 'local' ? activeSource.id : null,
               );
             }}
-            className="key-depth inline-flex items-center gap-1 rounded-xl bg-[var(--button-primary-bg)] px-3.5 py-1.5 font-bold text-[var(--button-primary-fg)] hover:opacity-90"
+            aria-label="Edit in Studio"
+            title="Edit in Studio"
+            className="key-depth inline-flex min-h-[34px] items-center gap-1 rounded-xl bg-[var(--button-primary-bg)] px-2.5 py-1.5 font-bold text-[var(--button-primary-fg)] hover:opacity-90 sm:px-3.5"
           >
             <Pencil className="h-3.5 w-3.5" />
-            <span>Edit in Studio</span>
+            <span className="hidden sm:inline">Edit in Studio</span>
           </button>
         </div>
       </div>
@@ -691,8 +706,8 @@ export function RadarWorkspace({
       )}
 
       {/* Search & Step Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs shadow-sm">
-        <div className="relative min-w-[190px] flex-1 max-w-sm">
+      <div className="flex flex-col gap-2 rounded-2xl bg-[var(--bg-surface)] px-3 py-2 text-xs shadow-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-3.5 sm:py-2.5">
+        <div className="relative w-full sm:min-w-[190px] sm:max-w-sm sm:flex-1">
           <Search className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-muted)]" />
           <input
             type="search"
@@ -700,7 +715,7 @@ export function RadarWorkspace({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter blips, tags, descriptions..."
             aria-label="Filter radar blips"
-            className="w-full rounded-xl bg-[var(--bg-canvas)] py-1.5 pr-7 pl-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+            className="w-full rounded-xl bg-[var(--bg-canvas)] py-1.5 pr-7 pl-8 text-base sm:text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] shadow-xs focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
           />
           {searchQuery && (
             <button
@@ -714,7 +729,7 @@ export function RadarWorkspace({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="no-scrollbar flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:flex-wrap sm:overflow-visible sm:pb-0">
           {activeDoc.steps.map((step) => {
             const count = (activeDoc.items[step.id] ?? []).length;
             const active = effectiveActiveSteps.has(step.id);
@@ -728,7 +743,7 @@ export function RadarWorkspace({
                   color: active ? step.color : 'var(--text-muted)',
                   backgroundColor: active ? `${step.color}22` : 'var(--bg-canvas)',
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase shadow-xs transition-all"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase shadow-xs transition-all"
               >
                 <span
                   className="h-2 w-2 rounded-full"
@@ -744,7 +759,7 @@ export function RadarWorkspace({
             <button
               type="button"
               onClick={() => setActiveTag(null)}
-              className="inline-flex items-center gap-1 rounded-full bg-[var(--bg-hover)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent-primary)]"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--bg-hover)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--accent-primary)]"
             >
               <span>#{activeTag}</span>
               <X className="h-3 w-3" />
@@ -759,7 +774,7 @@ export function RadarWorkspace({
                 setActiveTag(null);
                 setSearchQuery('');
               }}
-              className="text-[11px] font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              className="shrink-0 px-1 text-[11px] font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             >
               Reset
             </button>
@@ -767,9 +782,48 @@ export function RadarWorkspace({
         </div>
       </div>
 
+      {/* Cards-style Mobile Chart / Directory Switcher */}
+      <div
+        role="group"
+        aria-label="Radar mobile view"
+        className="grid grid-cols-2 rounded-2xl bg-[var(--bg-card)] p-1 text-xs text-[var(--fg-card)] shadow-sm lg:hidden"
+      >
+        <button
+          type="button"
+          onClick={() => setMobileTab('chart')}
+          aria-pressed={mobileTab === 'chart'}
+          className={`flex items-center justify-center gap-1.5 rounded-xl py-1.5 px-3 font-bold transition-all ${
+            mobileTab === 'chart'
+              ? 'bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs'
+              : 'text-[var(--fg-card)] opacity-80 hover:opacity-100'
+          }`}
+        >
+          <span>Radar Chart</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('directory')}
+          aria-pressed={mobileTab === 'directory'}
+          className={`flex items-center justify-center gap-1.5 rounded-xl py-1.5 px-3 font-bold transition-all ${
+            mobileTab === 'directory'
+              ? 'bg-[var(--fg-card)] text-[var(--bg-card)] shadow-xs'
+              : 'text-[var(--fg-card)] opacity-80 hover:opacity-100'
+          }`}
+        >
+          <span>Directory</span>
+          <span className="rounded-full bg-[var(--fg-card)] px-1.5 py-0.2 text-[10px] font-bold text-[var(--bg-card)] tabular-nums">
+            {directoryBlips.length}
+          </span>
+        </button>
+      </div>
+
       {/* Main Chart + Synchronized Directory & Detail Inspector */}
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-12">
-        <div className="min-h-[460px] lg:col-span-8">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-12">
+        <div
+          className={`relative min-h-0 flex-1 flex-col lg:col-span-8 lg:min-h-[460px] ${
+            mobileTab === 'chart' ? 'flex' : 'hidden lg:flex'
+          }`}
+        >
           <RadarChart
             doc={activeDoc}
             layout={layout}
@@ -794,10 +848,94 @@ export function RadarWorkspace({
                 : undefined
             }
           />
+
+          {/* Mobile Cards-style Selected Blip Sheet */}
+          {selectedBlip && (
+            <div
+              data-testid="radar-mobile-detail-sheet"
+              className="absolute right-2 bottom-9 left-2 z-30 space-y-2 rounded-2xl bg-[var(--bg-card)] p-3.5 text-xs text-[var(--fg-card)] shadow-[var(--card-shadow)] lg:hidden"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-full bg-[var(--fg-card)] px-2 py-0.5 text-[10px] font-bold text-[var(--bg-card)] uppercase">
+                      #{selectedBlip.number} · {selectedBlip.step.label}
+                    </span>
+                    {selectedBlip.quadrant && (
+                      <span className="rounded-full bg-[var(--fg-card)]/15 px-2 py-0.5 text-[10px] font-semibold">
+                        {selectedBlip.quadrant.name}
+                      </span>
+                    )}
+                    {selectedBlip.item.movement &&
+                      selectedBlip.item.movement !== 'same' && (
+                        <span className="rounded-full bg-[var(--fg-card)]/15 px-2 py-0.5 text-[10px] font-semibold">
+                          {MOVEMENT_LABEL[selectedBlip.item.movement]}
+                        </span>
+                      )}
+                  </div>
+                  <h3 className="mt-1 text-sm font-bold">
+                    {selectedBlip.item.title}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedItemId(null)}
+                  aria-label="Dismiss selected blip"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl opacity-75 hover:opacity-100"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {selectedBlip.item.description && (
+                <p className="line-clamp-3 leading-relaxed opacity-85">
+                  {selectedBlip.item.description}
+                </p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2">
+                {canDirectRerate && (
+                  <select
+                    value={selectedBlip.step.id}
+                    aria-label="Re-rate blip ring"
+                    onChange={(e) =>
+                      void handleMoveActiveItem(
+                        selectedBlip.item.id,
+                        selectedBlip.step.id,
+                        e.target.value,
+                      )
+                    }
+                    className="rounded-xl bg-[var(--fg-card)] px-2.5 py-1 text-[11px] font-bold text-[var(--bg-card)] focus:outline-none"
+                  >
+                    {activeDoc.steps.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {selectedBlip.item.link && (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenLink(selectedBlip.item.link!)}
+                    className="inline-flex items-center gap-1 rounded-xl bg-[var(--fg-card)] px-3 py-1 text-[11px] font-bold text-[var(--bg-card)] hover:opacity-90"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    <span className="max-w-44 truncate">Open {selectedBlip.item.link}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Synchronized Directory & Item Detail Panel */}
-        <aside className="flex min-h-[340px] flex-col overflow-hidden rounded-2xl bg-[var(--bg-surface)] shadow-md lg:col-span-4">
+        <aside
+          className={`min-h-0 flex-1 flex-col overflow-hidden rounded-2xl bg-[var(--bg-surface)] shadow-md lg:col-span-4 lg:min-h-[340px] ${
+            mobileTab === 'directory' ? 'flex' : 'hidden lg:flex'
+          }`}
+        >
           <div
             style={{ boxShadow: 'var(--header-shadow)' }}
             className="relative z-10 flex items-center justify-between bg-[var(--bg-surface)] px-3.5 py-2.5 text-xs"

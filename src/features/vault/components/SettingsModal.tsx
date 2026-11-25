@@ -172,7 +172,7 @@ export function SettingsModal() {
       role="dialog"
       aria-modal="true"
       aria-label="Application Settings"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xs sm:p-4"
     >
       <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-[var(--bg-surface)] shadow-2xl">
         <div
