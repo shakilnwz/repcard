@@ -119,7 +119,7 @@ ugly it is.
 
 ## Writing
 
-Start from [`report.md`](../templates/report.md) or [`audit.md`](../templates/audit.md).
+Start from [`report.md`](../../.ai/templates/report.md) or [`audit.md`](../../.ai/templates/audit.md).
 
 - The answer before the evidence: the opening paragraph says what was found, how much of it matters,
   and what to do first.
@@ -196,7 +196,7 @@ the owner's finding rather than re-describing it.
 | Documentation drift | [`documentation-drift.md`](../../.ai/prompts/audits/documentation-drift.md) | Report | G3 |
 | Phase gate | [`phase-gate.md`](../../.ai/prompts/audits/phase-gate.md) | Updates `docs/audit/readiness.md` | Every gate |
 
-A new audit type is written from [`audit-prompt.md`](../templates/audit-prompt.md), added to this
+A new audit type is written from [`audit-prompt.md`](../../.ai/templates/audit-prompt.md), added to this
 table and to the ownership table, and to a gate in `lifecycle.md` if it is required.
 
 ---

@@ -7,7 +7,7 @@ that makes a shipped feature silently not work. The audit hunts for consequences
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). Nothing is
 exercised end to end unless the caller allows it; neither lint nor the suite is run unless named.
 **Output:** `docs/audit/bugs.md` (or `docs/audit/bugs-<app>.md` in a monorepo) from
-[`audit.md`](../../../docs/templates/audit.md). On a first run, create it; on a re-run, update rows
+[`audit.md`](../../templates/audit.md). On a first run, create it; on a re-run, update rows
 in place and add new findings with new IDs.
 **Inputs:** the modules or subsystem in scope (default: everything), and an incident to start from
 (default: none).

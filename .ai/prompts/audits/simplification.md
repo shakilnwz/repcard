@@ -9,7 +9,7 @@ needs. Every finding names the simpler form.
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). Nothing is
 refactored by the audit.
 **Output:** `docs/reports/YYYY-MM-DD-simplification.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** the modules in scope (default: all), and the latest complexity report to start from
 (default: the newest in `docs/reports/`).
 

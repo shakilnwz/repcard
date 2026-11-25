@@ -9,7 +9,7 @@ that diverge between apps for the same thing.
 type checker may be run, writing nothing; a browser may be driven against a local environment only
 if the caller allows it.
 **Output:** `docs/reports/YYYY-MM-DD-frontend.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** SPAs and themes in scope (default: all), whether a browser pass is allowed (default: no).
 
 ## Before you start

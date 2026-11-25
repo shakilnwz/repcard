@@ -8,7 +8,7 @@ behaviour nobody specified, reviewed, or tests.
 
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). The tests may be
 run once, filtered by requirement tag, if the caller allows it.
-**Output:** `docs/audit/spec-conformance.md` from [`audit.md`](../../../docs/templates/audit.md),
+**Output:** `docs/audit/spec-conformance.md` from [`audit.md`](../../templates/audit.md),
 updated in place. A run scoped to one spec (the Verify task before Implemented) updates that spec's
 rows only.
 **Inputs:** the specs in scope (default: every spec at Approved or later), and whether to run the

@@ -8,7 +8,7 @@ degrades silently, backups never restored, nothing alerting when it breaks.
 not touched; a claim about a deployed environment is written as "not checked — look for <sign>"
 unless the caller provides read access.
 **Output:** `docs/reports/YYYY-MM-DD-operations.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** environments in scope (default: the repository's description of all of them).
 
 ## Before you start

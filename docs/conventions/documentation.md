@@ -33,11 +33,12 @@ more than one goes in the root. A directory exists only when it has content.
 | `features/` | Executable acceptance scenarios, when a Gherkin runner is used | Normative | `NNNN-<capability>.feature`, `flows/<journey>.feature` | `feature.feature` |
 | `.ai/prompts/` | Runnable tasks addressed to agents | Instruction | `<task>.md` | `audit-prompt.md` for audits |
 | `.ai/rules/` | Path-scoped rules, decisions and traps — the one source every agent's copy is generated from | Normative for its paths | `<area>.md` | Boost's `record-rule`, or by hand |
+| `.ai/templates/` | Document templates, one per document type | Tooling | `<type>.md` | — |
 | `.ai/agents`, `.ai/bin/` | The agents in use; the `sync-rules` and `check` scripts | Tooling | — | — |
 | `.ai/specforge.lock` | What the SpecForge installer installed: version, answers, a checksum per file | Generated — never edited; committed | — | Written by the installer |
 | `.claude/rules/`, `.cursor/rules/`, `.github/instructions/`, `.windsurf/rules/`, `.agents/rules/`, `.kiro/steering/` | Each agent's native copy of `.ai/rules/`, for the agents in `.ai/agents` | Generated — never edited | `ai-<area>.*` | Written by `.ai/bin/sync-rules` |
 
-`docs/templates/` holds one template per document type and is the only place templates live. Start
+`.ai/templates/` holds one template per document type and is the only place templates live. Start
 every document from its template; a section the template has and the document does not need is
 deleted, not left empty.
 

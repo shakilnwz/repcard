@@ -8,7 +8,7 @@ exposure in CI. A dependency is code the project runs and did not write.
 audit and outdated commands (see *Stack notes*) may be run — they read the manifests and lockfiles
 and write nothing. Nothing is installed, upgraded or removed.
 **Output:** `docs/reports/YYYY-MM-DD-dependencies.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** ecosystems in scope (default: every one present — Composer, NuGet, npm/pnpm — plus
 container base images and CI actions).
 

@@ -10,7 +10,7 @@ built.
 create, delete or rewrite any file, migration, model or database structure. Do **not** execute
 migrations, seeders or any statement that writes. `SELECT` and schema introspection only.
 **Output:** `docs/reports/YYYY-MM-DD-database-schema.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** the apps and connections in scope (default: all), and a prior schema report to diff
 against (default: the latest in `docs/reports/`).
 

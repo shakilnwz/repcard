@@ -12,7 +12,7 @@ JavaScript, run with `uvx lizard` or `pipx run lizard`), the stack's analyzer in
 small AST walker written in a scratch directory with the project's own parser. Never install a
 dependency into the project.
 **Output:** `docs/reports/YYYY-MM-DD-complexity-and-size.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** languages in scope (default: every server and frontend language in the repository),
 thresholds (default below).
 

@@ -7,7 +7,7 @@ same rule. Every discrepancy is a place where a fix lands once and is missing tw
 
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md).
 **Output:** `docs/reports/YYYY-MM-DD-consistency.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** what to compare (default: every module against its siblings, every app against the
 others, every surface against the others, client against server).
 

@@ -7,7 +7,7 @@ exists. Every line kept is a line read, upgraded and audited forever.
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). Nothing is deleted
 by the audit.
 **Output:** `docs/reports/YYYY-MM-DD-dead-code-and-weight.md` from
-[`report.md`](../../../docs/templates/report.md). In a monorepo, one report per app plus one for
+[`report.md`](../../templates/report.md). In a monorepo, one report per app plus one for
 what crosses apps and shared packages.
 **Inputs:** the apps and packages in scope (default: all).
 

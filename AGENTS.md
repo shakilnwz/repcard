@@ -124,7 +124,7 @@ An audit is read-only. It changes nothing but its own document: no code, no migr
 database write, no dependency change. Run one from its prompt in
 [`.ai/prompts/audits/`](.ai/prompts/audits/), under the protocol in
 [`auditing.md`](docs/conventions/auditing.md); write a new audit type from
-[`docs/templates/audit-prompt.md`](docs/templates/audit-prompt.md).
+[`.ai/templates/audit-prompt.md`](.ai/templates/audit-prompt.md).
 
 <!-- specforge:end -->
 
@@ -150,13 +150,13 @@ them:
 
 - **docs/**: whole-project documentation, laid out by
   [`documentation.md`](docs/conventions/documentation.md) — specs, ADRs, conventions and stack
-  profiles, architecture, reference (the glossary among it), workflows, plans, audits, reports —
-  plus `docs/templates/`, one template per document type and the only templates in the repo
+  profiles, architecture, reference (the glossary among it), workflows, plans, audits, reports
 - **features/**: executable acceptance scenarios, tagged with requirement IDs, when a Gherkin
   runner is used
 - **.ai/**: material addressed to AI agents rather than people — `rules/` (path-scoped, indexed by
-  `rules/index.md`), `prompts/` (runnable tasks, the audits among them), `agents` (the agents in
-  use) and `bin/` (`sync-rules`, `check`). Laravel Boost reads `.ai/{guidelines,skills,rules}`
+  `rules/index.md`), `prompts/` (runnable tasks, the audits among them), `templates/` (one
+  template per document type and the only templates in the repo), `agents` (the agents in use)
+  and `bin/` (`sync-rules`, `check`). Laravel Boost reads `.ai/{guidelines,skills,rules}`
 
 ## Common Commands
 

@@ -7,7 +7,7 @@ into wrong code; a stale `AGENTS.md` misleads every agent in every session.
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). Drift is
 reported, not fixed.
 **Output:** `docs/reports/YYYY-MM-DD-documentation-drift.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** the document trees in scope (default: all but `reports/`).
 
 ## Before you start
@@ -20,7 +20,7 @@ reported, not fixed.
 
 - **Default:** `AGENTS.md`, `CLAUDE.md`, `README.md`; `docs/{adr,architecture,audit,conventions,
   plans,reference,workflows}`, and the same under `apps/*/docs/`; `.ai/rules/`, `.ai/prompts/`;
-  `docs/templates/`; pull-request templates; the `Related:` links and status lines of `docs/specs/`.
+  `.ai/templates/`; pull-request templates; the `Related:` links and status lines of `docs/specs/`.
 - **Excluded:** `reports/` — point-in-time by rule, never drift. What specs and `features/` *require*
   — the spec-conformance audit owns whether code matches them; a spec the code disagrees with is not
   drift but a divergence or a spec change.

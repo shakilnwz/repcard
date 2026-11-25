@@ -31,8 +31,8 @@ docs/specs/NNNN-<capability>/
 └── contracts/    machine-readable contracts the capability exposes or consumes (OpenAPI, JSON Schema)
 ```
 
-Each file starts from its template: [`spec.md`](../templates/spec.md),
-[`design.md`](../templates/design.md), [`tasks.md`](../templates/tasks.md).
+Each file starts from its template: [`spec.md`](../../.ai/templates/spec.md),
+[`design.md`](../../.ai/templates/design.md), [`tasks.md`](../../.ai/templates/tasks.md).
 
 - **A spec is capability-sized:** something an actor can do, or a capability the system has,
   deliverable in days to a couple of weeks. A spec past roughly fifteen requirements is two specs.

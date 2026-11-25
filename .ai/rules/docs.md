@@ -13,7 +13,7 @@ paths:
 and how it ages.
 
 ## Start from the template
-Every document starts from its template in `docs/templates/`. Delete a section the document does
+Every document starts from its template in `.ai/templates/`. Delete a section the document does
 not need; never leave one empty.
 
 ## Know the kind before editing

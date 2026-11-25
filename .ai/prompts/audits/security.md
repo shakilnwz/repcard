@@ -6,7 +6,7 @@ bug audit asks "what goes wrong", this audit asks "what can be made to go wrong,
 
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). No exploit is run
 against any environment; a trigger is demonstrated by reading the code path, not by attacking.
-**Output:** `docs/audit/security.md` from [`audit.md`](../../../docs/templates/audit.md), updated in
+**Output:** `docs/audit/security.md` from [`audit.md`](../../templates/audit.md), updated in
 place on re-runs. Findings must not include working exploit payloads — describe the class and the
 path.
 **Inputs:** the surfaces in scope (default: all), and whether dependency advisories are included

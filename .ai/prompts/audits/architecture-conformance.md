@@ -7,7 +7,7 @@ re-declared, or a code-shape rule is not followed. Drift is cheap to fix while i
 expensive once it is the pattern new code copies.
 
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md).
-**Output:** `docs/audit/architecture.md` from [`audit.md`](../../../docs/templates/audit.md),
+**Output:** `docs/audit/architecture.md` from [`audit.md`](../../templates/audit.md),
 updated in place on re-runs. A deep dive into one rule (`Get*` Actions, query placement, Command
 purity, hand-rolled payloads, enum predicates) may instead be filed as its own report and linked.
 **Inputs:** the rules in scope (default: all of `architecture.md` and `coding.md` except what other

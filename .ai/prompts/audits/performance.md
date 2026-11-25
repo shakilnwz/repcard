@@ -7,7 +7,7 @@ heavy bundles. Rank by the path's importance times its growth, not by how ugly t
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). `EXPLAIN` on
 development databases is allowed; load tests are not run unless the caller names an environment.
 **Output:** `docs/reports/YYYY-MM-DD-performance.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** the apps in scope (default: all), whether frontend bundles are measured (default: yes,
 from the latest build output, with its date stated).
 

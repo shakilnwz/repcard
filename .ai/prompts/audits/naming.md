@@ -6,7 +6,7 @@ documentation while they are right and the most expensive thing to change once t
 database column, an API field and a URL. A misleading name is a bug that has not fired yet.
 
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md).
-**Output:** `docs/reports/YYYY-MM-DD-naming.md` from [`report.md`](../../../docs/templates/report.md).
+**Output:** `docs/reports/YYYY-MM-DD-naming.md` from [`report.md`](../../templates/report.md).
 **Inputs:** the kinds of name in scope (default: all below), the apps (default: all).
 
 ## Before you start

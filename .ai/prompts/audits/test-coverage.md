@@ -9,7 +9,7 @@ itself can be trusted.
 run once, with coverage if a driver is present, and their output is evidence; nothing is written into
 the tree. If a suite cannot run, say so and work from reading alone.
 **Output:** `docs/reports/YYYY-MM-DD-test-coverage.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** apps in scope (default: all), whether to run the suites (default: yes, once).
 
 ## Before you start

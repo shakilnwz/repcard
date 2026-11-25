@@ -9,7 +9,7 @@ tooling enforces any of it, against the modularity level ADR-0002 declares.
 **Mode:** Read-only, under [`auditing.md`](../../../docs/conventions/auditing.md). Graph tools may be
 run from outside the tree, writing only to a scratch directory.
 **Output:** `docs/reports/YYYY-MM-DD-modularity.md` from
-[`report.md`](../../../docs/templates/report.md).
+[`report.md`](../../templates/report.md).
 **Inputs:** the apps in scope (default: every app ADR-0002 declares modular). A non-modular app is
 out of scope; say so and stop.
 

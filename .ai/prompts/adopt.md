@@ -23,7 +23,7 @@ from, and what the code cannot settle is asked.
 
 1. Confirm the rules are present: `AGENTS.md` (the project's own keeps the rules' block between
    `<!-- specforge:begin -->` and `<!-- specforge:end -->`), `CLAUDE.md`, `.ai/rules/`, `.ai/prompts/`, `.ai/agents`, `.ai/bin/`, `docs/conventions/`,
-   `docs/templates/`, `docs/audit/readiness.md`.
+   `.ai/templates/`, `docs/audit/readiness.md`.
 2. List every file the installation kept from the project instead of the rules' version — a
    `*.specforge-incoming` file beside it, or the list the manual copy printed. Each is reconciled
    below, never silently.
@@ -74,11 +74,11 @@ One round, each question carrying the survey's finding as the proposed answer:
 ## Steps
 
 1. Write **ADR-0001** (stacks) and **ADR-0002** (shape, surfaces, modules, modularity level) from
-   [`adr.md`](../../docs/templates/adr.md), recording what exists. Once the owner confirms, their
+   [`adr.md`](../templates/adr.md), recording what exists. Once the owner confirms, their
    status reads `Accepted (retroactive, YYYY-MM-DD)`. A decision the owner wants changed is a further
    ADR, status Proposed; an exception to a convention from answer 5 is another.
 2. Write the context page `docs/architecture/context.md` from
-   [`architecture.md`](../../docs/templates/architecture.md): people, external systems, and the
+   [`architecture.md`](../templates/architecture.md): people, external systems, and the
    capabilities in scope, each marked as built or to be built.
 3. Write `docs/reference/glossary.md` from the vocabulary answers. A rename the canonical terms imply
    is not made here; it becomes a naming-audit finding.
@@ -99,7 +99,7 @@ One round, each question carrying the survey's finding as the proposed answer:
    [`auditing.md`](../../docs/conventions/auditing.md) and filed as it says: architecture
    conformance, modularity (when modular), security, test coverage, dependencies, and spec
    conformance in register mode — its reverse sweep writes every existing behaviour as a row of
-   `docs/audit/legacy-capabilities.md` (from [`audit.md`](../../docs/templates/audit.md)): the
+   `docs/audit/legacy-capabilities.md` (from [`audit.md`](../templates/audit.md)): the
    capability, its entry points, the tests that cover it today, status `Unspecified`.
 8. **Baselines:** for each mechanical check the profiles call for that the existing code fails, count
    the violations and propose the baseline mechanism from `testing.md` → *Baselines*. Write none the
