@@ -231,35 +231,38 @@ export function VaultHome({ entries, onOpenMobileDrawer }: VaultHomeProps) {
 
       <RoadmapDashboard entries={entries} />
 
-      <section>
+      <section className="min-w-0">
         <h2 className="mb-3 text-xs font-bold tracking-wider text-[var(--fg-app)] opacity-80 uppercase">
           Quick Jump — Vault Highlights
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {FEATURED_ITEMS.map((item) => (
             <button
               key={item.path}
               type="button"
               onClick={() => openFeatured(item.path)}
-              className="flex items-start justify-between gap-3 rounded-2xl bg-[var(--bg-surface)] p-4 text-left shadow-sm transition-colors hover:bg-[var(--bg-hover)]"
+              className="flex w-full min-w-0 flex-col gap-1.5 overflow-hidden rounded-2xl bg-[var(--bg-surface)] p-4 text-left shadow-sm transition-colors hover:bg-[var(--bg-hover)]"
             >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
+              <div className="flex w-full min-w-0 items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
                   <FileText className="h-4 w-4 shrink-0 text-[var(--accent-primary)]" />
                   <span className="truncate font-semibold text-[var(--text-primary)]">
                     {item.title}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-[var(--text-muted)]">
-                  {item.subtitle}
-                </p>
-                <p className="mt-2 truncate font-mono text-[11px] text-[var(--accent-secondary)]">
-                  {item.path}
-                </p>
+                <span className="shrink-0 rounded-md bg-[var(--bg-elevated)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)]">
+                  {item.badge}
+                </span>
               </div>
-              <span className="shrink-0 rounded-md bg-[var(--bg-elevated)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-secondary)]">
-                {item.badge}
-              </span>
+              <p className="w-full break-words text-xs text-[var(--text-muted)]">
+                {item.subtitle}
+              </p>
+              <p
+                title={item.path}
+                className="mt-0.5 w-full truncate font-mono text-[11px] text-[var(--accent-secondary)]"
+              >
+                {item.path}
+              </p>
             </button>
           ))}
         </div>
